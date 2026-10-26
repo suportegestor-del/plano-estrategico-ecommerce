@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planejamento Estratégico para E-commerce</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <h1>Plano da sua loja em 6 passos</h1>
+    <p>Monte seu planejamento estratégico de e-commerce de forma prática e guiada.</p>
+    <div class="header-actions">
+      <button id="start-own" class="btn btn-primary">Começar com meu negócio</button>
+      <button id="load-example" class="btn btn-secondary">Ver exemplo da Casa Aurora</button>
+      <button id="export-backup" class="btn btn-secondary">Exportar backup</button>
+      <label class="btn btn-secondary" for="import-backup">Importar backup</label>
+      <input type="file" id="import-backup" accept="application/json" hidden>
+    </div>
+  </header>
+
+  <nav class="stepper" aria-label="Progresso do plano">
+    <button class="step active" data-step="1">1. SWOT</button>
+    <button class="step" data-step="2">2. Cruzado</button>
+    <button class="step" data-step="3">3. Pilares</button>
+    <button class="step" data-step="4">4. SMART</button>
+    <button class="step" data-step="5">5. Kanban</button>
+    <button class="step" data-step="6">6. Roadmap</button>
+  </nav>
+
+  <main class="container">
+    <section class="module active" id="module-1">
+      <h2>1. Diagnóstico SWOT</h2>
+      <p class="module-intro"><strong>Objetivo:</strong> mapear o cenário interno e externo da sua loja para tomar decisões embasadas.</p>
+      <div class="lesson-box">
+        <strong>Mini-aula:</strong> Força é algo interno positivo (ex.: boa reputação). Fraqueza é interno negativo (ex.: dependência de um fornecedor). Oportunidade é externo positivo (ex.: alta do Pix). Ameaça é externo negativo (ex.: guerra de preços).
+      </div>
+      <div class="swot-header">
+        <h3>Classifique as situações</h3>
+        <p class="swot-subtitle">Organize cada situação na categoria mais adequada</p>
+      </div>
+      <div class="swot-progress" aria-live="polite">
+        <span id="swot-progress-label">0 de 8 situações classificadas</span>
+        <span id="swot-score">0%</span>
+        <div class="swot-progress-track" role="progressbar" aria-label="Progresso do exercício SWOT" aria-valuemin="0" aria-valuemax="8" aria-valuenow="0">
+          <div id="swot-progress-fill" class="swot-progress-fill"></div>
+        </div>
+      </div>
+      <p id="swot-feedback" class="swot-feedback" aria-live="polite">Arraste cada cartão para a área que faz mais sentido para você.</p>
+      <div id="swot-board" class="swot-board">
+        <section class="swot-zone" data-category="Força" aria-label="Área de Forças">
+          <div class="swot-zone-header">
+            <div class="swot-zone-icon forca">🏆</div>
+            <h4>Forças</h4>
+            <span class="swot-zone-count" data-category="Força">0 situação</span>
+          </div>
+          <button type="button" class="swot-zone-target" data-category="Força">Solte aqui ou anexe as situações</button>
+          <div class="swot-zone-cards"></div>
+        </section>
+        <section class="swot-zone" data-category="Fraqueza" aria-label="Área de Fraquezas">
+          <div class="swot-zone-header">
+            <div class="swot-zone-icon fraqueza">🧩</div>
+            <h4>Fraquezas</h4>
+            <span class="swot-zone-count" data-category="Fraqueza">0 situação</span>
+          </div>
+          <button type="button" class="swot-zone-target" data-category="Fraqueza">Solte aqui ou anexe as situações</button>
+          <div class="swot-zone-cards"></div>
+        </section>
+        <section class="swot-zone" data-category="Oportunidade" aria-label="Área de Oportunidades">
+          <div class="swot-zone-header">
+            <div class="swot-zone-icon oportunidade">📈</div>
+            <h4>Oportunidades</h4>
+            <span class="swot-zone-count" data-category="Oportunidade">0 situação</span>
+          </div>
+          <button type="button" class="swot-zone-target" data-category="Oportunidade">Solte aqui ou anexe as situações</button>
+          <div class="swot-zone-cards"></div>
+        </section>
+        <section class="swot-zone" data-category="Ameaça" aria-label="Área de Ameaças">
+          <div class="swot-zone-header">
+            <div class="swot-zone-icon ameaca">🛡️</div>
+            <h4>Ameaças</h4>
+            <span class="swot-zone-count" data-category="Ameaça">0 situação</span>
+          </div>
+          <button type="button" class="swot-zone-target" data-category="Ameaça">Solte aqui ou anexe as situações</button>
+          <div class="swot-zone-cards"></div>
+        </section>
+      </div>
+      <section class="swot-deck" aria-label="Cartões para classificar">
+        <h4>Situações para analisar</h4>
+        <div id="swot-cards" class="cards-grid"></div>
+      </section>
+      <div class="swot-continue">
+        <button id="swot-continue" class="btn btn-primary">Continuar →</button>
+      </div>
+      <h3>Agora escreva os itens da sua loja</h3>
+      <div class="swot-inputs">
+        <div>
+          <label>Forças</label>
+          <textarea id="forces" rows="4" placeholder="O que seus clientes elogiam? Qual sua vantagem?"></textarea>
+        </div>
+        <div>
+          <label>Fraquezas</label>
+          <textarea id="weaknesses" rows="4" placeholder="Onde você perde vendas? O que precisa melhorar?"></textarea>
+        </div>
+        <div>
+          <label>Oportunidades</label>
+          <textarea id="opportunities" rows="4" placeholder="Tendências do mercado, novos canais, sazonalidades..."></textarea>
+        </div>
+        <div>
+          <label>Ameaças</label>
+          <textarea id="threats" rows="4" placeholder="Concorrência, mudanças de plataforma, custos..."></textarea>
+        </div>
+      </div>
+      <div class="module-summary" id="summary-1">
+        <strong>Resultado desta etapa:</strong> uma lista de forças, fraquezas, oportunidades e ameaças que será usada para criar estratégias no próximo passo.
+      </div>
+    </section>
+
+    <section class="module" id="module-2">
+      <h2>2. SWOT Cruzado</h2>
+      <p class="module-intro"><strong>Objetivo:</strong> transformar o diagnóstico em estratégias práticas combinando elementos do SWOT.</p>
+      <div class="lesson-box">
+        <strong>Mini-aula:</strong> O cruzamento mostra como usar o que você tem (forças/fraquezas) diante do cenário externo (oportunidades/ameaças).
+        <ul>
+          <li><strong>FO</strong> (Força + Oportunidade): como usar uma vantagem para aproveitar uma tendência?</li>
+          <li><strong>FA</strong> (Força + Ameaça): como se defender da concorrência usando seus pontos fortes?</li>
+          <li><strong>WO</strong> (Fraqueza + Oportunidade): como melhorar algo interno para não perder uma chance?</li>
+          <li><strong>WT</strong> (Fraqueza + Ameaça): como se proteger de um risco sem depender de pontos fracos?</li>
+        </ul>
+      </div>
+      <p id="cross-feedback" class="swot-feedback" aria-live="polite">Preencha o SWOT no passo anterior para gerar as 4 combinações.</p>
+      <div id="cross-grid" class="cross-grid"></div>
+      <h3>Suas estratégias</h3>
+      <div id="strategies-list" class="items-list"></div>
+      <div class="module-summary" id="summary-2">
+        <strong>Resultado desta etapa:</strong> estratégias claras que serão agrupadas em pilares no próximo passo.
+      </div>
+    </section>
+
+    <section class="module" id="module-3">
+      <h2>3. Pilares Estratégicos</h2>
+      <p class="module-intro"><strong>Objetivo:</strong> organizar as estratégias em grandes temas que guiarão suas metas.</p>
+      <div class="lesson-box">
+        <strong>Mini-aula:</strong> Pilar é um eixo estratégico. Pense nele como uma área de atuação. Exemplos comuns: <em>Operação</em> (processos internos), <em>Crescimento</em> (vendas e marketing), <em>Inovação</em> (novos canais/produtos) e <em>Experiência do Cliente</em> (satisfação e fidelidade).
+        <br><strong>Pergunta orientadora:</strong> qual pilar essa estratégia mais impulsiona?
+      </div>
+      <div class="pillars-board">
+        <div class="pillar" data-pillar="Operação">
+          <h4>Operação</h4>
+          <div class="drop-zone" data-pillar="Operação"></div>
+        </div>
+        <div class="pillar" data-pillar="Crescimento">
+          <h4>Crescimento</h4>
+          <div class="drop-zone" data-pillar="Crescimento"></div>
+        </div>
+        <div class="pillar" data-pillar="Inovação">
+          <h4>Inovação</h4>
+          <div class="drop-zone" data-pillar="Inovação"></div>
+        </div>
+        <div class="pillar" data-pillar="Experiência do Cliente">
+          <h4>Experiência do Cliente</h4>
+          <div class="drop-zone" data-pillar="Experiência do Cliente"></div>
+        </div>
+      </div>
+      <div class="pool">
+        <h4>Estratégias disponíveis</h4>
+        <div id="strategies-pool" class="drop-zone"></div>
+      </div>
+      <div class="module-summary" id="summary-3">
+        <strong>Resultado desta etapa:</strong> estratégias distribuídas por pilares, que darão origem às metas SMART.
+      </div>
+    </section>
+
+    <section class="module" id="module-4">
+      <h2>4. Metas SMART</h2>
+      <p class="module-intro"><strong>Objetivo:</strong> transformar cada pilar em metas claras, mensuráveis e com prazo.</p>
+      <div class="lesson-box">
+        <strong>Mini-aula:</strong> Uma meta SMART é específica, mensurável, atingível, relevante e temporal. Em vez de "vender mais", escreva "aumentar o faturamento de R$ 20 mil para R$ 30 mil/mês em 6 meses".
+        <br><strong>Pergunta orientadora:</strong> qual indicador mostraria que esse pilar está melhor?
+      </div>
+      <div id="pillars-goals"></div>
+      <button id="add-goal" class="btn">Adicionar outra meta</button>
+      <div class="module-summary" id="summary-4">
+        <strong>Resultado desta etapa:</strong> metas concretas que serão desdobradas em iniciativas no próximo passo.
+      </div>
+    </section>
+
+    <section class="module" id="module-5">
+      <h2>5. Iniciativas e Entregas</h2>
+      <p class="module-intro"><strong>Objetivo:</strong> quebrar cada meta em ações concretas com responsável e data.</p>
+      <div class="lesson-box">
+        <strong>Mini-aula:</strong> Iniciativa é um projeto que faz a meta acontecer. Cada iniciativa precisa de um responsável e de um prazo. Exemplo: "Reformular fotos dos 10 produtos mais vendidos até 15/03".
+        <br><strong>Pergunta orientadora:</strong> qual a primeira ação que, se feita, torna essa meta mais próxima?
+      </div>
+      <div class="kanban-board">
+        <div class="kanban-column" data-status="todo">
+          <h4>A fazer</h4>
+          <div class="kanban-zone" data-status="todo"></div>
+          <button class="btn btn-small add-initiative" data-status="todo">+ iniciativa</button>
+        </div>
+        <div class="kanban-column" data-status="doing">
+          <h4>Fazendo</h4>
+          <div class="kanban-zone" data-status="doing"></div>
+          <button class="btn btn-small add-initiative" data-status="doing">+ iniciativa</button>
+        </div>
+        <div class="kanban-column" data-status="done">
+          <h4>Feito</h4>
+          <div class="kanban-zone" data-status="done"></div>
+          <button class="btn btn-small add-initiative" data-status="done">+ iniciativa</button>
+        </div>
+      </div>
+      <div class="module-summary" id="summary-5">
+        <strong>Resultado desta etapa:</strong> um quadro de ações vinculadas às metas, pronto para ser organizado no tempo.
+      </div>
+    </section>
+
+    <section class="module" id="module-6">
+      <h2>6. Roadmap Cronológico</h2>
+      <p class="module-intro"><strong>Objetivo:</strong> distribuir as iniciativas no tempo de forma realista.</p>
+      <div class="lesson-box">
+        <strong>Mini-aula:</strong> Curto prazo é o que você fará nos próximos 3 meses; médio prazo, entre 3 e 6 meses; longo prazo, entre 6 e 12 meses. Evite acumular muitas ações no curto prazo.
+        <br><strong>Pergunta orientadora:</strong> essa ação depende de outra? Qual precisa sair primeiro?
+      </div>
+      <div class="timeline">
+        <div class="timeline-lane" data-term="short">
+          <h4>Curto prazo</h4>
+          <div class="timeline-zone" data-term="short"></div>
+          <div class="lane-alert" id="short-alert"></div>
+        </div>
+        <div class="timeline-lane" data-term="medium">
+          <h4>Médio prazo</h4>
+          <div class="timeline-zone" data-term="medium"></div>
+          <div class="lane-alert" id="medium-alert"></div>
+        </div>
+        <div class="timeline-lane" data-term="long">
+          <h4>Longo prazo</h4>
+          <div class="timeline-zone" data-term="long"></div>
+          <div class="lane-alert" id="long-alert"></div>
+        </div>
+      </div>
+      <div class="pool">
+        <h4>Iniciativas sem prazo</h4>
+        <div id="initiatives-pool" class="timeline-zone"></div>
+      </div>
+      <button id="export-pdf" class="btn btn-primary">Exportar plano em PDF</button>
+      <div class="module-summary" id="summary-6">
+        <strong>Resultado desta etapa:</strong> seu plano estratégico completo, com ações organizadas no tempo e pronto para exportação.
+      </div>
+    </section>
+  </main>
+
+  <footer class="module-nav">
+    <button id="prev-step" class="btn btn-secondary">Anterior</button>
+    <button id="next-step" class="btn btn-primary">Próximo</button>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="data/example-store.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/swot.js"></script>
+  <script src="js/swot-cross.js"></script>
+  <script src="js/pillars.js"></script>
+  <script src="js/smart.js"></script>
+  <script src="js/kanban.js"></script>
+  <script src="js/roadmap.js"></script>
+  <script src="js/pdf.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
