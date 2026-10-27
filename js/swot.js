@@ -18,7 +18,6 @@ function renderSwot() {
   renderSwotInput();
   renderPendingItems();
   renderSwotZones();
-  renderSwotTextareas();
   updateZoneCounts();
 
   const continueBtn = document.getElementById('swot-continue');
@@ -178,22 +177,6 @@ function removeItemFromCategory(text, category) {
   savePlan(plan);
   setSwotFeedback('Situação removida. Você pode adicioná-la novamente.', '');
   renderSwot();
-}
-
-function renderSwotTextareas() {
-  const fields = ['forces', 'weaknesses', 'opportunities', 'threats'];
-
-  fields.forEach(field => {
-    const el = document.getElementById(field);
-    if (!el) return;
-    el.value = plan.swot[field] || '';
-    el.oninput = () => {
-      plan.swot[field] = el.value;
-      savePlan(plan);
-      renderSwotZones();
-      updateZoneCounts();
-    };
-  });
 }
 
 function getItemsFromField(field) {
