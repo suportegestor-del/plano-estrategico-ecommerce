@@ -168,9 +168,21 @@ function createSwotCard(text, idx, isPending, category) {
   card.dataset.text = text;
   if (isPending && idx !== null) card.dataset.pendingIdx = idx;
 
+  const quickActions = isPending ? `
+    <div class="swot2-card-actions">
+      <button type="button" class="swot2-action forca" title="Mover para Forças" aria-label="Mover para Forças">💪</button>
+      <button type="button" class="swot2-action fraqueza" title="Mover para Fraquezas" aria-label="Mover para Fraquezas">⚠️</button>
+      <button type="button" class="swot2-action oportunidade" title="Mover para Oportunidades" aria-label="Mover para Oportunidades">🚀</button>
+      <button type="button" class="swot2-action ameaca" title="Mover para Ameaças" aria-label="Mover para Ameaças">⛔</button>
+    </div>
+  ` : '';
+
   card.innerHTML = `
-    <span class="swot2-card-text">${escapeHtml(text)}</span>
-    <button type="button" class="swot2-delete-card" aria-label="Remover">×</button>
+    <div class="swot2-card-main">
+      <span class="swot2-card-text">${escapeHtml(text)}</span>
+      <button type="button" class="swot2-delete-card" aria-label="Remover">×</button>
+    </div>
+    ${quickActions}
   `;
 
   card.querySelector('.swot2-delete-card').addEventListener('click', (e) => {
@@ -181,6 +193,25 @@ function createSwotCard(text, idx, isPending, category) {
       removeItemFromCategory(text, category);
     }
   });
+
+  if (isPending) {
+    const actionMap = [
+      { selector: '.swot2-action.forca', category: 'Força' },
+      { selector: '.swot2-action.fraqueza', category: 'Fraqueza' },
+      { selector: '.swot2-action.oportunidade', category: 'Oportunidade' },
+      { selector: '.swot2-action.ameaca', category: 'Ameaça' }
+    ];
+
+    actionMap.forEach(({ selector, category }) => {
+      const btn = card.querySelector(selector);
+      if (btn) {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          movePendingToCategory(idx, category);
+        });
+      }
+    });
+  }
 
   card.addEventListener('dragstart', (e) => {
     draggedText = { text, idx, isPending, category };

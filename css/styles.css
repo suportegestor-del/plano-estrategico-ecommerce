@@ -989,12 +989,19 @@ textarea:focus, input:focus {
 }
 
 .swot2-pending-title {
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   color: #44516a;
   font-size: 12px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.07em;
+}
+
+.swot2-pending-hint {
+  margin: 0 0 10px;
+  color: #6d7890;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .swot2-empty {
@@ -1090,9 +1097,9 @@ textarea:focus, input:focus {
 
 .swot2-card {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
   padding: 12px 12px 12px 14px;
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(189, 199, 216, 0.75);
@@ -1103,6 +1110,14 @@ textarea:focus, input:focus {
   font-size: 13px;
   line-height: 1.35;
   color: var(--swot2-text);
+}
+
+.swot2-card-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
 }
 
 .swot2-card:active { cursor: grabbing; }
