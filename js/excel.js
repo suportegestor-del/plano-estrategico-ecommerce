@@ -25,86 +25,170 @@ function termLabel(term) {
   return map[term] || term || '—';
 }
 
-function buildSwotSheet() {
-  const rows = [];
-  const categories = [
-    { label: 'Forças', key: 'forces' },
-    { label: 'Fraquezas', key: 'weaknesses' },
-    { label: 'Oportunidades', key: 'opportunities' },
-    { label: 'Ameaças', key: 'threats' }
-  ];
-
-  categories.forEach(cat => {
-    const raw = plan.swot[cat.key] || '';
-    const items = raw.split('\n').map(s => s.trim()).filter(Boolean);
-    rows.push({ Tipo: cat.label, Itens: items.join('; ') || '(vazio)' });
-  });
-
-  return rows;
+function yesNo(value) {
+  return value ? 'Sim' : 'Não';
 }
 
-function buildStrategiesSheet() {
-  return (plan.crossStrategies || []).map(s => ({
-    Tipo: s.type || '',
-    'Elemento A': s.a || '',
-    'Elemento B': s.b || '',
-    Estratégia: s.strategy || ''
-  }));
+function getSwotItems(key) {
+  const raw = (plan.swot && plan.swot[key]) || '';
+  return raw.split('\n').map(s => s.trim()).filter(Boolean);
+}
+
+function buildSwotAnalysisSheet() {
+  const dateStr = new Date().toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
+  const rows = [];
+
+  rows.push([`SWOT ${dateStr}`, null, null, null]);
+  rows.push([]);
+  rows.push(['💪 FORÇAS (STRENGTHS)', null, '⚠️ FRAQUEZAS (WEAKNESSES)', null]);
+
+  const forces = getSwotItems('forces');
+  const weaknesses = getSwotItems('weaknesses');
+  const maxTop = Math.max(forces.length, weaknesses.length, 1);
+
+  for (let i = 0; i < maxTop; i++) {
+    rows.push([forces[i] || '', null, weaknesses[i] || '', null]);
+  }
+
+  rows.push([]);
+  rows.push(['🚀 OPORTUNIDADES (OPPORTUNITIES)', null, '🛑 AMEAÇAS (THREATS)', null]);
+
+  const opportunities = getSwotItems('opportunities');
+  const threats = getSwotItems('threats');
+  const maxBottom = Math.max(opportunities.length, threats.length, 1);
+
+  for (let i = 0; i < maxBottom; i++) {
+    rows.push([opportunities[i] || '', null, threats[i] || '', null]);
+  }
+
+  return rows;
 }
 
 function buildPillarsSheet() {
   const rows = [];
-  Object.entries(plan.pillars || {}).forEach(([pillar, strategies]) => {
-    rows.push({
-      Pilar: pillar,
-      Estratégias: (strategies || []).join('; ') || '(vazio)'
-    });
-  });
+  const pillars = Object.keys(plan.pillars || {});
+
+  rows.push(['Nossa Visão', null, null, null, null]);
+  rows.push([]);
+  rows.push(['Pilares Estratégicos', null, null, null, null]);
+  rows.push(pillars.length ? pillars : ['(nenhum pilar definido)', null, null, null, null]);
+  rows.push([]);
+
+  const maxRows = Math.max(...pillars.map(p => (plan.pillars[p] || []).length), 1);
+  for (let i = 0; i < maxRows; i++) {
+    const line = pillars.map(p => (plan.pillars[p] || [])[i] || '');
+    rows.push(line);
+  }
+
   return rows;
 }
 
-function buildGoalsSheet() {
-  return (plan.goals || []).map(g => ({
-    Pilar: g.pillar || 'Geral',
-    Meta: g.text || ''
-  }));
+function buildSmartSheet(storeName) {
+  const rows = [];
+  rows.push([null, `METAS SMART — ${storeName.toUpperCase()}`, null, null, null, null, null, null, null, null]);
+  rows.push([null, null, null, null, null, null, null, null, null, null]);
+  rows.push([null, null, null, null, null, null, null, null, null, null]);
+  rows.push([null, null, null, null, null, null, null, null, null, null]);
+  rows.push([
+    null,
+    'Meta',
+    'Descrição',
+    'Indicador-Chave (KPI)',
+    'Origem SWOT',
+    'Prazo',
+    'Específica',
+    'Mensurável',
+    'Alcançável',
+    'Relevante',
+    'Temporal'
+  ]);
+
+  (plan.goals || []).forEach(g => {
+    const checks = evaluateSmart(g.text || '');
+    rows.push([
+      null,
+      g.pillar || 'Geral',
+      g.text || '',
+      '',
+      '',
+      '',
+      yesNo(checks.specific),
+      yesNo(checks.measurable),
+      yesNo(checks.achievable),
+      yesNo(checks.relevant),
+      yesNo(checks.timeBound)
+    ]);
+  });
+
+  return rows;
 }
 
-function buildInitiativesSheet() {
+function buildInitiativesSheet(storeName) {
+  const rows = [];
+  rows.push([null, `METAS SMART — ${storeName.toUpperCase()}`, null, null, null, null, null, null]);
+  rows.push([null, null, null, null, null, null, null, null]);
+  rows.push([null, null, null, null, null, null, null, null]);
+  rows.push([null, null, null, null, null, null, null, null]);
+  rows.push([
+    null,
+    'Meta',
+    'Descrição',
+    'Específica',
+    'Mensurável',
+    'Alcançável',
+    'Relevante',
+    'Temporal'
+  ]);
+
   const goals = plan.goals || [];
-  return (plan.initiatives || []).map(i => {
+  (plan.initiatives || []).forEach(i => {
     const linkedGoal = goals.find(g => g.id === i.goalId);
-    return {
-      Iniciativa: i.title || '',
-      Responsável: i.owner || '',
-      Prazo: i.due || '',
-      Status: statusLabel(i.status),
-      'Meta vinculada': linkedGoal ? linkedGoal.text : ''
-    };
+    const goalText = linkedGoal ? linkedGoal.text : '';
+    const checks = evaluateSmart(goalText);
+    rows.push([
+      null,
+      linkedGoal ? linkedGoal.pillar || 'Geral' : '',
+      i.title || '',
+      yesNo(checks.specific),
+      yesNo(checks.measurable),
+      yesNo(checks.achievable),
+      yesNo(checks.relevant),
+      yesNo(checks.timeBound)
+    ]);
   });
+
+  return rows;
 }
 
 function buildRoadmapSheet() {
   const rows = [];
-  const terms = ['short', 'medium', 'long'];
+  rows.push(['Trimestre', '#', 'Meta principal', 'Projeto / Iniciativa', 'Entrega estimada']);
 
-  terms.forEach(term => {
-    const items = (plan.initiatives || []).filter(i => plan.roadmap[i.id] === term);
-    if (items.length === 0) {
-      rows.push({ Prazo: termLabel(term), Iniciativa: '(vazio)', Responsável: '', PrazoIniciativa: '' });
-      return;
-    }
-    items.forEach(i => {
-      rows.push({
-        Prazo: termLabel(term),
-        Iniciativa: i.title || '',
-        Responsável: i.owner || '',
-        PrazoIniciativa: i.due || ''
-      });
-    });
+  const goals = plan.goals || [];
+  (plan.initiatives || []).forEach((i, idx) => {
+    const linkedGoal = goals.find(g => g.id === i.goalId);
+    const term = plan.roadmap[i.id];
+    rows.push([
+      term ? termLabel(term) : '',
+      idx + 1,
+      linkedGoal ? linkedGoal.text : '',
+      i.title || '',
+      i.due || ''
+    ]);
   });
 
   return rows;
+}
+
+function evaluateSmart(text) {
+  const lower = (text || '').toLowerCase();
+  return {
+    specific: /aumentar|reduzir|melhorar|lançar|criar|implementar/.test(lower),
+    measurable: /\d|R\$|pct|por cento|%|mil|milhão/.test(lower),
+    achievable: (text || '').length > 15,
+    relevant: /venda|faturamento|cliente|estoque|conversão|tráfego/.test(lower),
+    timeBound: /em \d|dentro de|\d meses|\d dias|prazo/.test(lower)
+  };
 }
 
 function exportExcel() {
@@ -118,32 +202,31 @@ function exportExcel() {
 
   const wb = XLSX.utils.book_new();
 
-  const sheets = [
-    { name: 'SWOT', data: buildSwotSheet() },
-    { name: 'Estratégias', data: buildStrategiesSheet() },
-    { name: 'Pilares', data: buildPillarsSheet() },
-    { name: 'Metas SMART', data: buildGoalsSheet() },
-    { name: 'Iniciativas', data: buildInitiativesSheet() },
-    { name: 'Roadmap', data: buildRoadmapSheet() }
-  ];
+  const swotWs = XLSX.utils.aoa_to_sheet(buildSwotAnalysisSheet());
+  swotWs['!cols'] = [{ wch: 60 }, { wch: 3 }, { wch: 60 }, { wch: 3 }];
+  XLSX.utils.book_append_sheet(wb, swotWs, 'SWOT Analysis');
 
-  sheets.forEach(sheet => {
-    const ws = XLSX.utils.json_to_sheet(sheet.data);
-    ws['!cols'] = autoWidth(sheet.data);
-    XLSX.utils.book_append_sheet(wb, ws, sheet.name);
-  });
+  const pillarsWs = XLSX.utils.aoa_to_sheet(buildPillarsSheet());
+  const pillarCount = Math.max(Object.keys(plan.pillars || {}).length, 1);
+  pillarsWs['!cols'] = Array(pillarCount).fill({ wch: 40 });
+  XLSX.utils.book_append_sheet(wb, pillarsWs, 'Pilares estratégicos');
+
+  const smartWs = XLSX.utils.aoa_to_sheet(buildSmartSheet(storeName));
+  smartWs['!cols'] = [
+    { wch: 3 }, { wch: 18 }, { wch: 50 }, { wch: 35 }, { wch: 18 },
+    { wch: 14 }, { wch: 12 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 12 }
+  ];
+  XLSX.utils.book_append_sheet(wb, smartWs, 'Metas SMART');
+
+  const initiativesWs = XLSX.utils.aoa_to_sheet(buildInitiativesSheet(storeName));
+  initiativesWs['!cols'] = [
+    { wch: 3 }, { wch: 18 }, { wch: 50 }, { wch: 12 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 12 }
+  ];
+  XLSX.utils.book_append_sheet(wb, initiativesWs, 'Lista de iniciativas');
+
+  const roadmapWs = XLSX.utils.aoa_to_sheet(buildRoadmapSheet());
+  roadmapWs['!cols'] = [{ wch: 16 }, { wch: 6 }, { wch: 50 }, { wch: 50 }, { wch: 18 }];
+  XLSX.utils.book_append_sheet(wb, roadmapWs, 'Roadmap');
 
   XLSX.writeFile(wb, fileName);
-}
-
-function autoWidth(data) {
-  if (!data || data.length === 0) return [];
-  const keys = Object.keys(data[0]);
-  return keys.map(key => {
-    const maxLength = Math.max(
-      key.length,
-      ...data.map(row => String(row[key] || '').length)
-    );
-    return { wch: Math.min(Math.max(maxLength + 2, 10), 80) };
-  });
 }
