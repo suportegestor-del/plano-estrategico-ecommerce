@@ -38,6 +38,17 @@ function setupSwotInput() {
   });
 }
 
+function handleAddSwotClick() {
+  try {
+    const input = document.getElementById('swot2-input');
+    const text = input ? input.value.trim() : '';
+    addSwotItem(text);
+  } catch (err) {
+    alert('Erro ao adicionar: ' + err.message);
+    console.error(err);
+  }
+}
+
 function addSwotItem(text) {
   console.log('[SWOT] addSwotItem chamado com:', text);
 
