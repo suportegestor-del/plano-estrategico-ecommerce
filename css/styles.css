@@ -963,12 +963,13 @@ textarea:focus, input:focus {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  align-items: stretch;
 }
 
 .swot2-controls input {
-  flex: 1 1 320px;
-  min-height: 44px;
-  padding: 0 14px;
+  flex: 1 1 420px;
+  min-height: 80px;
+  padding: 14px;
   color: var(--swot2-text);
   background: #fbfcfe;
   border: 1px solid #dce3ef;
@@ -976,6 +977,7 @@ textarea:focus, input:focus {
   outline: none;
   transition: 0.2s ease;
   font: inherit;
+  font-size: 15px;
 }
 
 .swot2-controls input:focus {

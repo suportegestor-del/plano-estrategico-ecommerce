@@ -5,17 +5,6 @@ const categoryMap = {
   Ameaça: { field: 'threats', elId: 'swot2-ameaca' }
 };
 
-const exampleItems = [
-  { text: 'Boa reputação no marketplace', category: 'Força' },
-  { text: 'Estoque próprio e logística ágil', category: 'Força' },
-  { text: 'Dependência de um único fornecedor', category: 'Fraqueza' },
-  { text: 'Falta de presença em redes sociais', category: 'Fraqueza' },
-  { text: 'Alta do Pix e do social commerce', category: 'Oportunidade' },
-  { text: 'Crescimento do TikTok Shop', category: 'Oportunidade' },
-  { text: 'Guerra de preços entre concorrentes', category: 'Ameaça' },
-  { text: 'Mudanças nas regras do marketplace', category: 'Ameaça' }
-];
-
 let draggedText = null;
 
 function renderSwot() {
@@ -30,7 +19,6 @@ function renderSwot() {
 function setupSwotInput() {
   const input = document.getElementById('swot2-input');
   const addBtn = document.getElementById('swot2-add');
-  const examplesBtn = document.getElementById('swot2-examples');
 
   if (!input || !addBtn) return;
 
@@ -42,10 +30,6 @@ function setupSwotInput() {
   };
 
   addBtn.onclick = () => addSwotItem(input.value.trim());
-
-  if (examplesBtn) {
-    examplesBtn.onclick = () => fillSwotExamples();
-  }
 }
 
 function addSwotItem(text) {
@@ -98,21 +82,6 @@ function removeItemFromCategory(text, category) {
   const field = categoryMap[category].field;
   const items = getFieldItems(field).filter(item => item !== text);
   plan.swot[field] = items.join('\n');
-
-  savePlan(plan);
-  renderQuadrants();
-  updateSwotStats();
-}
-
-function fillSwotExamples() {
-  exampleItems.forEach(({ text, category }) => {
-    const field = categoryMap[category].field;
-    const items = getFieldItems(field);
-    if (!items.includes(text)) {
-      items.push(text);
-      plan.swot[field] = items.join('\n');
-    }
-  });
 
   savePlan(plan);
   renderQuadrants();
