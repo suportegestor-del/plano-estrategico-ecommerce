@@ -29,6 +29,7 @@ function renderSwot() {
 function renderSwotInput() {
   const input = document.getElementById('swot-new-item');
   const btn = document.getElementById('swot-add-item');
+  const examplesBtn = document.getElementById('swot-fill-examples');
   if (!input || !btn) return;
 
   input.onkeydown = (e) => {
@@ -39,6 +40,33 @@ function renderSwotInput() {
   };
 
   btn.onclick = () => addPendingItem(input.value.trim());
+
+  if (examplesBtn) {
+    examplesBtn.onclick = () => fillSwotExamples();
+  }
+}
+
+function fillSwotExamples() {
+  const examples = {
+    forces: ['Boa reputação no marketplace', 'Estoque próprio e logística ágil'],
+    weaknesses: ['Dependência de um único fornecedor', 'Falta de presença em redes sociais'],
+    opportunities: ['Alta do Pix e do social commerce', 'Crescimento do TikTok Shop'],
+    threats: ['Guerra de preços entre concorrentes', 'Mudanças nas regras do marketplace']
+  };
+
+  Object.keys(examples).forEach(field => {
+    const current = getItemsFromField(field);
+    examples[field].forEach(text => {
+      if (!current.includes(text)) {
+        current.push(text);
+      }
+    });
+    plan.swot[field] = current.join('\n');
+  });
+
+  savePlan(plan);
+  setSwotFeedback('Exemplos preenchidos. Você pode continuar ou editar as situações.', 'success');
+  renderSwot();
 }
 
 function addPendingItem(text) {
