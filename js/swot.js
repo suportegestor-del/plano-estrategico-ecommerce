@@ -5,12 +5,29 @@ const categoryMap = {
   Ameaça: { field: 'threats', elId: 'swot2-ameaca' }
 };
 
+const exampleItems = [
+  { text: 'Boa reputação no marketplace', category: 'Força' },
+  { text: 'Estoque próprio e logística ágil', category: 'Força' },
+  { text: 'Dependência de um único fornecedor', category: 'Fraqueza' },
+  { text: 'Falta de presença em redes sociais', category: 'Fraqueza' },
+  { text: 'Alta do Pix e do social commerce', category: 'Oportunidade' },
+  { text: 'Crescimento do TikTok Shop', category: 'Oportunidade' },
+  { text: 'Guerra de preços entre concorrentes', category: 'Ameaça' },
+  { text: 'Mudanças nas regras do marketplace', category: 'Ameaça' }
+];
+
 let draggedText = null;
+let swotInitialized = false;
 
 function renderSwot() {
   if (!plan.swot.pendingItems) plan.swot.pendingItems = [];
 
-  setupSwotInput();
+  if (!swotInitialized) {
+    setupSwotInput();
+    setupDropZones();
+    swotInitialized = true;
+  }
+
   renderPendingCards();
   renderQuadrants();
   updateSwotStats();
@@ -19,11 +36,9 @@ function renderSwot() {
 function setupSwotInput() {
   const input = document.getElementById('swot2-input');
   const addBtn = document.getElementById('swot2-add');
+  const examplesBtn = document.getElementById('swot2-examples');
 
-  if (!input || !addBtn) {
-    console.warn('[SWOT] input ou botão não encontrado');
-    return;
-  }
+  if (!input || !addBtn) return;
 
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
@@ -32,30 +47,14 @@ function setupSwotInput() {
     }
   });
 
-  addBtn.addEventListener('click', () => {
-    console.log('[SWOT] clicou Adicionar, valor:', input.value.trim());
-    addSwotItem(input.value.trim());
-  });
-}
+  addBtn.addEventListener('click', () => addSwotItem(input.value.trim()));
 
-function handleAddSwotClick() {
-  try {
-    const input = document.getElementById('swot2-input');
-    const text = input ? input.value.trim() : '';
-    addSwotItem(text);
-  } catch (err) {
-    alert('Erro ao adicionar: ' + err.message);
-    console.error(err);
+  if (examplesBtn) {
+    examplesBtn.addEventListener('click', fillSwotExamples);
   }
 }
 
 function addSwotItem(text) {
-  console.log('[SWOT] addSwotItem chamado com:', text);
-
-  if (!plan.swot.pendingItems) {
-    plan.swot.pendingItems = [];
-  }
-
   if (!text) {
     const input = document.getElementById('swot2-input');
     if (input) input.focus();
@@ -64,7 +63,6 @@ function addSwotItem(text) {
 
   plan.swot.pendingItems.push(text);
   savePlan(plan);
-  console.log('[SWOT] pendingItems agora:', plan.swot.pendingItems);
 
   const input = document.getElementById('swot2-input');
   if (input) {
@@ -112,6 +110,21 @@ function removeItemFromCategory(text, category) {
   updateSwotStats();
 }
 
+function fillSwotExamples() {
+  exampleItems.forEach(({ text, category }) => {
+    const field = categoryMap[category].field;
+    const items = getFieldItems(field);
+    if (!items.includes(text)) {
+      items.push(text);
+      plan.swot[field] = items.join('\n');
+    }
+  });
+
+  savePlan(plan);
+  renderQuadrants();
+  updateSwotStats();
+}
+
 function getFieldItems(field) {
   return (plan.swot[field] || '').split('\n').map(s => s.trim()).filter(Boolean);
 }
@@ -147,8 +160,6 @@ function renderQuadrants() {
       container.appendChild(card);
     });
   });
-
-  setupDropZones();
 }
 
 function createSwotCard(text, idx, isPending, category) {
@@ -213,16 +224,16 @@ function setupDropZones() {
   const pendingZone = document.getElementById('swot2-pending');
 
   if (pendingZone) {
-    pendingZone.ondragover = (e) => {
+    pendingZone.addEventListener('dragover', (e) => {
       e.preventDefault();
       pendingZone.classList.add('drag-over');
-    };
+    });
 
-    pendingZone.ondragleave = () => {
+    pendingZone.addEventListener('dragleave', () => {
       pendingZone.classList.remove('drag-over');
-    };
+    });
 
-    pendingZone.ondrop = (e) => {
+    pendingZone.addEventListener('drop', (e) => {
       e.preventDefault();
       pendingZone.classList.remove('drag-over');
       if (!draggedText || draggedText.isPending) return;
@@ -233,23 +244,23 @@ function setupDropZones() {
       renderPendingCards();
       renderQuadrants();
       updateSwotStats();
-    };
+    });
   }
 
   Object.keys(categoryMap).forEach(category => {
     const zone = document.querySelector(`.swot2-quadrant[data-category="${category}"]`);
     if (!zone) return;
 
-    zone.ondragover = (e) => {
+    zone.addEventListener('dragover', (e) => {
       e.preventDefault();
       zone.classList.add('drag-over');
-    };
+    });
 
-    zone.ondragleave = () => {
+    zone.addEventListener('dragleave', () => {
       zone.classList.remove('drag-over');
-    };
+    });
 
-    zone.ondrop = (e) => {
+    zone.addEventListener('drop', (e) => {
       e.preventDefault();
       zone.classList.remove('drag-over');
       if (!draggedText) return;
@@ -268,7 +279,7 @@ function setupDropZones() {
           updateSwotStats();
         }
       }
-    };
+    });
   });
 }
 
