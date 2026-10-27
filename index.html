@@ -17,7 +17,8 @@
       <label class="btn btn-secondary" for="import-backup">Importar backup</label>
       <input type="file" id="import-backup" accept="application/json" hidden>
     </div>
-    <div class="api-key-bar">
+    <button type="button" id="toggle-api-key" class="btn btn-small api-key-toggle">⚙️ Configurar chave da IA</button>
+    <div class="api-key-bar" id="api-key-bar" style="display:none">
       <label for="api-key-input">Chave OpenAI:</label>
       <input type="password" id="api-key-input" placeholder="Cole sua chave da OpenAI aqui" autocomplete="off">
       <button type="button" id="save-api-key" class="btn btn-small">Salvar</button>
@@ -181,21 +182,28 @@
         <strong>Mini-aula:</strong> Iniciativa é um projeto que faz a meta acontecer. Cada iniciativa precisa de um responsável e de um prazo. Exemplo: "Reformular fotos dos 10 produtos mais vendidos até 15/03".
         <br><strong>Pergunta orientadora:</strong> qual a primeira ação que, se feita, torna essa meta mais próxima?
       </div>
+      <div class="kanban-pool">
+        <div class="kanban-pool-header">
+          <div>
+            <h4>Iniciativas disponíveis</h4>
+            <p>Crie suas iniciativas aqui e arraste cada uma para a etapa correspondente.</p>
+          </div>
+          <button class="btn btn-small add-initiative" data-status="unassigned">+ iniciativa</button>
+        </div>
+        <div class="kanban-zone" data-status="unassigned"></div>
+      </div>
       <div class="kanban-board">
         <div class="kanban-column" data-status="todo">
           <h4>A fazer</h4>
           <div class="kanban-zone" data-status="todo"></div>
-          <button class="btn btn-small add-initiative" data-status="todo">+ iniciativa</button>
         </div>
         <div class="kanban-column" data-status="doing">
           <h4>Fazendo</h4>
           <div class="kanban-zone" data-status="doing"></div>
-          <button class="btn btn-small add-initiative" data-status="doing">+ iniciativa</button>
         </div>
         <div class="kanban-column" data-status="done">
           <h4>Feito</h4>
           <div class="kanban-zone" data-status="done"></div>
-          <button class="btn btn-small add-initiative" data-status="done">+ iniciativa</button>
         </div>
       </div>
       <div class="module-summary" id="summary-5">

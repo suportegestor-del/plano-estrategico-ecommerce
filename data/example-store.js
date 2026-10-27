@@ -27,9 +27,9 @@ const exampleStore = {
     { id: 'g-operacao', text: 'Reduzir ruptura de estoque de 15% para 5% em 3 meses', pillar: 'Operação' }
   ],
   initiatives: [
-    { id: 'ex1', goalId: 'g-crescimento', title: 'Reformular fotos dos 10 produtos mais vendidos', owner: 'Ana', due: '2027-01-15', status: 'todo' },
-    { id: 'ex2', goalId: 'g-operacao', title: 'Negociar 2 novos fornecedores', owner: 'Carlos', due: '2027-02-01', status: 'doing' },
-    { id: 'ex3', goalId: 'g-crescimento', title: 'Publicar 20 vídeos de clientes no TikTok', owner: 'Ana', due: '2027-03-30', status: 'todo' }
+    { id: 'ex1', goalId: 'g-crescimento', title: 'Reformular fotos dos 10 produtos mais vendidos', owner: 'Ana', due: '2027-01-15', status: 'unassigned' },
+    { id: 'ex2', goalId: 'g-operacao', title: 'Negociar 2 novos fornecedores', owner: 'Carlos', due: '2027-02-01', status: 'unassigned' },
+    { id: 'ex3', goalId: 'g-crescimento', title: 'Publicar 20 vídeos de clientes no TikTok', owner: 'Ana', due: '2027-03-30', status: 'unassigned' }
   ],
   roadmap: {
     'ex1': 'short',

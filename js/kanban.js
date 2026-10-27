@@ -66,12 +66,12 @@ function createInitiativeCard(initiative) {
 }
 
 function setupKanbanDrop(zone) {
-  zone.addEventListener('dragover', (e) => {
+  zone.ondragover = (e) => {
     e.preventDefault();
     zone.classList.add('drag-over');
-  });
-  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-  zone.addEventListener('drop', (e) => {
+  };
+  zone.ondragleave = () => zone.classList.remove('drag-over');
+  zone.ondrop = (e) => {
     e.preventDefault();
     zone.classList.remove('drag-over');
     const id = e.dataTransfer.getData('text/plain');
@@ -81,10 +81,10 @@ function setupKanbanDrop(zone) {
       savePlan(plan);
       renderKanban();
     }
-  });
+  };
 }
 
-function addInitiative(status) {
+function addInitiative(status = 'unassigned') {
   if (!plan.initiatives) plan.initiatives = [];
   const firstGoal = plan.goals && plan.goals[0];
   plan.initiatives.push({
