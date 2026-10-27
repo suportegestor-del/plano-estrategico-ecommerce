@@ -1,23 +1,7 @@
-const API_KEY_STORAGE = 'openai-api-key';
-
-function loadApiKey() {
-  try {
-    return localStorage.getItem(API_KEY_STORAGE) || '';
-  } catch (e) {
-    return '';
-  }
-}
-
-function saveApiKey(key) {
-  try {
-    if (key) {
-      localStorage.setItem(API_KEY_STORAGE, key.trim());
-    } else {
-      localStorage.removeItem(API_KEY_STORAGE);
-    }
-  } catch (e) {
-    console.error('Erro ao salvar chave', e);
-  }
+function getApiKey() {
+  return (typeof OPENAI_API_KEY !== 'undefined' && OPENAI_API_KEY !== '__OPENAI_API_KEY__')
+    ? OPENAI_API_KEY
+    : '';
 }
 
 function getSwotItems() {
@@ -250,11 +234,10 @@ function extractStrategies(parsed) {
 
 async function generateCrossWithAI() {
   const items = getSwotItems();
-  const userKey = loadApiKey();
-  const apiKey = userKey || (typeof OPENAI_API_KEY !== 'undefined' && OPENAI_API_KEY !== '__OPENAI_API_KEY__' ? OPENAI_API_KEY : '');
+  const apiKey = getApiKey();
 
   if (!apiKey) {
-    setCrossFeedback('Configure sua chave da OpenAI no topo da página antes de usar a IA.', 'hint');
+    setCrossFeedback('Chave da OpenAI não configurada. Contate o administrador.', 'hint');
     return;
   }
 

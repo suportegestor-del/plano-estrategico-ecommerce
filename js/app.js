@@ -58,61 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
   prevBtn.addEventListener('click', () => goToStep(plan.currentStep - 1));
   nextBtn.addEventListener('click', () => goToStep(plan.currentStep + 1));
 
-  const apiKeyInput = document.getElementById('api-key-input');
-  const saveApiKeyBtn = document.getElementById('save-api-key');
-  const apiKeyStatus = document.getElementById('api-key-status');
-  const apiKeyBar = document.getElementById('api-key-bar');
-  const toggleApiKeyBtn = document.getElementById('toggle-api-key');
-
-  const hasInjectedKey = typeof OPENAI_API_KEY !== 'undefined' && OPENAI_API_KEY !== '__OPENAI_API_KEY__';
-  const hasUserKey = !!loadApiKey();
-  const keyConfigured = hasInjectedKey || hasUserKey;
-
-  if (apiKeyInput) {
-    apiKeyInput.value = loadApiKey();
-  }
-
-  function updateApiKeyStatus(message, isError) {
-    if (!apiKeyStatus) return;
-    apiKeyStatus.textContent = message;
-    apiKeyStatus.className = 'api-key-status ' + (isError ? 'error' : 'ok');
-  }
-
-  function toggleApiKeyBar(show) {
-    if (!apiKeyBar || !toggleApiKeyBtn) return;
-    apiKeyBar.style.display = show ? 'flex' : 'none';
-    toggleApiKeyBtn.style.display = show ? 'none' : 'inline-flex';
-  }
-
-  if (saveApiKeyBtn && apiKeyInput) {
-    saveApiKeyBtn.addEventListener('click', () => {
-      const key = apiKeyInput.value.trim();
-      if (!key) {
-        saveApiKey('');
-        updateApiKeyStatus('Chave removida.', true);
-        return;
-      }
-      if (!key.startsWith('sk-')) {
-        updateApiKeyStatus('Chave inválida.', true);
-        return;
-      }
-      saveApiKey(key);
-      updateApiKeyStatus('Chave salva.', false);
-      setTimeout(() => toggleApiKeyBar(false), 800);
-    });
-  }
-
-  if (toggleApiKeyBtn) {
-    toggleApiKeyBtn.addEventListener('click', () => toggleApiKeyBar(true));
-  }
-
-  if (keyConfigured) {
-    toggleApiKeyBar(false);
-  } else {
-    toggleApiKeyBar(true);
-    updateApiKeyStatus('Configure sua chave da OpenAI.', true);
-  }
-
   loadExampleBtn.addEventListener('click', () => {
     if (confirm('Isso substituirá seus dados pelo exemplo da Casa Aurora. Deseja continuar?')) {
       Object.assign(plan, JSON.parse(JSON.stringify(exampleStore)));

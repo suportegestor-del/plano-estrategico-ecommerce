@@ -168,11 +168,10 @@ function parseSmartResponse(text) {
 
 async function generateSmartWithAI() {
   const pillars = Object.keys(plan.pillars || {});
-  const userKey = typeof loadApiKey === 'function' ? loadApiKey() : '';
-  const apiKey = userKey || (typeof OPENAI_API_KEY !== 'undefined' && OPENAI_API_KEY !== '__OPENAI_API_KEY__' ? OPENAI_API_KEY : '');
+  const apiKey = typeof getApiKey === 'function' ? getApiKey() : '';
 
   if (!apiKey) {
-    alert('Configure sua chave da OpenAI no topo da página antes de usar a IA.');
+    alert('Chave da OpenAI não configurada. Contate o administrador.');
     return;
   }
 
