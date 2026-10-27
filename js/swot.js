@@ -67,6 +67,8 @@ function addSwotItem(text) {
     return;
   }
 
+  if (plan.swot.pendingItems.includes(text)) return;
+
   isAddingSwot = true;
 
   const input = document.getElementById('swot2-input');
