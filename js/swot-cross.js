@@ -250,7 +250,8 @@ function extractStrategies(parsed) {
 
 async function generateCrossWithAI() {
   const items = getSwotItems();
-  const apiKey = loadApiKey();
+  const userKey = loadApiKey();
+  const apiKey = userKey || (typeof OPENAI_API_KEY !== 'undefined' && OPENAI_API_KEY !== '__OPENAI_API_KEY__' ? OPENAI_API_KEY : '');
 
   if (!apiKey) {
     setCrossFeedback('Configure sua chave da OpenAI no topo da página antes de usar a IA.', 'hint');

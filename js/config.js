@@ -1,0 +1,1 @@
+const OPENAI_API_KEY = '__OPENAI_API_KEY__';
