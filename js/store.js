@@ -2,6 +2,7 @@ const STORAGE_KEY = 'ecommerce-plan-v1';
 
 const defaultPlan = {
   currentStep: 1,
+  storeName: '',
   swot: {
     forces: '',
     weaknesses: '',
@@ -31,6 +32,8 @@ function loadPlan() {
 }
 
 function migratePlan(plan) {
+  if (typeof plan.storeName !== 'string') plan.storeName = '';
+
   // Normaliza a seção SWOT, tolerando dados de versões antigas em formatos diferentes
   if (!plan.swot || typeof plan.swot !== 'object' || Array.isArray(plan.swot)) {
     plan.swot = JSON.parse(JSON.stringify(defaultPlan.swot));

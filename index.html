@@ -24,6 +24,10 @@
     </div>
     <h1>Plano da sua empresa em 6 passos</h1>
     <p>Monte seu planejamento estratégico de e-commerce de forma prática e guiada.</p>
+    <div class="header-store-name">
+      <label for="store-name">Nome da empresa:</label>
+      <input type="text" id="store-name" placeholder="Ex.: Ancora Shop" autocomplete="off">
+    </div>
     <div class="header-actions">
       <button id="start-own" class="btn btn-primary">Começar com meu negócio</button>
     </div>
@@ -280,6 +284,7 @@
         <div id="initiatives-pool" class="timeline-zone"></div>
       </div>
       <button id="export-pdf" class="btn btn-primary">Exportar plano em PDF</button>
+      <button id="export-excel" class="btn btn-secondary">Exportar em Excel</button>
       <div class="module-summary" id="summary-6">
         <strong>Resultado desta etapa:</strong> seu plano estratégico completo, com ações organizadas no tempo e pronto para exportação.
       </div>
@@ -292,9 +297,11 @@
   </footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="data/example-store.js"></script>
   <script src="js/store.js"></script>
+  <script src="js/excel.js"></script>
   <script src="js/config.js"></script>
   <script src="js/swot.js"></script>
   <script src="js/swot-cross.js"></script>

@@ -49,6 +49,35 @@ body {
   display: block;
 }
 
+.header-store-name {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.header-store-name label {
+  font-size: 0.95rem;
+  opacity: 0.95;
+}
+
+.header-store-name input {
+  padding: 0.45rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--text);
+  font-size: 0.95rem;
+  min-width: 220px;
+}
+
+.header-store-name input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+}
+
 .header-actions {
   display: flex;
   justify-content: center;
