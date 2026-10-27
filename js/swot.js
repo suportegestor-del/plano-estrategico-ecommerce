@@ -1,232 +1,286 @@
-const swotColors = {
-  Força: '#22c55e',
-  Fraqueza: '#f97316',
-  Oportunidade: '#3b82f6',
-  Ameaça: '#ef4444'
+const categoryMap = {
+  Força: { field: 'forces', elId: 'swot2-forca' },
+  Fraqueza: { field: 'weaknesses', elId: 'swot2-fraqueza' },
+  Oportunidade: { field: 'opportunities', elId: 'swot2-oportunidade' },
+  Ameaça: { field: 'threats', elId: 'swot2-ameaca' }
 };
 
-const categoryFields = {
-  Força: 'forces',
-  Fraqueza: 'weaknesses',
-  Oportunidade: 'opportunities',
-  Ameaça: 'threats'
-};
+const exampleItems = [
+  { text: 'Boa reputação no marketplace', category: 'Força' },
+  { text: 'Estoque próprio e logística ágil', category: 'Força' },
+  { text: 'Dependência de um único fornecedor', category: 'Fraqueza' },
+  { text: 'Falta de presença em redes sociais', category: 'Fraqueza' },
+  { text: 'Alta do Pix e do social commerce', category: 'Oportunidade' },
+  { text: 'Crescimento do TikTok Shop', category: 'Oportunidade' },
+  { text: 'Guerra de preços entre concorrentes', category: 'Ameaça' },
+  { text: 'Mudanças nas regras do marketplace', category: 'Ameaça' }
+];
+
+let draggedText = null;
 
 function renderSwot() {
   if (!plan.swot.pendingItems) plan.swot.pendingItems = [];
 
-  renderSwotInput();
-  renderPendingItems();
-  renderSwotZones();
-  updateZoneCounts();
+  setupSwotInput();
+  renderPendingCards();
+  renderQuadrants();
+  updateSwotStats();
 
-  const continueBtn = document.getElementById('swot-continue');
+  const continueBtn = document.getElementById('swot2-continue');
   if (continueBtn) {
     continueBtn.onclick = () => goToStep(2);
   }
 }
 
-function renderSwotInput() {
-  const input = document.getElementById('swot-new-item');
-  const btn = document.getElementById('swot-add-item');
-  const examplesBtn = document.getElementById('swot-fill-examples');
-  if (!input || !btn) return;
+function setupSwotInput() {
+  const input = document.getElementById('swot2-input');
+  const addBtn = document.getElementById('swot2-add');
+  const examplesBtn = document.getElementById('swot2-examples');
+
+  if (!input || !addBtn) return;
 
   input.onkeydown = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      addPendingItem(input.value.trim());
+      addSwotItem(input.value.trim());
     }
   };
 
-  btn.onclick = () => addPendingItem(input.value.trim());
+  addBtn.onclick = () => addSwotItem(input.value.trim());
 
   if (examplesBtn) {
     examplesBtn.onclick = () => fillSwotExamples();
   }
 }
 
-function fillSwotExamples() {
-  const examples = {
-    forces: ['Boa reputação no marketplace', 'Estoque próprio e logística ágil'],
-    weaknesses: ['Dependência de um único fornecedor', 'Falta de presença em redes sociais'],
-    opportunities: ['Alta do Pix e do social commerce', 'Crescimento do TikTok Shop'],
-    threats: ['Guerra de preços entre concorrentes', 'Mudanças nas regras do marketplace']
-  };
-
-  Object.keys(examples).forEach(field => {
-    const current = getItemsFromField(field);
-    examples[field].forEach(text => {
-      if (!current.includes(text)) {
-        current.push(text);
-      }
-    });
-    plan.swot[field] = current.join('\n');
-  });
-
-  savePlan(plan);
-  setSwotFeedback('Exemplos preenchidos. Você pode continuar ou editar as situações.', 'success');
-  renderSwot();
-}
-
-function addPendingItem(text) {
+function addSwotItem(text) {
   if (!text) {
-    setSwotFeedback('Digite uma situação antes de adicionar.', 'hint');
+    const input = document.getElementById('swot2-input');
+    if (input) input.focus();
     return;
   }
 
   plan.swot.pendingItems.push(text);
   savePlan(plan);
 
-  const input = document.getElementById('swot-new-item');
-  if (input) input.value = '';
+  const input = document.getElementById('swot2-input');
+  if (input) {
+    input.value = '';
+    input.focus();
+  }
 
-  setSwotFeedback('Situação adicionada. Arraste-a para a categoria certa.', 'success');
-  renderSwot();
+  renderPendingCards();
+  updateSwotStats();
 }
 
 function removePendingItem(index) {
   plan.swot.pendingItems.splice(index, 1);
   savePlan(plan);
-  renderSwot();
-}
-
-function renderPendingItems() {
-  const container = document.getElementById('swot-pending-cards');
-  if (!container) return;
-
-  container.innerHTML = '';
-
-  if (plan.swot.pendingItems.length === 0) {
-    container.innerHTML = '<p class="swot-pending-empty">Nenhuma situação pendente. Adicione uma acima.</p>';
-    return;
-  }
-
-  plan.swot.pendingItems.forEach((text, idx) => {
-    const card = createPendingCard(text, idx);
-    container.appendChild(card);
-  });
-}
-
-function createPendingCard(text, idx) {
-  const el = document.createElement('div');
-  el.className = 'card swot-card';
-  el.draggable = true;
-  el.dataset.idx = idx;
-  el.innerHTML = `<span>${escapeHtml(text)}</span>`;
-
-  el.addEventListener('dragstart', (event) => {
-    event.dataTransfer.setData('text/plain', String(idx));
-    event.dataTransfer.effectAllowed = 'move';
-    el.classList.add('dragging');
-  });
-
-  el.addEventListener('dragend', () => el.classList.remove('dragging'));
-
-  return el;
-}
-
-function renderSwotZones() {
-  document.querySelectorAll('.swot-zone').forEach(zone => {
-    const category = zone.dataset.category;
-    const cardsContainer = zone.querySelector('.swot-zone-cards');
-    if (!cardsContainer) return;
-
-    cardsContainer.innerHTML = '';
-    const field = categoryFields[category];
-    const items = getItemsFromField(field);
-
-    items.forEach(text => {
-      const card = createZoneCard(text, category);
-      cardsContainer.appendChild(card);
-    });
-
-    zone.ondragover = (event) => {
-      event.preventDefault();
-      zone.classList.add('drag-over');
-    };
-
-    zone.ondragleave = (event) => {
-      if (!zone.contains(event.relatedTarget)) zone.classList.remove('drag-over');
-    };
-
-    zone.ondrop = (event) => {
-      event.preventDefault();
-      zone.classList.remove('drag-over');
-      const idx = Number(event.dataTransfer.getData('text/plain'));
-      movePendingToCategory(idx, category);
-    };
-  });
-}
-
-function createZoneCard(text, category) {
-  const color = swotColors[category] || '#64748b';
-  const el = document.createElement('div');
-  el.className = 'swot-numbered-card';
-  el.style.borderLeftColor = color;
-  el.innerHTML = `
-    <span class="swot-card-text">${escapeHtml(text)}</span>
-    <button type="button" class="swot-card-remove" data-text="${escapeHtml(text)}" data-category="${category}" aria-label="Remover">×</button>
-  `;
-
-  el.querySelector('.swot-card-remove').addEventListener('click', (e) => {
-    removeItemFromCategory(e.target.dataset.text, e.target.dataset.category);
-  });
-
-  return el;
+  renderPendingCards();
+  updateSwotStats();
 }
 
 function movePendingToCategory(index, category) {
   if (isNaN(index) || index < 0 || index >= plan.swot.pendingItems.length) return;
 
   const text = plan.swot.pendingItems[index];
-  const field = categoryFields[category];
-  const items = getItemsFromField(field);
+  const field = categoryMap[category].field;
+  const items = getFieldItems(field);
 
-  if (items.includes(text)) {
-    setSwotFeedback('Essa situação já está nesta categoria.', 'hint');
-    return;
-  }
+  if (items.includes(text)) return;
 
   plan.swot.pendingItems.splice(index, 1);
   items.push(text);
   plan.swot[field] = items.join('\n');
 
   savePlan(plan);
-  setSwotFeedback(`"${text}" classificado como ${category}.`, 'success');
-  renderSwot();
+  renderPendingCards();
+  renderQuadrants();
+  updateSwotStats();
 }
 
 function removeItemFromCategory(text, category) {
-  const field = categoryFields[category];
-  const items = getItemsFromField(field).filter(item => item !== text);
+  const field = categoryMap[category].field;
+  const items = getFieldItems(field).filter(item => item !== text);
   plan.swot[field] = items.join('\n');
 
   savePlan(plan);
-  setSwotFeedback('Situação removida. Você pode adicioná-la novamente.', '');
-  renderSwot();
+  renderQuadrants();
+  updateSwotStats();
 }
 
-function getItemsFromField(field) {
+function fillSwotExamples() {
+  exampleItems.forEach(({ text, category }) => {
+    const field = categoryMap[category].field;
+    const items = getFieldItems(field);
+    if (!items.includes(text)) {
+      items.push(text);
+      plan.swot[field] = items.join('\n');
+    }
+  });
+
+  savePlan(plan);
+  renderQuadrants();
+  updateSwotStats();
+}
+
+function getFieldItems(field) {
   return (plan.swot[field] || '').split('\n').map(s => s.trim()).filter(Boolean);
 }
 
-function updateZoneCounts() {
-  Object.keys(categoryFields).forEach(category => {
-    const field = categoryFields[category];
-    const count = getItemsFromField(field).length;
-    const el = document.querySelector(`.swot-zone-count[data-category="${category}"]`);
-    if (el) {
-      el.textContent = `${count} ${count === 1 ? 'situação' : 'situações'}`;
-    }
+function renderPendingCards() {
+  const container = document.getElementById('swot2-pending-cards');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  if (plan.swot.pendingItems.length === 0) {
+    container.innerHTML = '<span class="swot2-empty">Nenhuma situação pendente. Adicione uma acima.</span>';
+    return;
+  }
+
+  plan.swot.pendingItems.forEach((text, idx) => {
+    const card = createSwotCard(text, idx, true);
+    container.appendChild(card);
   });
 }
 
-function setSwotFeedback(message, state) {
-  const feedback = document.getElementById('swot-feedback');
-  if (!feedback) return;
-  feedback.textContent = message;
-  feedback.className = `swot-feedback${state ? ` ${state}` : ''}`;
+function renderQuadrants() {
+  Object.keys(categoryMap).forEach(category => {
+    const { field, elId } = categoryMap[category];
+    const container = document.getElementById(elId);
+    if (!container) return;
+
+    container.innerHTML = '';
+    const items = getFieldItems(field);
+
+    items.forEach(text => {
+      const card = createSwotCard(text, null, false, category);
+      container.appendChild(card);
+    });
+  });
+
+  setupDropZones();
+}
+
+function createSwotCard(text, idx, isPending, category) {
+  const card = document.createElement('div');
+  card.className = 'swot2-card';
+  card.draggable = true;
+  card.dataset.text = text;
+  if (isPending && idx !== null) card.dataset.pendingIdx = idx;
+
+  card.innerHTML = `
+    <span>${escapeHtml(text)}</span>
+    <button type="button" class="swot2-delete-card" aria-label="Remover">×</button>
+  `;
+
+  card.querySelector('.swot2-delete-card').addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (isPending) {
+      removePendingItem(idx);
+    } else {
+      removeItemFromCategory(text, category);
+    }
+  });
+
+  card.addEventListener('dragstart', (e) => {
+    draggedText = { text, idx, isPending, category };
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', text);
+    card.style.opacity = '0.5';
+  });
+
+  card.addEventListener('dragend', () => {
+    draggedText = null;
+    card.style.opacity = '1';
+    document.querySelectorAll('.swot2-quadrant, .swot2-pending').forEach(zone => {
+      zone.classList.remove('drag-over');
+    });
+  });
+
+  return card;
+}
+
+function setupDropZones() {
+  const pendingZone = document.getElementById('swot2-pending');
+
+  if (pendingZone) {
+    pendingZone.ondragover = (e) => {
+      e.preventDefault();
+      pendingZone.classList.add('drag-over');
+    };
+
+    pendingZone.ondragleave = () => {
+      pendingZone.classList.remove('drag-over');
+    };
+
+    pendingZone.ondrop = (e) => {
+      e.preventDefault();
+      pendingZone.classList.remove('drag-over');
+      if (!draggedText || draggedText.isPending) return;
+
+      removeItemFromCategory(draggedText.text, draggedText.category);
+      plan.swot.pendingItems.push(draggedText.text);
+      savePlan(plan);
+      renderPendingCards();
+      renderQuadrants();
+      updateSwotStats();
+    };
+  }
+
+  Object.keys(categoryMap).forEach(category => {
+    const zone = document.querySelector(`.swot2-quadrant[data-category="${category}"]`);
+    if (!zone) return;
+
+    zone.ondragover = (e) => {
+      e.preventDefault();
+      zone.classList.add('drag-over');
+    };
+
+    zone.ondragleave = () => {
+      zone.classList.remove('drag-over');
+    };
+
+    zone.ondrop = (e) => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      if (!draggedText) return;
+
+      if (draggedText.isPending) {
+        movePendingToCategory(draggedText.idx, category);
+      } else if (draggedText.category !== category) {
+        removeItemFromCategory(draggedText.text, draggedText.category);
+        const field = categoryMap[category].field;
+        const items = getFieldItems(field);
+        if (!items.includes(draggedText.text)) {
+          items.push(draggedText.text);
+          plan.swot[field] = items.join('\n');
+          savePlan(plan);
+          renderQuadrants();
+          updateSwotStats();
+        }
+      }
+    };
+  });
+}
+
+function updateSwotStats() {
+  let total = plan.swot.pendingItems.length;
+
+  Object.keys(categoryMap).forEach(category => {
+    const { field } = categoryMap[category];
+    const items = getFieldItems(field);
+    total += items.length;
+
+    const countEl = document.querySelector(`.swot2-count[data-category="${category}"]`);
+    if (countEl) {
+      countEl.textContent = `${items.length} ${items.length === 1 ? 'situação' : 'situações'}`;
+    }
+  });
+
+  const totalEl = document.getElementById('swot2-total-items');
+  if (totalEl) totalEl.textContent = total;
 }
 
 function escapeHtml(text) {

@@ -37,66 +37,104 @@
 
   <main class="container">
     <section class="module active" id="module-1">
-      <h2>1. Diagnóstico SWOT</h2>
-      <p class="module-intro"><strong>Objetivo:</strong> mapear o cenário interno e externo da sua loja para tomar decisões embasadas.</p>
-      <div class="lesson-box">
-        <strong>Mini-aula:</strong> Força é algo interno positivo (ex.: boa reputação). Fraqueza é interno negativo (ex.: dependência de um fornecedor). Oportunidade é externo positivo (ex.: alta do Pix). Ameaça é externo negativo (ex.: guerra de preços).
-      </div>
-      <div class="swot-header">
-        <h3>Monte o seu SWOT</h3>
-        <p class="swot-subtitle">Adicione situações do seu negócio e arraste para a categoria certa.</p>
-      </div>
-      <p id="swot-feedback" class="swot-feedback" aria-live="polite">Digite uma situação abaixo, clique em adicionar e arraste o cartão para Forças, Fraquezas, Oportunidades ou Ameaças.</p>
+      <div class="swot2-wrapper">
+        <section class="swot2-info-box">
+          <strong>Mini-auxílio:</strong>
+          Força é algo interno positivo, como boa reputação.
+          Fraqueza é interno negativo, como dependência de um fornecedor.
+          Oportunidade é externo positivo, como alta do Pix.
+          Ameaça é externo negativo, como guerra de preços.
+        </section>
 
-      <div class="swot-add-item">
-        <input type="text" id="swot-new-item" placeholder="Ex.: Reputação alta no marketplace" aria-label="Nova situação">
-        <button type="button" id="swot-add-item" class="btn btn-primary">Adicionar situação</button>
-        <button type="button" id="swot-fill-examples" class="btn btn-secondary">Preencher exemplos</button>
-      </div>
+        <header class="swot2-header">
+          <div>
+            <p class="swot2-eyebrow">Planejamento estratégico</p>
+            <h2 class="swot2-title">Monte o seu SWOT</h2>
+            <p class="swot2-subtitle">
+              Adicione situações do seu negócio e arraste cada cartão para a categoria certa.
+            </p>
+          </div>
 
-      <section class="swot-pending" aria-label="Situações para classificar">
-        <h4>Situações para classificar</h4>
-        <div id="swot-pending-cards" class="cards-grid">
-          <p class="swot-pending-empty">Nenhuma situação pendente. Adicione uma acima.</p>
-        </div>
-      </section>
+          <div class="swot2-stats">
+            <div class="swot2-stat">
+              <strong id="swot2-total-items">0</strong>
+              <span>Itens</span>
+            </div>
+            <div class="swot2-stat">
+              <strong>4</strong>
+              <span>Categorias</span>
+            </div>
+          </div>
+        </header>
 
-      <div id="swot-board" class="swot-board">
-        <section class="swot-zone" data-category="Força" aria-label="Área de Forças">
-          <div class="swot-zone-header">
-            <div class="swot-zone-icon forca">🏆</div>
-            <h4>Forças</h4>
-            <span class="swot-zone-count" data-category="Força">0 situação</span>
+        <section class="swot2-control-panel">
+          <h3 class="swot2-control-title">Adicione uma nova situação</h3>
+          <div class="swot2-controls">
+            <input id="swot2-input" type="text" placeholder="Ex.: Reputação alta no marketplace" autocomplete="off" aria-label="Nova situação">
+            <button type="button" id="swot2-add">Adicionar situação</button>
+            <button type="button" id="swot2-examples" class="secondary">Preencher exemplos</button>
           </div>
-          <div class="swot-zone-cards"></div>
+          <p class="swot2-hint">
+            Digite uma situação, clique em adicionar e arraste o cartão para Forças, Fraquezas, Oportunidades ou Ameaças.
+          </p>
         </section>
-        <section class="swot-zone" data-category="Fraqueza" aria-label="Área de Fraquezas">
-          <div class="swot-zone-header">
-            <div class="swot-zone-icon fraqueza">🧩</div>
-            <h4>Fraquezas</h4>
-            <span class="swot-zone-count" data-category="Fraqueza">0 situação</span>
+
+        <section id="swot2-pending" class="swot2-pending" data-category="pending">
+          <div class="swot2-pending-title">Situações para classificar</div>
+          <div id="swot2-pending-cards">
+            <span class="swot2-empty">Nenhuma situação pendente. Adicione uma acima.</span>
           </div>
-          <div class="swot-zone-cards"></div>
         </section>
-        <section class="swot-zone" data-category="Oportunidade" aria-label="Área de Oportunidades">
-          <div class="swot-zone-header">
-            <div class="swot-zone-icon oportunidade">📈</div>
-            <h4>Oportunidades</h4>
-            <span class="swot-zone-count" data-category="Oportunidade">0 situação</span>
-          </div>
-          <div class="swot-zone-cards"></div>
+
+        <section class="swot2-board">
+          <article class="swot2-quadrant strength" data-category="Força" aria-label="Área de Forças">
+            <div class="swot2-quadrant-header">
+              <div class="swot2-quadrant-title">
+                <span class="swot2-icon">💪</span>
+                Forças
+              </div>
+              <span class="swot2-count" data-category="Força">0 situação</span>
+            </div>
+            <div class="swot2-cards" id="swot2-forca"></div>
+          </article>
+
+          <article class="swot2-quadrant weakness" data-category="Fraqueza" aria-label="Área de Fraquezas">
+            <div class="swot2-quadrant-header">
+              <div class="swot2-quadrant-title">
+                <span class="swot2-icon">⚠️</span>
+                Fraquezas
+              </div>
+              <span class="swot2-count" data-category="Fraqueza">0 situação</span>
+            </div>
+            <div class="swot2-cards" id="swot2-fraqueza"></div>
+          </article>
+
+          <article class="swot2-quadrant opportunity" data-category="Oportunidade" aria-label="Área de Oportunidades">
+            <div class="swot2-quadrant-header">
+              <div class="swot2-quadrant-title">
+                <span class="swot2-icon">🚀</span>
+                Oportunidades
+              </div>
+              <span class="swot2-count" data-category="Oportunidade">0 situação</span>
+            </div>
+            <div class="swot2-cards" id="swot2-oportunidade"></div>
+          </article>
+
+          <article class="swot2-quadrant threat" data-category="Ameaça" aria-label="Área de Ameaças">
+            <div class="swot2-quadrant-header">
+              <div class="swot2-quadrant-title">
+                <span class="swot2-icon">⛔</span>
+                Ameaças
+              </div>
+              <span class="swot2-count" data-category="Ameaça">0 situação</span>
+            </div>
+            <div class="swot2-cards" id="swot2-ameaca"></div>
+          </article>
         </section>
-        <section class="swot-zone" data-category="Ameaça" aria-label="Área de Ameaças">
-          <div class="swot-zone-header">
-            <div class="swot-zone-icon ameaca">🛡️</div>
-            <h4>Ameaças</h4>
-            <span class="swot-zone-count" data-category="Ameaça">0 situação</span>
-          </div>
-          <div class="swot-zone-cards"></div>
-        </section>
-      </div>
-      <div class="swot-continue">
-        <button id="swot-continue" class="btn btn-primary">Continuar →</button>
+
+        <footer class="swot2-footer">
+          <button type="button" id="swot2-continue" class="finish">Continuar →</button>
+        </footer>
       </div>
     </section>
 

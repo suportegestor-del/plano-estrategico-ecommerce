@@ -839,9 +839,387 @@ textarea:focus, input:focus {
   background: #fecaca;
 }
 
+.swot2-wrapper {
+  --swot2-bg: #f6f8fc;
+  --swot2-surface: #ffffff;
+  --swot2-text: #172033;
+  --swot2-muted: #6d7890;
+  --swot2-border: #e4e9f2;
+  --swot2-primary: #12a94b;
+  --swot2-primary-dark: #07863a;
+  --swot2-strength-bg: #effcf4;
+  --swot2-strength-border: #b9efd0;
+  --swot2-strength-color: #079447;
+  --swot2-weakness-bg: #fff8ed;
+  --swot2-weakness-border: #ffd9a5;
+  --swot2-weakness-color: #ef8518;
+  --swot2-opportunity-bg: #f0f6ff;
+  --swot2-opportunity-border: #bdd6ff;
+  --swot2-opportunity-color: #2879ed;
+  --swot2-threat-bg: #fff1f2;
+  --swot2-threat-border: #ffc5ca;
+  --swot2-threat-color: #e43f4e;
+  --swot2-shadow: 0 10px 30px rgba(24, 42, 75, 0.08);
+  padding: 12px 4px;
+}
+
+.swot2-info-box {
+  padding: 16px 18px;
+  margin-bottom: 24px;
+  background: #eef5ff;
+  border: 1px solid #d7e6ff;
+  border-left: 4px solid #2e7df6;
+  border-radius: 12px;
+  color: #33415c;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.swot2-info-box strong { color: #192c50; }
+
+.swot2-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 22px;
+}
+
+.swot2-eyebrow {
+  margin: 0 0 7px;
+  color: var(--swot2-primary-dark);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.swot2-title {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  color: var(--swot2-text);
+}
+
+.swot2-subtitle {
+  max-width: 650px;
+  margin: 12px 0 0;
+  color: var(--swot2-muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.swot2-stats {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.swot2-stat {
+  min-width: 100px;
+  padding: 12px 15px;
+  border: 1px solid var(--swot2-border);
+  border-radius: 12px;
+  background: var(--swot2-surface);
+  box-shadow: 0 5px 18px rgba(24, 42, 75, 0.05);
+  text-align: center;
+}
+
+.swot2-stat strong {
+  display: block;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--swot2-text);
+}
+
+.swot2-stat span {
+  display: block;
+  margin-top: 5px;
+  color: var(--swot2-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.swot2-control-panel {
+  padding: 18px;
+  margin-bottom: 20px;
+  background: var(--swot2-surface);
+  border: 1px solid var(--swot2-border);
+  border-radius: 16px;
+  box-shadow: var(--swot2-shadow);
+}
+
+.swot2-control-title {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--swot2-text);
+}
+
+.swot2-controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.swot2-controls input {
+  flex: 1 1 320px;
+  min-height: 44px;
+  padding: 0 14px;
+  color: var(--swot2-text);
+  background: #fbfcfe;
+  border: 1px solid #dce3ef;
+  border-radius: 10px;
+  outline: none;
+  transition: 0.2s ease;
+  font: inherit;
+}
+
+.swot2-controls input:focus {
+  border-color: var(--swot2-primary);
+  box-shadow: 0 0 0 4px rgba(18, 169, 75, 0.12);
+}
+
+.swot2-controls button {
+  min-height: 44px;
+  padding: 0 17px;
+  border: 0;
+  border-radius: 10px;
+  color: white;
+  background: var(--swot2-primary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  transition: 0.2s ease;
+}
+
+.swot2-controls button:hover {
+  background: var(--swot2-primary-dark);
+  transform: translateY(-1px);
+}
+
+.swot2-controls button.secondary {
+  color: #33415c;
+  background: #e9eef6;
+}
+
+.swot2-controls button.secondary:hover {
+  background: #dce5f2;
+}
+
+.swot2-hint {
+  margin: 13px 0 0;
+  color: var(--swot2-muted);
+  font-size: 12px;
+}
+
+.swot2-pending {
+  min-height: 88px;
+  padding: 15px;
+  margin-bottom: 20px;
+  background: var(--swot2-surface);
+  border: 1px dashed #cbd5e5;
+  border-radius: 14px;
+  transition: 0.2s ease;
+}
+
+.swot2-pending.drag-over {
+  border-color: var(--swot2-primary);
+  background: #f4fff8;
+}
+
+.swot2-pending-title {
+  margin-bottom: 8px;
+  color: #44516a;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.swot2-empty {
+  color: #98a3b7;
+  font-size: 13px;
+  font-style: italic;
+}
+
+.swot2-board {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.swot2-quadrant {
+  min-height: 235px;
+  padding: 17px;
+  border: 1px solid;
+  border-radius: 16px;
+  transition: 0.2s ease;
+}
+
+.swot2-quadrant.drag-over {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(24, 42, 75, 0.12);
+}
+
+.swot2-quadrant.strength {
+  background: var(--swot2-strength-bg);
+  border-color: var(--swot2-strength-border);
+}
+
+.swot2-quadrant.weakness {
+  background: var(--swot2-weakness-bg);
+  border-color: var(--swot2-weakness-border);
+}
+
+.swot2-quadrant.opportunity {
+  background: var(--swot2-opportunity-bg);
+  border-color: var(--swot2-opportunity-border);
+}
+
+.swot2-quadrant.threat {
+  background: var(--swot2-threat-bg);
+  border-color: var(--swot2-threat-border);
+}
+
+.swot2-quadrant-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.swot2-quadrant-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--swot2-text);
+}
+
+.swot2-icon {
+  display: grid;
+  width: 29px;
+  height: 29px;
+  place-items: center;
+  border-radius: 9px;
+  font-size: 15px;
+}
+
+.swot2-quadrant.strength .swot2-icon { background: #c9f4d9; }
+.swot2-quadrant.weakness .swot2-icon { background: #ffe2b6; }
+.swot2-quadrant.opportunity .swot2-icon { background: #d9e8ff; }
+.swot2-quadrant.threat .swot2-icon { background: #ffd9dc; }
+
+.swot2-count {
+  padding: 5px 9px;
+  color: #637089;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(140, 153, 176, 0.22);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.swot2-cards {
+  display: grid;
+  gap: 9px;
+}
+
+.swot2-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 12px 12px 14px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(189, 199, 216, 0.75);
+  border-left: 3px solid;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(24, 42, 75, 0.04);
+  cursor: grab;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--swot2-text);
+}
+
+.swot2-card:active { cursor: grabbing; }
+
+.swot2-quadrant.strength .swot2-card { border-left-color: var(--swot2-strength-color); }
+.swot2-quadrant.weakness .swot2-card { border-left-color: var(--swot2-weakness-color); }
+.swot2-quadrant.opportunity .swot2-card { border-left-color: var(--swot2-opportunity-color); }
+.swot2-quadrant.threat .swot2-card { border-left-color: var(--swot2-threat-color); }
+
+.swot2-delete-card {
+  display: grid;
+  width: 23px;
+  min-width: 23px;
+  height: 23px;
+  min-height: 23px;
+  padding: 0;
+  place-items: center;
+  color: #ec5e6a;
+  background: #fff0f1;
+  border: 1px solid #ffd5d8;
+  border-radius: 50%;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.swot2-delete-card:hover {
+  color: white;
+  background: #e6505d;
+}
+
+.swot2-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+#swot2-continue {
+  background: #087e39;
+  color: white;
+  min-height: 44px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+#swot2-continue:hover {
+  background: #065c29;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 760px) {
+  .swot2-wrapper { padding: 8px 0; }
+  .swot2-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .swot2-stats {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .swot2-stat { flex: 1; }
+  .swot2-board { grid-template-columns: 1fr; }
+  .swot2-controls button { flex: 1 1 100%; }
+}
+
 @media (max-width: 640px) {
   .container { padding: 0 0.5rem; }
   .module { padding: 1rem; }
   .form-row input { width: 100%; }
-  .swot-board { grid-template-columns: 1fr; }
 }
