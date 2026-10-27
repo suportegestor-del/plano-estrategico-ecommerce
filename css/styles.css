@@ -41,6 +41,88 @@ body {
   flex-wrap: wrap;
 }
 
+.qr-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--primary);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--radius);
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(4px);
+}
+
+.qr-toggle:hover {
+  background: white;
+}
+
+.qr-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 1rem;
+}
+
+.qr-modal.active {
+  display: flex;
+}
+
+.qr-modal-content {
+  position: relative;
+  background: white;
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  text-align: center;
+  max-width: 90vw;
+  width: 300px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.qr-modal-content h3 {
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+}
+
+.qr-close {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.6rem;
+  background: transparent;
+  border: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.qr-close:hover {
+  color: var(--text);
+}
+
+.qr-url {
+  font-size: 0.78rem;
+  color: var(--text-light);
+  word-break: break-all;
+  margin: 0.75rem 0 0;
+}
+
+#qr-code img,
+#qr-code canvas {
+  display: block;
+  margin: 0 auto;
+  border-radius: var(--radius);
+}
+
 .btn {
   display: inline-flex;
   align-items: center;

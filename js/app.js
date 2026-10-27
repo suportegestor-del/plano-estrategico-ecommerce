@@ -85,4 +85,45 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   goToStep(plan.currentStep);
+
+  setupQrModal();
 });
+
+function setupQrModal() {
+  const toggle = document.getElementById('qr-toggle');
+  const modal = document.getElementById('qr-modal');
+  const close = document.getElementById('qr-close');
+  const container = document.getElementById('qr-code');
+  const urlEl = document.getElementById('qr-url');
+
+  if (!toggle || !modal || !container) return;
+
+  let generated = false;
+
+  toggle.addEventListener('click', () => {
+    modal.classList.add('active');
+    if (!generated) {
+      container.innerHTML = '';
+      const url = window.location.href;
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(container, {
+          text: url,
+          width: 200,
+          height: 200,
+          colorDark: '#1e3a8a',
+          colorLight: '#ffffff'
+        });
+      } else {
+        container.textContent = 'Erro ao carregar gerador de QR Code.';
+      }
+      urlEl.textContent = url;
+      generated = true;
+    }
+  });
+
+  const hide = () => modal.classList.remove('active');
+  close.addEventListener('click', hide);
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) hide();
+  });
+}

@@ -7,6 +7,17 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+  <button id="qr-toggle" class="qr-toggle" type="button" aria-label="Mostrar QR Code">QR Code</button>
+
+  <div id="qr-modal" class="qr-modal">
+    <div class="qr-modal-content">
+      <button id="qr-close" class="qr-close" type="button" aria-label="Fechar">×</button>
+      <h3>Escaneie para abrir no celular</h3>
+      <div id="qr-code"></div>
+      <p class="qr-url" id="qr-url"></p>
+    </div>
+  </div>
+
   <header class="app-header">
     <h1>Plano da sua empresa em 6 passos</h1>
     <p>Monte seu planejamento estratégico de e-commerce de forma prática e guiada.</p>
@@ -278,6 +289,7 @@
   </footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="data/example-store.js"></script>
   <script src="js/store.js"></script>
   <script src="js/config.js"></script>
