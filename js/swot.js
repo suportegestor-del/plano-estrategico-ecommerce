@@ -17,9 +17,14 @@ const exampleItems = [
 ];
 
 let draggedText = null;
+let isAddingSwot = false;
 
 function renderSwot() {
   if (!plan.swot.pendingItems) plan.swot.pendingItems = [];
+  if (!plan.swot.forces) plan.swot.forces = '';
+  if (!plan.swot.weaknesses) plan.swot.weaknesses = '';
+  if (!plan.swot.opportunities) plan.swot.opportunities = '';
+  if (!plan.swot.threats) plan.swot.threats = '';
 
   setupSwotInput();
   setupDropZones();
@@ -54,14 +59,15 @@ function setupSwotInput() {
 }
 
 function addSwotItem(text) {
+  if (isAddingSwot) return;
+
   if (!text) {
     const input = document.getElementById('swot2-input');
     if (input) input.focus();
     return;
   }
 
-  plan.swot.pendingItems.push(text);
-  savePlan(plan);
+  isAddingSwot = true;
 
   const input = document.getElementById('swot2-input');
   if (input) {
@@ -69,8 +75,13 @@ function addSwotItem(text) {
     input.focus();
   }
 
+  plan.swot.pendingItems.push(text);
+  savePlan(plan);
+
   renderPendingCards();
   updateSwotStats();
+
+  isAddingSwot = false;
 }
 
 function removePendingItem(index) {
@@ -83,15 +94,14 @@ function removePendingItem(index) {
 function movePendingToCategory(index, category) {
   if (isNaN(index) || index < 0 || index >= plan.swot.pendingItems.length) return;
 
-  const text = plan.swot.pendingItems[index];
+  const text = plan.swot.pendingItems.splice(index, 1)[0];
   const field = categoryMap[category].field;
   const items = getFieldItems(field);
 
-  if (items.includes(text)) return;
-
-  plan.swot.pendingItems.splice(index, 1);
-  items.push(text);
-  plan.swot[field] = items.join('\n');
+  if (!items.includes(text)) {
+    items.push(text);
+    plan.swot[field] = items.join('\n');
+  }
 
   savePlan(plan);
   renderPendingCards();
@@ -130,7 +140,10 @@ function getFieldItems(field) {
 
 function renderPendingCards() {
   const container = document.getElementById('swot2-pending-cards');
-  if (!container) return;
+  if (!container) {
+    console.warn('[SWOT] Container de pendentes não encontrado');
+    return;
+  }
 
   container.innerHTML = '';
 
@@ -139,6 +152,7 @@ function renderPendingCards() {
     return;
   }
 
+  console.log(`[SWOT] Renderizando ${plan.swot.pendingItems.length} situação(ões) pendente(s)`);
   plan.swot.pendingItems.forEach((text, idx) => {
     const card = createSwotCard(text, idx, true);
     container.appendChild(card);
@@ -149,10 +163,14 @@ function renderQuadrants() {
   Object.keys(categoryMap).forEach(category => {
     const { field, elId } = categoryMap[category];
     const container = document.getElementById(elId);
-    if (!container) return;
+    if (!container) {
+      console.warn(`[SWOT] Container não encontrado: ${elId}`);
+      return;
+    }
 
     container.innerHTML = '';
     const items = getFieldItems(field);
+    console.log(`[SWOT] Renderizando ${items.length} item(ns) em ${category} (${field})`);
 
     items.forEach(text => {
       const card = createSwotCard(text, null, false, category);
