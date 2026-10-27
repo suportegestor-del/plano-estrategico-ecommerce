@@ -1180,6 +1180,38 @@ textarea:focus, input:focus {
   background: #e6505d;
 }
 
+.swot2-card-actions {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.swot2-action {
+  display: grid;
+  width: 26px;
+  min-width: 26px;
+  height: 26px;
+  min-height: 26px;
+  padding: 0;
+  place-items: center;
+  background: white;
+  border: 1px solid #d0d8e6;
+  border-radius: 50%;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.swot2-action:hover {
+  transform: scale(1.1);
+}
+
+.swot2-action.forca { background: #dcfce7; border-color: #86efac; }
+.swot2-action.fraqueza { background: #ffedd5; border-color: #fdba74; }
+.swot2-action.oportunidade { background: #dbeafe; border-color: #93c5fd; }
+.swot2-action.ameaca { background: #fee2e2; border-color: #fca5a5; }
+
 @media (max-width: 760px) {
   .swot2-wrapper { padding: 8px 0; }
   .swot2-header {

@@ -158,10 +158,29 @@ function createSwotCard(text, idx, isPending, category) {
   card.dataset.text = text;
   if (isPending && idx !== null) card.dataset.pendingIdx = idx;
 
+  const actionsHtml = isPending ? `
+    <div class="swot2-card-actions">
+      <button type="button" class="swot2-action forca" data-category="Força" title="Força" aria-label="Mover para Forças">💪</button>
+      <button type="button" class="swot2-action fraqueza" data-category="Fraqueza" title="Fraqueza" aria-label="Mover para Fraquezas">⚠️</button>
+      <button type="button" class="swot2-action oportunidade" data-category="Oportunidade" title="Oportunidade" aria-label="Mover para Oportunidades">🚀</button>
+      <button type="button" class="swot2-action ameaca" data-category="Ameaça" title="Ameaça" aria-label="Mover para Ameaças">⛔</button>
+    </div>
+  ` : '';
+
   card.innerHTML = `
-    <span>${escapeHtml(text)}</span>
+    <span class="swot2-card-text">${escapeHtml(text)}</span>
+    ${actionsHtml}
     <button type="button" class="swot2-delete-card" aria-label="Remover">×</button>
   `;
+
+  if (isPending) {
+    card.querySelectorAll('.swot2-action').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        movePendingToCategory(idx, btn.dataset.category);
+      });
+    });
+  }
 
   card.querySelector('.swot2-delete-card').addEventListener('click', (e) => {
     e.stopPropagation();
