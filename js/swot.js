@@ -17,17 +17,12 @@ const exampleItems = [
 ];
 
 let draggedText = null;
-let swotInitialized = false;
 
 function renderSwot() {
   if (!plan.swot.pendingItems) plan.swot.pendingItems = [];
 
-  if (!swotInitialized) {
-    setupSwotInput();
-    setupDropZones();
-    swotInitialized = true;
-  }
-
+  setupSwotInput();
+  setupDropZones();
   renderPendingCards();
   renderQuadrants();
   updateSwotStats();
@@ -40,21 +35,20 @@ function handleAddSwotClick() {
 
 function setupSwotInput() {
   const input = document.getElementById('swot2-input');
-  const addBtn = document.getElementById('swot2-add');
   const examplesBtn = document.getElementById('swot2-examples');
 
-  if (!input || !addBtn) return;
+  if (input && !input.dataset.setup) {
+    input.dataset.setup = 'true';
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addSwotItem(input.value.trim());
+      }
+    });
+  }
 
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      addSwotItem(input.value.trim());
-    }
-  });
-
-  addBtn.addEventListener('click', () => addSwotItem(input.value.trim()));
-
-  if (examplesBtn) {
+  if (examplesBtn && !examplesBtn.dataset.setup) {
+    examplesBtn.dataset.setup = 'true';
     examplesBtn.addEventListener('click', fillSwotExamples);
   }
 }
@@ -228,7 +222,8 @@ function createSwotCard(text, idx, isPending, category) {
 function setupDropZones() {
   const pendingZone = document.getElementById('swot2-pending');
 
-  if (pendingZone) {
+  if (pendingZone && !pendingZone.dataset.setup) {
+    pendingZone.dataset.setup = 'true';
     pendingZone.addEventListener('dragover', (e) => {
       e.preventDefault();
       pendingZone.classList.add('drag-over');
@@ -254,7 +249,8 @@ function setupDropZones() {
 
   Object.keys(categoryMap).forEach(category => {
     const zone = document.querySelector(`.swot2-quadrant[data-category="${category}"]`);
-    if (!zone) return;
+    if (!zone || zone.dataset.setup) return;
+    zone.dataset.setup = 'true';
 
     zone.addEventListener('dragover', (e) => {
       e.preventDefault();
