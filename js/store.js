@@ -7,7 +7,8 @@ const defaultPlan = {
     weaknesses: '',
     opportunities: '',
     threats: '',
-    cards: []
+    cards: [],
+    pendingItems: []
   },
   crossStrategies: [],
   pillars: {},

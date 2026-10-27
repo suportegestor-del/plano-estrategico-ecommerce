@@ -1,3 +1,25 @@
+const API_KEY_STORAGE = 'openai-api-key';
+
+function loadApiKey() {
+  try {
+    return localStorage.getItem(API_KEY_STORAGE) || '';
+  } catch (e) {
+    return '';
+  }
+}
+
+function saveApiKey(key) {
+  try {
+    if (key) {
+      localStorage.setItem(API_KEY_STORAGE, key.trim());
+    } else {
+      localStorage.removeItem(API_KEY_STORAGE);
+    }
+  } catch (e) {
+    console.error('Erro ao salvar chave', e);
+  }
+}
+
 function getSwotItems() {
   const parse = (text) => (text || '').split('\n').map(s => s.trim()).filter(Boolean);
   return {
@@ -104,6 +126,11 @@ function renderSwotCross() {
     });
   }
 
+  const aiBtn = document.getElementById('generate-cross-ai');
+  if (aiBtn) {
+    aiBtn.onclick = () => generateCrossWithAI();
+  }
+
   if (list) {
     list.innerHTML = '';
     plan.crossStrategies.forEach((s, idx) => {
@@ -141,4 +168,179 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
+}
+
+function buildSwotCrossPrompt(items) {
+  return `Você é um consultor sênior de planejamento estratégico para e-commerce.
+
+Com base no diagnóstico SWOT abaixo, crie UMA estratégia curta e acionável para cada um dos 4 cruzamentos SWOT:
+- FO (Força + Oportunidade): como usar uma força para aproveitar uma oportunidade.
+- FA (Força + Ameaça): como usar uma força para se proteger de uma ameaça.
+- WO (Fraqueza + Oportunidade): como superar uma fraqueza para não perder uma oportunidade.
+- WT (Fraqueza + Ameaça): como se defender de uma ameaça sem depender do ponto fraco.
+
+FORÇAS:
+${items.forces.map((f, i) => `${i + 1}. ${f}`).join('\n') || '-'}
+
+FRAQUEZAS:
+${items.weaknesses.map((w, i) => `${i + 1}. ${w}`).join('\n') || '-'}
+
+OPORTUNIDADES:
+${items.opportunities.map((o, i) => `${i + 1}. ${o}`).join('\n') || '-'}
+
+AMEAÇAS:
+${items.threats.map((t, i) => `${i + 1}. ${t}`).join('\n') || '-'}
+
+Responda APENAS com um objeto JSON válido no formato abaixo, sem explicações, sem markdown, sem texto fora do JSON:
+{
+  "FO": "Estratégia FO aqui",
+  "FA": "Estratégia FA aqui",
+  "WO": "Estratégia WO aqui",
+  "WT": "Estratégia WT aqui"
+}`;
+}
+
+function parseAIResponse(text) {
+  let cleaned = text.trim();
+
+  const jsonBlockMatch = cleaned.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (jsonBlockMatch) {
+    cleaned = jsonBlockMatch[1].trim();
+  }
+
+  if (cleaned.startsWith('```')) {
+    cleaned = cleaned.replace(/^```[a-z]*\n?/, '').replace(/\n?```$/, '').trim();
+  }
+
+  try {
+    return JSON.parse(cleaned);
+  } catch (err) {
+    return null;
+  }
+}
+
+function extractStrategies(parsed) {
+  if (!parsed || typeof parsed !== 'object') return null;
+
+  const keys = ['FO', 'FA', 'WO', 'WT'];
+  const result = {};
+
+  for (const key of keys) {
+    if (typeof parsed[key] === 'string') {
+      result[key] = parsed[key];
+    }
+  }
+
+  if (Object.keys(result).length === 4) return result;
+
+  for (const value of Object.values(parsed)) {
+    if (value && typeof value === 'object') {
+      const nested = {};
+      for (const key of keys) {
+        if (typeof value[key] === 'string') {
+          nested[key] = value[key];
+        }
+      }
+      if (Object.keys(nested).length === 4) return nested;
+    }
+  }
+
+  return Object.keys(result).length > 0 ? result : null;
+}
+
+async function generateCrossWithAI() {
+  const items = getSwotItems();
+  const apiKey = loadApiKey();
+
+  if (!apiKey) {
+    setCrossFeedback('Configure sua chave da OpenAI no topo da página antes de usar a IA.', 'hint');
+    return;
+  }
+
+  if (!items.forces.length || !items.weaknesses.length || !items.opportunities.length || !items.threats.length) {
+    setCrossFeedback('Preencha pelo menos um item em cada categoria do SWOT antes de usar a IA.', 'hint');
+    return;
+  }
+
+  const aiBtn = document.getElementById('generate-cross-ai');
+  const originalText = aiBtn ? aiBtn.textContent : '';
+  if (aiBtn) {
+    aiBtn.disabled = true;
+    aiBtn.textContent = 'Gerando...';
+  }
+
+  setCrossFeedback('Consultando a IA. Isso pode levar alguns segundos...', '');
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: 'Você é um assistente especializado em planejamento estratégico. Responda apenas em JSON válido.' },
+          { role: 'user', content: buildSwotCrossPrompt(items) }
+        ],
+        temperature: 0.7,
+        max_tokens: 1000
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error?.message || `Erro ${response.status}`);
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+
+    if (!content) {
+      throw new Error('Resposta vazia da IA.');
+    }
+
+    const parsed = parseAIResponse(content);
+    const strategies = extractStrategies(parsed);
+
+    if (!strategies || !strategies.FO || !strategies.FA || !strategies.WO || !strategies.WT) {
+      throw new Error('A IA não retornou o formato esperado.');
+    }
+
+    const combos = getCombinations();
+    const typeToCombo = { FO: 0, FA: 1, WO: 2, WT: 3 };
+
+    Object.keys(strategies).forEach(type => {
+      const combo = combos[typeToCombo[type]];
+      if (!combo) return;
+
+      const idx = plan.crossStrategies.findIndex(s => s.type === type && s.a === combo.a && s.b === combo.b);
+      const strategy = strategies[type].trim();
+
+      if (idx >= 0) {
+        plan.crossStrategies[idx].strategy = strategy;
+      } else {
+        plan.crossStrategies.push({
+          id: 'cs-' + Date.now() + '-' + type,
+          type,
+          a: combo.a,
+          b: combo.b,
+          strategy
+        });
+      }
+    });
+
+    savePlan(plan);
+    setCrossFeedback('Estratégias geradas com sucesso!', 'success');
+    renderSwotCross();
+  } catch (err) {
+    setCrossFeedback('Erro ao gerar estratégias: ' + err.message, 'hint');
+    console.error(err);
+  } finally {
+    if (aiBtn) {
+      aiBtn.disabled = false;
+      aiBtn.textContent = originalText;
+    }
+  }
 }

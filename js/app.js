@@ -58,6 +58,41 @@ document.addEventListener('DOMContentLoaded', () => {
   prevBtn.addEventListener('click', () => goToStep(plan.currentStep - 1));
   nextBtn.addEventListener('click', () => goToStep(plan.currentStep + 1));
 
+  const apiKeyInput = document.getElementById('api-key-input');
+  const saveApiKeyBtn = document.getElementById('save-api-key');
+  const apiKeyStatus = document.getElementById('api-key-status');
+
+  if (apiKeyInput) {
+    apiKeyInput.value = loadApiKey();
+  }
+
+  function updateApiKeyStatus(message, isError) {
+    if (!apiKeyStatus) return;
+    apiKeyStatus.textContent = message;
+    apiKeyStatus.className = 'api-key-status ' + (isError ? 'error' : 'ok');
+  }
+
+  if (saveApiKeyBtn && apiKeyInput) {
+    saveApiKeyBtn.addEventListener('click', () => {
+      const key = apiKeyInput.value.trim();
+      if (!key) {
+        saveApiKey('');
+        updateApiKeyStatus('Chave removida.', true);
+        return;
+      }
+      if (!key.startsWith('sk-')) {
+        updateApiKeyStatus('Chave inválida.', true);
+        return;
+      }
+      saveApiKey(key);
+      updateApiKeyStatus('Chave salva.', false);
+    });
+  }
+
+  if (loadApiKey()) {
+    updateApiKeyStatus('Chave configurada.', false);
+  }
+
   loadExampleBtn.addEventListener('click', () => {
     if (confirm('Isso substituirá seus dados pelo exemplo da Casa Aurora. Deseja continuar?')) {
       Object.assign(plan, JSON.parse(JSON.stringify(exampleStore)));

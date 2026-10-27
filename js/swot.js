@@ -1,14 +1,3 @@
-const defaultCards = [
-  { text: 'Reputação alta no marketplace', category: 'Força', explanation: 'É um ponto interno positivo da loja.' },
-  { text: 'Dependência de um único fornecedor', category: 'Fraqueza', explanation: 'É um ponto interno que pode prejudicar a loja.' },
-  { text: 'Alta do Pix e do social commerce', category: 'Oportunidade', explanation: 'É uma tendência externa que pode beneficiar as vendas.' },
-  { text: 'Guerra de preços entre concorrentes', category: 'Ameaça', explanation: 'É um fator externo que pode reduzir margens.' },
-  { text: 'Estoque próprio e logística ágil', category: 'Força', explanation: 'É uma vantagem interna operacional.' },
-  { text: 'Falta de presença em redes sociais', category: 'Fraqueza', explanation: 'É um ponto interno que a loja pode melhorar.' },
-  { text: 'Crescimento do TikTok Shop', category: 'Oportunidade', explanation: 'É um canal externo em expansão que pode impulsionar vendas.' },
-  { text: 'Mudanças nas regras do marketplace', category: 'Ameaça', explanation: 'É um fator externo fora do controle da loja.' }
-];
-
 const swotColors = {
   Força: '#22c55e',
   Fraqueza: '#f97316',
@@ -16,85 +5,183 @@ const swotColors = {
   Ameaça: '#ef4444'
 };
 
+const categoryFields = {
+  Força: 'forces',
+  Fraqueza: 'weaknesses',
+  Oportunidade: 'opportunities',
+  Ameaça: 'threats'
+};
+
 function renderSwot() {
-  const container = document.getElementById('swot-cards');
-  const fields = ['forces', 'weaknesses', 'opportunities', 'threats'];
+  if (!plan.swot.pendingItems) plan.swot.pendingItems = [];
 
-  if (!plan.swot.cards || plan.swot.cards.length === 0) {
-    plan.swot.cards = defaultCards.map(c => ({ ...c, userChoice: null }));
-  }
-
-  container.innerHTML = '';
-  document.querySelectorAll('.swot-zone-cards').forEach(zone => {
-    zone.innerHTML = '';
-  });
-
-  let classifiedCount = 0;
-  plan.swot.cards.forEach((card, idx) => {
-    if (card.userChoice) classifiedCount++;
-
-    const el = document.createElement('button');
-    el.type = 'button';
-    el.className = 'card swot-card';
-    el.draggable = true;
-    el.dataset.idx = idx;
-    el.setAttribute('aria-pressed', 'false');
-    el.innerHTML = `<span>${escapeHtml(card.text)}</span>`;
-
-    el.addEventListener('click', () => selectSwotCard(el));
-    el.addEventListener('dragstart', (event) => {
-      event.dataTransfer.setData('text/plain', String(idx));
-      event.dataTransfer.effectAllowed = 'move';
-      el.classList.add('dragging');
-    });
-    el.addEventListener('dragend', () => el.classList.remove('dragging'));
-
-    if (card.userChoice) {
-      const zone = document.querySelector(`.swot-zone[data-category="${card.userChoice}"] .swot-zone-cards`);
-      if (zone) {
-        const numberedCard = createNumberedCard(card, idx);
-        zone.appendChild(numberedCard);
-      } else {
-        container.appendChild(el);
-      }
-    } else {
-      container.appendChild(el);
-    }
-  });
-
-  updateSwotProgress(classifiedCount);
-  updateSwotCounts();
-
-  document.querySelectorAll('.swot-zone').forEach(zone => {
-    zone.ondragover = (event) => {
-      event.preventDefault();
-      zone.classList.add('drag-over');
-    };
-    zone.ondragleave = (event) => {
-      if (!zone.contains(event.relatedTarget)) zone.classList.remove('drag-over');
-    };
-    zone.ondrop = (event) => {
-      event.preventDefault();
-      zone.classList.remove('drag-over');
-      classifySwotCard(Number(event.dataTransfer.getData('text/plain')), zone.dataset.category);
-    };
-  });
-
-  document.querySelectorAll('.swot-zone-target').forEach(button => {
-    button.onclick = () => {
-      const selected = document.querySelector('.swot-card.selected');
-      if (!selected) {
-        setSwotFeedback('Toque em um cartão primeiro e depois escolha a área.', '');
-        return;
-      }
-      classifySwotCard(Number(selected.dataset.idx), button.dataset.category);
-    };
-  });
+  renderSwotInput();
+  renderPendingItems();
+  renderSwotZones();
+  renderSwotTextareas();
+  updateZoneCounts();
 
   const continueBtn = document.getElementById('swot-continue');
   if (continueBtn) {
     continueBtn.onclick = () => goToStep(2);
   }
+}
+
+function renderSwotInput() {
+  const input = document.getElementById('swot-new-item');
+  const btn = document.getElementById('swot-add-item');
+  if (!input || !btn) return;
+
+  input.onkeydown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addPendingItem(input.value.trim());
+    }
+  };
+
+  btn.onclick = () => addPendingItem(input.value.trim());
+}
+
+function addPendingItem(text) {
+  if (!text) {
+    setSwotFeedback('Digite uma situação antes de adicionar.', 'hint');
+    return;
+  }
+
+  plan.swot.pendingItems.push(text);
+  savePlan(plan);
+
+  const input = document.getElementById('swot-new-item');
+  if (input) input.value = '';
+
+  setSwotFeedback('Situação adicionada. Arraste-a para a categoria certa.', 'success');
+  renderSwot();
+}
+
+function removePendingItem(index) {
+  plan.swot.pendingItems.splice(index, 1);
+  savePlan(plan);
+  renderSwot();
+}
+
+function renderPendingItems() {
+  const container = document.getElementById('swot-pending-cards');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  if (plan.swot.pendingItems.length === 0) {
+    container.innerHTML = '<p class="swot-pending-empty">Nenhuma situação pendente. Adicione uma acima.</p>';
+    return;
+  }
+
+  plan.swot.pendingItems.forEach((text, idx) => {
+    const card = createPendingCard(text, idx);
+    container.appendChild(card);
+  });
+}
+
+function createPendingCard(text, idx) {
+  const el = document.createElement('div');
+  el.className = 'card swot-card';
+  el.draggable = true;
+  el.dataset.idx = idx;
+  el.innerHTML = `<span>${escapeHtml(text)}</span>`;
+
+  el.addEventListener('dragstart', (event) => {
+    event.dataTransfer.setData('text/plain', String(idx));
+    event.dataTransfer.effectAllowed = 'move';
+    el.classList.add('dragging');
+  });
+
+  el.addEventListener('dragend', () => el.classList.remove('dragging'));
+
+  return el;
+}
+
+function renderSwotZones() {
+  document.querySelectorAll('.swot-zone').forEach(zone => {
+    const category = zone.dataset.category;
+    const cardsContainer = zone.querySelector('.swot-zone-cards');
+    if (!cardsContainer) return;
+
+    cardsContainer.innerHTML = '';
+    const field = categoryFields[category];
+    const items = getItemsFromField(field);
+
+    items.forEach(text => {
+      const card = createZoneCard(text, category);
+      cardsContainer.appendChild(card);
+    });
+
+    zone.ondragover = (event) => {
+      event.preventDefault();
+      zone.classList.add('drag-over');
+    };
+
+    zone.ondragleave = (event) => {
+      if (!zone.contains(event.relatedTarget)) zone.classList.remove('drag-over');
+    };
+
+    zone.ondrop = (event) => {
+      event.preventDefault();
+      zone.classList.remove('drag-over');
+      const idx = Number(event.dataTransfer.getData('text/plain'));
+      movePendingToCategory(idx, category);
+    };
+  });
+}
+
+function createZoneCard(text, category) {
+  const color = swotColors[category] || '#64748b';
+  const el = document.createElement('div');
+  el.className = 'swot-numbered-card';
+  el.style.borderLeftColor = color;
+  el.innerHTML = `
+    <span class="swot-card-text">${escapeHtml(text)}</span>
+    <button type="button" class="swot-card-remove" data-text="${escapeHtml(text)}" data-category="${category}" aria-label="Remover">×</button>
+  `;
+
+  el.querySelector('.swot-card-remove').addEventListener('click', (e) => {
+    removeItemFromCategory(e.target.dataset.text, e.target.dataset.category);
+  });
+
+  return el;
+}
+
+function movePendingToCategory(index, category) {
+  if (isNaN(index) || index < 0 || index >= plan.swot.pendingItems.length) return;
+
+  const text = plan.swot.pendingItems[index];
+  const field = categoryFields[category];
+  const items = getItemsFromField(field);
+
+  if (items.includes(text)) {
+    setSwotFeedback('Essa situação já está nesta categoria.', 'hint');
+    return;
+  }
+
+  plan.swot.pendingItems.splice(index, 1);
+  items.push(text);
+  plan.swot[field] = items.join('\n');
+
+  savePlan(plan);
+  setSwotFeedback(`"${text}" classificado como ${category}.`, 'success');
+  renderSwot();
+}
+
+function removeItemFromCategory(text, category) {
+  const field = categoryFields[category];
+  const items = getItemsFromField(field).filter(item => item !== text);
+  plan.swot[field] = items.join('\n');
+
+  savePlan(plan);
+  setSwotFeedback('Situação removida. Você pode adicioná-la novamente.', '');
+  renderSwot();
+}
+
+function renderSwotTextareas() {
+  const fields = ['forces', 'weaknesses', 'opportunities', 'threats'];
 
   fields.forEach(field => {
     const el = document.getElementById(field);
@@ -103,78 +190,21 @@ function renderSwot() {
     el.oninput = () => {
       plan.swot[field] = el.value;
       savePlan(plan);
+      renderSwotZones();
+      updateZoneCounts();
     };
   });
 }
 
-function createNumberedCard(card, idx) {
-  const color = swotColors[card.userChoice] || '#64748b';
-  const el = document.createElement('div');
-  el.className = 'swot-numbered-card';
-  el.style.borderLeftColor = color;
-  el.draggable = true;
-  el.dataset.idx = idx;
-  el.innerHTML = `
-    <span class="swot-card-text">${escapeHtml(card.text)}</span>
-    <span class="swot-card-number" style="color:${color}; border-color:${color}">${idx + 1}</span>
-  `;
-  el.addEventListener('dragstart', (event) => {
-    event.dataTransfer.setData('text/plain', String(idx));
-    event.dataTransfer.effectAllowed = 'move';
-    el.classList.add('dragging');
-  });
-  el.addEventListener('dragend', () => el.classList.remove('dragging'));
-  return el;
+function getItemsFromField(field) {
+  return (plan.swot[field] || '').split('\n').map(s => s.trim()).filter(Boolean);
 }
 
-function selectSwotCard(card) {
-  document.querySelectorAll('.swot-card.selected').forEach(selected => {
-    selected.classList.remove('selected');
-    selected.setAttribute('aria-pressed', 'false');
-  });
-  card.classList.add('selected');
-  card.setAttribute('aria-pressed', 'true');
-  setSwotFeedback('Cartão selecionado. Escolha uma área para classificar.', '');
-}
-
-function classifySwotCard(idx, category) {
-  const card = plan.swot.cards[idx];
-  if (!card || !category) return;
-
-  card.userChoice = category;
-  savePlan(plan);
-
-  if (card.userChoice === card.category) {
-    setSwotFeedback(`Você classificou como ${category}. Essa é uma classificação comum: ${card.explanation}`, 'success');
-  } else {
-    setSwotFeedback(`Você classificou como ${category}. Uma sugestão é ${card.category}, porque ${card.explanation}. No SWOT da sua loja, sua interpretação também pode fazer sentido.`, 'hint');
-  }
-  renderSwot();
-}
-
-function updateSwotProgress(classifiedCount) {
-  const total = plan.swot.cards.length;
-  const percent = total ? Math.round((classifiedCount / total) * 100) : 0;
-
-  const label = document.getElementById('swot-progress-label');
-  const score = document.getElementById('swot-score');
-  const progressBar = document.querySelector('.swot-progress-track');
-  const progressFill = document.getElementById('swot-progress-fill');
-
-  if (label) label.textContent = `${classifiedCount} de ${total} situações classificadas`;
-  if (score) score.textContent = `${percent}%`;
-  if (progressBar) {
-    progressBar.setAttribute('aria-valuemax', String(total));
-    progressBar.setAttribute('aria-valuenow', String(classifiedCount));
-  }
-  if (progressFill) progressFill.style.width = `${percent}%`;
-}
-
-function updateSwotCounts() {
-  const categories = ['Força', 'Fraqueza', 'Oportunidade', 'Ameaça'];
-  categories.forEach(cat => {
-    const count = plan.swot.cards.filter(c => c.userChoice === cat).length;
-    const el = document.querySelector(`.swot-zone-count[data-category="${cat}"]`);
+function updateZoneCounts() {
+  Object.keys(categoryFields).forEach(category => {
+    const field = categoryFields[category];
+    const count = getItemsFromField(field).length;
+    const el = document.querySelector(`.swot-zone-count[data-category="${category}"]`);
     if (el) {
       el.textContent = `${count} ${count === 1 ? 'situação' : 'situações'}`;
     }

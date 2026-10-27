@@ -17,6 +17,12 @@
       <label class="btn btn-secondary" for="import-backup">Importar backup</label>
       <input type="file" id="import-backup" accept="application/json" hidden>
     </div>
+    <div class="api-key-bar">
+      <label for="api-key-input">Chave OpenAI:</label>
+      <input type="password" id="api-key-input" placeholder="Cole sua chave da OpenAI aqui" autocomplete="off">
+      <button type="button" id="save-api-key" class="btn btn-small">Salvar</button>
+      <span id="api-key-status" class="api-key-status"></span>
+    </div>
   </header>
 
   <nav class="stepper" aria-label="Progresso do plano">
@@ -36,17 +42,23 @@
         <strong>Mini-aula:</strong> Força é algo interno positivo (ex.: boa reputação). Fraqueza é interno negativo (ex.: dependência de um fornecedor). Oportunidade é externo positivo (ex.: alta do Pix). Ameaça é externo negativo (ex.: guerra de preços).
       </div>
       <div class="swot-header">
-        <h3>Classifique as situações</h3>
-        <p class="swot-subtitle">Organize cada situação na categoria mais adequada</p>
+        <h3>Monte o seu SWOT</h3>
+        <p class="swot-subtitle">Adicione situações do seu negócio e arraste para a categoria certa.</p>
       </div>
-      <div class="swot-progress" aria-live="polite">
-        <span id="swot-progress-label">0 de 8 situações classificadas</span>
-        <span id="swot-score">0%</span>
-        <div class="swot-progress-track" role="progressbar" aria-label="Progresso do exercício SWOT" aria-valuemin="0" aria-valuemax="8" aria-valuenow="0">
-          <div id="swot-progress-fill" class="swot-progress-fill"></div>
+      <p id="swot-feedback" class="swot-feedback" aria-live="polite">Digite uma situação abaixo, clique em adicionar e arraste o cartão para Forças, Fraquezas, Oportunidades ou Ameaças.</p>
+
+      <div class="swot-add-item">
+        <input type="text" id="swot-new-item" placeholder="Ex.: Reputação alta no marketplace" aria-label="Nova situação">
+        <button type="button" id="swot-add-item" class="btn btn-primary">Adicionar situação</button>
+      </div>
+
+      <section class="swot-pending" aria-label="Situações para classificar">
+        <h4>Situações para classificar</h4>
+        <div id="swot-pending-cards" class="cards-grid">
+          <p class="swot-pending-empty">Nenhuma situação pendente. Adicione uma acima.</p>
         </div>
-      </div>
-      <p id="swot-feedback" class="swot-feedback" aria-live="polite">Arraste cada cartão para a área que faz mais sentido para você.</p>
+      </section>
+
       <div id="swot-board" class="swot-board">
         <section class="swot-zone" data-category="Força" aria-label="Área de Forças">
           <div class="swot-zone-header">
@@ -54,7 +66,6 @@
             <h4>Forças</h4>
             <span class="swot-zone-count" data-category="Força">0 situação</span>
           </div>
-          <button type="button" class="swot-zone-target" data-category="Força">Solte aqui ou anexe as situações</button>
           <div class="swot-zone-cards"></div>
         </section>
         <section class="swot-zone" data-category="Fraqueza" aria-label="Área de Fraquezas">
@@ -63,7 +74,6 @@
             <h4>Fraquezas</h4>
             <span class="swot-zone-count" data-category="Fraqueza">0 situação</span>
           </div>
-          <button type="button" class="swot-zone-target" data-category="Fraqueza">Solte aqui ou anexe as situações</button>
           <div class="swot-zone-cards"></div>
         </section>
         <section class="swot-zone" data-category="Oportunidade" aria-label="Área de Oportunidades">
@@ -72,7 +82,6 @@
             <h4>Oportunidades</h4>
             <span class="swot-zone-count" data-category="Oportunidade">0 situação</span>
           </div>
-          <button type="button" class="swot-zone-target" data-category="Oportunidade">Solte aqui ou anexe as situações</button>
           <div class="swot-zone-cards"></div>
         </section>
         <section class="swot-zone" data-category="Ameaça" aria-label="Área de Ameaças">
@@ -81,14 +90,9 @@
             <h4>Ameaças</h4>
             <span class="swot-zone-count" data-category="Ameaça">0 situação</span>
           </div>
-          <button type="button" class="swot-zone-target" data-category="Ameaça">Solte aqui ou anexe as situações</button>
           <div class="swot-zone-cards"></div>
         </section>
       </div>
-      <section class="swot-deck" aria-label="Cartões para classificar">
-        <h4>Situações para analisar</h4>
-        <div id="swot-cards" class="cards-grid"></div>
-      </section>
       <div class="swot-continue">
         <button id="swot-continue" class="btn btn-primary">Continuar →</button>
       </div>
@@ -129,6 +133,9 @@
         </ul>
       </div>
       <p id="cross-feedback" class="swot-feedback" aria-live="polite">Preencha o SWOT no passo anterior para gerar as 4 combinações.</p>
+      <div class="ai-actions">
+        <button id="generate-cross-ai" class="btn btn-primary" type="button">Gerar estratégias com IA</button>
+      </div>
       <div id="cross-grid" class="cross-grid"></div>
       <h3>Suas estratégias</h3>
       <div id="strategies-list" class="items-list"></div>
