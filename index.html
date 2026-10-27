@@ -154,15 +154,43 @@
           <li><strong>WT</strong> (Fraqueza + Ameaça): como se proteger de um risco sem depender de pontos fracos?</li>
         </ul>
       </div>
-      <p id="cross-feedback" class="swot-feedback" aria-live="polite">Preencha o SWOT no passo anterior para gerar as 4 combinações.</p>
-      <div class="ai-actions">
-        <button id="generate-cross-ai" class="btn btn-primary" type="button">Gerar estratégias com IA</button>
-        <button id="review-cross-ai" class="btn btn-secondary" type="button">Revisar e melhorar estratégias</button>
+      <p id="cross-feedback" class="swot-feedback" aria-live="polite">Preencha o SWOT no passo anterior para criar cruzamentos.</p>
+
+      <div class="cross-builder">
+        <div class="cross-builder-row">
+          <label for="cross-type">Tipo de cruzamento</label>
+          <select id="cross-type">
+            <option value="">Selecione...</option>
+            <option value="FO">Força + Oportunidade (FO)</option>
+            <option value="FA">Força + Ameaça (FA)</option>
+            <option value="WO">Fraqueza + Oportunidade (WO)</option>
+            <option value="WT">Fraqueza + Ameaça (WT)</option>
+          </select>
+        </div>
+        <div class="cross-builder-row">
+          <label for="cross-a" id="cross-a-label">Item interno</label>
+          <select id="cross-a"><option value="">Selecione...</option></select>
+        </div>
+        <div class="cross-builder-row">
+          <label for="cross-b" id="cross-b-label">Item externo</label>
+          <select id="cross-b"><option value="">Selecione...</option></select>
+        </div>
+        <div class="cross-builder-row">
+          <label for="cross-strategy">Estratégia</label>
+          <input type="text" id="cross-strategy" placeholder="Descreva a estratégia para essa combinação">
+        </div>
+        <div class="ai-actions">
+          <button id="generate-cross-ai" class="btn btn-primary" type="button">Gerar com IA</button>
+          <button id="add-cross-strategy" class="btn btn-secondary" type="button">Adicionar estratégia</button>
+        </div>
       </div>
-      <div id="cross-grid" class="cross-grid"></div>
+
       <h3>Suas estratégias</h3>
       <div id="strategies-list" class="items-list"></div>
       <div id="cross-review" class="cross-review" aria-live="polite"></div>
+      <div class="ai-actions">
+        <button id="review-cross-ai" class="btn btn-secondary" type="button">Revisar e melhorar estratégias</button>
+      </div>
       <div class="module-summary" id="summary-2">
         <strong>Resultado desta etapa:</strong> estratégias claras que serão agrupadas em pilares no próximo passo.
       </div>

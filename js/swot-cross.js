@@ -7,26 +7,12 @@ function getApiKey() {
 let crossStrategyReviews = [];
 let isCrossAIRequestPending = false;
 
-function getSwotItems() {
-  const parse = (text) => (text || '').split('\n').map(s => s.trim()).filter(Boolean);
-  return {
-    forces: parse(plan.swot.forces),
-    weaknesses: parse(plan.swot.weaknesses),
-    opportunities: parse(plan.swot.opportunities),
-    threats: parse(plan.swot.threats)
-  };
-}
-
-function getCombinations() {
-  const items = getSwotItems();
-  const combos = [
-    { type: 'FO', aLabel: 'Força', bLabel: 'Oportunidade', a: items.forces[0] || '', b: items.opportunities[0] || '' },
-    { type: 'FA', aLabel: 'Força', bLabel: 'Ameaça', a: items.forces[1] || items.forces[0] || '', b: items.threats[0] || '' },
-    { type: 'WO', aLabel: 'Fraqueza', bLabel: 'Oportunidade', a: items.weaknesses[0] || '', b: items.opportunities[1] || items.opportunities[0] || '' },
-    { type: 'WT', aLabel: 'Fraqueza', bLabel: 'Ameaça', a: items.weaknesses[1] || items.weaknesses[0] || '', b: items.threats[1] || items.threats[0] || '' }
-  ];
-  return combos.filter(c => c.a && c.b);
-}
+const crossConfig = {
+  FO: { aLabel: 'Força', bLabel: 'Oportunidade', aKey: 'forces', bKey: 'opportunities' },
+  FA: { aLabel: 'Força', bLabel: 'Ameaça', aKey: 'forces', bKey: 'threats' },
+  WO: { aLabel: 'Fraqueza', bLabel: 'Oportunidade', aKey: 'weaknesses', bKey: 'opportunities' },
+  WT: { aLabel: 'Fraqueza', bLabel: 'Ameaça', aKey: 'weaknesses', bKey: 'threats' }
+};
 
 function getTypeExplanation(type) {
   const map = {
@@ -38,117 +24,150 @@ function getTypeExplanation(type) {
   return map[type] || 'Como conectar esses dois itens?';
 }
 
-function renderSwotCross() {
-  const grid = document.getElementById('cross-grid');
-  const list = document.getElementById('strategies-list');
-  const feedback = document.getElementById('cross-feedback');
-  const reviewBtn = document.getElementById('review-cross-ai');
-  const aiBtn = document.getElementById('generate-cross-ai');
+function getSwotItems() {
+  const parse = (text) => (text || '').split('\n').map(s => s.trim()).filter(Boolean);
+  return {
+    forces: parse(plan.swot.forces),
+    weaknesses: parse(plan.swot.weaknesses),
+    opportunities: parse(plan.swot.opportunities),
+    threats: parse(plan.swot.threats)
+  };
+}
 
+function renderSwotCross() {
   if (!plan.crossStrategies) plan.crossStrategies = [];
 
-  if (aiBtn) {
-    aiBtn.onclick = () => generateCrossWithAI();
-  }
-  if (reviewBtn) {
-    reviewBtn.onclick = () => reviewCrossStrategiesWithAI();
-  }
-  renderCrossStrategyReviews();
+  const typeSelect = document.getElementById('cross-type');
+  const aSelect = document.getElementById('cross-a');
+  const bSelect = document.getElementById('cross-b');
+  const aLabel = document.getElementById('cross-a-label');
+  const bLabel = document.getElementById('cross-b-label');
+  const strategyInput = document.getElementById('cross-strategy');
+  const addBtn = document.getElementById('add-cross-strategy');
+  const aiBtn = document.getElementById('generate-cross-ai');
+  const reviewBtn = document.getElementById('review-cross-ai');
+  const feedback = document.getElementById('cross-feedback');
+  const list = document.getElementById('strategies-list');
 
-  const combos = getCombinations();
+  const items = getSwotItems();
+  const hasSwot = items.forces.length && items.weaknesses.length && items.opportunities.length && items.threats.length;
 
-  if (combos.length === 0) {
-    if (grid) grid.innerHTML = '';
-    if (list) list.innerHTML = '';
-    if (feedback) {
+  if (feedback) {
+    if (!hasSwot) {
       feedback.textContent = 'Preencha pelo menos uma força, uma fraqueza, uma oportunidade e uma ameaça no SWOT para criar os cruzamentos.';
       feedback.className = 'swot-feedback hint';
+    } else {
+      feedback.textContent = 'Escolha o tipo de cruzamento, selecione os itens e crie a estratégia.';
+      feedback.className = 'swot-feedback';
     }
+  }
+
+  if (aiBtn) aiBtn.onclick = () => generateCrossWithAI();
+  if (addBtn) addBtn.onclick = () => addCrossStrategy();
+  if (reviewBtn) reviewBtn.onclick = () => reviewCrossStrategiesWithAI();
+
+  if (typeSelect) {
+    typeSelect.onchange = () => {
+      updateCrossSelectors(typeSelect.value, items, aSelect, bSelect, aLabel, bLabel);
+      strategyInput.value = '';
+    };
+  }
+
+  // Renderiza lista de estratégias
+  if (list) {
+    list.innerHTML = '';
+    if (plan.crossStrategies.length === 0) {
+      list.innerHTML = '<p class="empty-list">Nenhuma estratégia criada ainda.</p>';
+    } else {
+      plan.crossStrategies.forEach((s, idx) => {
+        const chip = document.createElement('div');
+        chip.className = 'item-chip';
+        chip.innerHTML = `
+          <div>
+            <div>${escapeHtml(s.strategy)}</div>
+            ${s.review ? `<small class="strategy-review-note">${escapeHtml(s.review)}</small>` : ''}
+            <small>${escapeHtml(s.type)}: ${escapeHtml(s.a)} + ${escapeHtml(s.b)}</small>
+          </div>
+          <button class="btn btn-small btn-secondary remove-strategy" data-idx="${idx}">Remover</button>
+        `;
+        list.appendChild(chip);
+      });
+
+      list.querySelectorAll('.remove-strategy').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = parseInt(e.target.dataset.idx);
+          plan.crossStrategies.splice(idx, 1);
+          savePlan(plan);
+          renderSwotCross();
+        });
+      });
+    }
+  }
+
+  renderCrossStrategyReviews();
+}
+
+function updateCrossSelectors(type, items, aSelect, bSelect, aLabel, bLabel) {
+  if (!type || !crossConfig[type]) {
+    if (aSelect) aSelect.innerHTML = '<option value="">Selecione...</option>';
+    if (bSelect) bSelect.innerHTML = '<option value="">Selecione...</option>';
+    if (aLabel) aLabel.textContent = 'Item interno';
+    if (bLabel) bLabel.textContent = 'Item externo';
     return;
   }
 
-  if (feedback) {
-    feedback.textContent = 'Escreva uma estratégia para cada combinação e clique em Adicionar.';
-    feedback.className = 'swot-feedback';
+  const config = crossConfig[type];
+  if (aLabel) aLabel.textContent = config.aLabel;
+  if (bLabel) bLabel.textContent = config.bLabel;
+
+  fillSelect(aSelect, items[config.aKey]);
+  fillSelect(bSelect, items[config.bKey]);
+}
+
+function fillSelect(select, options) {
+  if (!select) return;
+  const previous = select.value;
+  select.innerHTML = '<option value="">Selecione...</option>';
+  options.forEach(text => {
+    const opt = document.createElement('option');
+    opt.value = text;
+    opt.textContent = text;
+    select.appendChild(opt);
+  });
+  if (options.includes(previous)) select.value = previous;
+}
+
+function getSelectedCross() {
+  const type = document.getElementById('cross-type').value;
+  const a = document.getElementById('cross-a').value;
+  const b = document.getElementById('cross-b').value;
+  if (!type || !a || !b) return null;
+  return { type, a, b };
+}
+
+function addCrossStrategy() {
+  const selected = getSelectedCross();
+  const strategyInput = document.getElementById('cross-strategy');
+  const value = strategyInput ? strategyInput.value.trim() : '';
+
+  if (!selected) {
+    setCrossFeedback('Selecione o tipo de cruzamento e os dois itens antes de adicionar.', 'hint');
+    return;
+  }
+  if (!value) {
+    setCrossFeedback('Digite uma estratégia antes de adicionar.', 'hint');
+    return;
   }
 
-  if (grid) {
-    grid.innerHTML = '';
-    combos.forEach((combo, idx) => {
-      const existing = plan.crossStrategies.find(s => s.type === combo.type && s.a === combo.a && s.b === combo.b);
-      const card = document.createElement('div');
-      card.className = 'cross-card';
-      card.dataset.type = combo.type;
-      card.innerHTML = `
-        <div class="cross-card-header">
-          <span class="cross-type">${combo.type}</span>
-          <span class="cross-question">${getTypeExplanation(combo.type)}</span>
-        </div>
-        <div class="cross-items">
-          <div class="cross-item"><strong>${combo.aLabel}</strong><p>${escapeHtml(combo.a)}</p></div>
-          <span class="cross-plus">+</span>
-          <div class="cross-item"><strong>${combo.bLabel}</strong><p>${escapeHtml(combo.b)}</p></div>
-        </div>
-        <div class="cross-input-row">
-          <input type="text" id="strategy-${combo.type}" value="${existing ? escapeHtml(existing.strategy) : ''}" placeholder="Sua estratégia para essa combinação">
-          <button class="btn btn-small add-cross-strategy" data-type="${combo.type}" data-a="${escapeHtml(combo.a)}" data-b="${escapeHtml(combo.b)}">Adicionar</button>
-        </div>
-      `;
-      grid.appendChild(card);
-    });
-
-    grid.querySelectorAll('.add-cross-strategy').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const type = btn.dataset.type;
-        const a = btn.dataset.a;
-        const b = btn.dataset.b;
-        const input = document.getElementById(`strategy-${type}`);
-        if (!input) return;
-        const value = input.value.trim();
-        if (!value) {
-          setCrossFeedback(`Digite uma estratégia para ${type} antes de adicionar.`, 'hint');
-          return;
-        }
-
-        const idx = plan.crossStrategies.findIndex(s => s.type === type && s.a === a && s.b === b);
-        if (idx >= 0) {
-          plan.crossStrategies[idx].strategy = value;
-        } else {
-          plan.crossStrategies.push({ id: 'cs-' + Date.now(), type, a, b, strategy: value });
-        }
-        savePlan(plan);
-        setCrossFeedback(`Estratégia ${type} salva.`, 'success');
-        renderSwotCross();
-      });
-    });
+  const idx = plan.crossStrategies.findIndex(s => s.type === selected.type && s.a === selected.a && s.b === selected.b);
+  if (idx >= 0) {
+    plan.crossStrategies[idx].strategy = value;
+  } else {
+    plan.crossStrategies.push({ id: 'cs-' + Date.now(), ...selected, strategy: value, review: '' });
   }
-
-  if (list) {
-    list.innerHTML = '';
-    plan.crossStrategies.forEach((s, idx) => {
-      const chip = document.createElement('div');
-      chip.className = 'item-chip';
-      chip.innerHTML = `
-        <div>
-          <div>${escapeHtml(s.strategy)}</div>
-          ${s.review ? `<small class="strategy-review-note">${escapeHtml(s.review)}</small>` : ''}
-          <small>${escapeHtml(s.type)}: ${escapeHtml(s.a)} + ${escapeHtml(s.b)}</small>
-        </div>
-        <button class="btn btn-small btn-secondary remove-strategy" data-idx="${idx}">Remover</button>
-      `;
-      list.appendChild(chip);
-    });
-
-    list.querySelectorAll('.remove-strategy').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const idx = parseInt(e.target.dataset.idx);
-        plan.crossStrategies.splice(idx, 1);
-        savePlan(plan);
-        renderSwotCross();
-      });
-    });
-  }
-
+  savePlan(plan);
+  setCrossFeedback(`Estratégia ${selected.type} salva.`, 'success');
+  renderSwotCross();
 }
 
 function setCrossFeedback(message, state) {
@@ -162,6 +181,36 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
+}
+
+function buildSingleCrossPrompt(type, a, b, items) {
+  const config = crossConfig[type];
+  return `Você é um consultor sênior de planejamento estratégico para e-commerce.
+
+Crie UMA estratégia executável para o cruzamento ${type} (${config.aLabel} + ${config.bLabel}).
+${getTypeExplanation(type)}
+
+${config.aLabel}: ${a}
+${config.bLabel}: ${b}
+
+Contexto completo do SWOT:
+FORÇAS:
+${items.forces.map((f, i) => `${i + 1}. ${f}`).join('\n') || '-'}
+
+FRAQUEZAS:
+${items.weaknesses.map((w, i) => `${i + 1}. ${w}`).join('\n') || '-'}
+
+OPORTUNIDADES:
+${items.opportunities.map((o, i) => `${i + 1}. ${o}`).join('\n') || '-'}
+
+AMEAÇAS:
+${items.threats.map((t, i) => `${i + 1}. ${t}`).join('\n') || '-'}
+
+Responda APENAS com um objeto JSON válido no formato abaixo, sem explicações, sem markdown, sem texto fora do JSON:
+{
+  "estrategia": "Ação concreta e executável",
+  "revisao": "Nenhuma aparente"
+}`;
 }
 
 function buildSwotCrossPrompt(items) {
@@ -286,8 +335,12 @@ function extractStrategies(parsed) {
 
 async function generateCrossWithAI() {
   if (isCrossAIRequestPending) return;
+
+  const selected = getSelectedCross();
   const items = getSwotItems();
   const apiKey = getApiKey();
+  const strategyInput = document.getElementById('cross-strategy');
+  const aiBtn = document.getElementById('generate-cross-ai');
 
   if (!apiKey) {
     setCrossFeedback('Chave da OpenAI não configurada. Contate o administrador.', 'hint');
@@ -299,15 +352,17 @@ async function generateCrossWithAI() {
     return;
   }
 
-  const aiBtn = document.getElementById('generate-cross-ai');
-  const reviewBtn = document.getElementById('review-cross-ai');
+  if (!selected) {
+    setCrossFeedback('Selecione o tipo de cruzamento e os dois itens antes de gerar com IA.', 'hint');
+    return;
+  }
+
   const originalText = aiBtn ? aiBtn.textContent : '';
   isCrossAIRequestPending = true;
   if (aiBtn) {
     aiBtn.disabled = true;
     aiBtn.textContent = 'Gerando...';
   }
-  if (reviewBtn) reviewBtn.disabled = true;
 
   setCrossFeedback('Consultando a IA. Isso pode levar alguns segundos...', '');
 
@@ -322,10 +377,10 @@ async function generateCrossWithAI() {
         model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: 'Você é um assistente especializado em planejamento estratégico. Responda apenas em JSON válido.' },
-          { role: 'user', content: buildSwotCrossPrompt(items) }
+          { role: 'user', content: buildSingleCrossPrompt(selected.type, selected.a, selected.b, items) }
         ],
         temperature: 0.7,
-        max_tokens: 1000
+        max_tokens: 600
       })
     });
 
@@ -342,44 +397,14 @@ async function generateCrossWithAI() {
     }
 
     const parsed = parseAIResponse(content);
-    const strategies = extractStrategies(parsed);
-
-    if (!strategies || !strategies.FO || !strategies.FA || !strategies.WO || !strategies.WT) {
+    if (!parsed || typeof parsed !== 'object' || typeof parsed.estrategia !== 'string') {
       throw new Error('A IA não retornou o formato esperado.');
     }
 
-    const combos = getCombinations();
-    const typeToCombo = { FO: 0, FA: 1, WO: 2, WT: 3 };
-
-    Object.keys(strategies).forEach(type => {
-      const combo = combos[typeToCombo[type]];
-      if (!combo) return;
-
-      const idx = plan.crossStrategies.findIndex(s => s.type === type && s.a === combo.a && s.b === combo.b);
-      const strategy = strategies[type].estrategia.trim();
-      const review = strategies[type].revisao.trim();
-      const reviewText = review && !/^nenhuma aparente\.?$/i.test(review) ? `Revisão SWOT: ${review}` : '';
-
-      if (idx >= 0) {
-        plan.crossStrategies[idx].strategy = strategy;
-        plan.crossStrategies[idx].review = reviewText;
-      } else {
-        plan.crossStrategies.push({
-          id: 'cs-' + Date.now() + '-' + type,
-          type,
-          a: combo.a,
-          b: combo.b,
-          strategy,
-          review: reviewText
-        });
-      }
-    });
-
-    savePlan(plan);
-    setCrossFeedback('Estratégias geradas com sucesso!', 'success');
-    renderSwotCross();
+    if (strategyInput) strategyInput.value = parsed.estrategia.trim();
+    setCrossFeedback('Estratégia gerada. Revise e clique em Adicionar.', 'success');
   } catch (err) {
-    setCrossFeedback('Erro ao gerar estratégias: ' + err.message, 'hint');
+    setCrossFeedback('Erro ao gerar estratégia: ' + err.message, 'hint');
     console.error(err);
   } finally {
     isCrossAIRequestPending = false;
@@ -387,7 +412,6 @@ async function generateCrossWithAI() {
       aiBtn.disabled = false;
       aiBtn.textContent = originalText;
     }
-    if (reviewBtn) reviewBtn.disabled = false;
   }
 }
 

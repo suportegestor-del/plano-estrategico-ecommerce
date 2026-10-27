@@ -831,6 +831,44 @@ textarea:focus, input:focus {
   padding: 0 1rem;
 }
 
+.cross-builder {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  box-shadow: var(--shadow);
+  margin: 1rem 0;
+}
+
+.cross-builder-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.85rem;
+}
+
+.cross-builder-row label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.cross-builder-row select,
+.cross-builder-row input {
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  background: white;
+  color: var(--text);
+}
+
+.cross-builder-row select:focus,
+.cross-builder-row input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
 .cross-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
