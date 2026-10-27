@@ -31,17 +31,24 @@ function loadPlan() {
 }
 
 function migratePlan(plan) {
-  // Remove duplicatas dos campos SWOT e dos itens pendentes
-  if (plan.swot) {
-    ['forces', 'weaknesses', 'opportunities', 'threats'].forEach(field => {
-      const items = (plan.swot[field] || '').split('\n').map(s => s.trim()).filter(Boolean);
-      plan.swot[field] = [...new Set(items)].join('\n');
-    });
-
-    if (Array.isArray(plan.swot.pendingItems)) {
-      plan.swot.pendingItems = [...new Set(plan.swot.pendingItems)];
-    }
+  // Normaliza a seção SWOT, tolerando dados de versões antigas em formatos diferentes
+  if (!plan.swot || typeof plan.swot !== 'object' || Array.isArray(plan.swot)) {
+    plan.swot = JSON.parse(JSON.stringify(defaultPlan.swot));
   }
+
+  ['forces', 'weaknesses', 'opportunities', 'threats'].forEach(field => {
+    let value = plan.swot[field];
+    if (Array.isArray(value)) value = value.join('\n');
+    if (typeof value !== 'string') value = '';
+    const items = value.split('\n').map(s => s.trim()).filter(Boolean);
+    plan.swot[field] = [...new Set(items)].join('\n');
+  });
+
+  let pending = plan.swot.pendingItems;
+  if (typeof pending === 'string') pending = pending.split('\n');
+  if (!Array.isArray(pending)) pending = [];
+  pending = pending.map(s => (typeof s === 'string' ? s.trim() : '')).filter(Boolean);
+  plan.swot.pendingItems = [...new Set(pending)];
 
   // Padroniza estratégias cruzadas para o formato { id, type, a, b, strategy }
   plan.crossStrategies = (plan.crossStrategies || []).map((s, idx) => {

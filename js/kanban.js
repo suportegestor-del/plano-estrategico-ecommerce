@@ -1,4 +1,6 @@
 function renderKanban() {
+  ensureInitiativesFromGoals();
+
   document.querySelectorAll('.kanban-zone').forEach(zone => {
     zone.innerHTML = '';
     const status = zone.dataset.status;
@@ -15,25 +17,54 @@ function renderKanban() {
   renderKanbanProgress();
 }
 
+function ensureInitiativesFromGoals() {
+  if (!plan.initiatives) plan.initiatives = [];
+  if (!plan.goals || plan.goals.length === 0) return;
+
+  let created = false;
+  plan.goals.forEach(goal => {
+    if (!goal.text.trim()) return;
+    const exists = plan.initiatives.some(i => i.goalId === goal.id);
+    if (exists) return;
+
+    plan.initiatives.push({
+      id: 'init-' + Date.now() + '-' + goal.id,
+      goalId: goal.id,
+      title: `Ação para: ${goal.text.substring(0, 40)}${goal.text.length > 40 ? '...' : ''}`,
+      owner: '',
+      due: '',
+      status: 'unassigned'
+    });
+    created = true;
+  });
+
+  if (created) savePlan(plan);
+}
+
+
+
 function createInitiativeCard(initiative) {
   const goals = plan.goals || [];
-  const goalOptions = goals.map(g => `<option value="${g.id}" ${initiative.goalId === g.id ? 'selected' : ''}>${escapeHtml(g.text || g.pillar)}</option>`).join('');
+  const linkedGoal = goals.find(g => g.id === initiative.goalId);
+  const goalLabel = linkedGoal
+    ? escapeHtml(linkedGoal.text.substring(0, 45) + (linkedGoal.text.length > 45 ? '...' : ''))
+    : 'Sem meta';
 
   const el = document.createElement('div');
   el.className = 'initiative';
   el.draggable = true;
   el.dataset.id = initiative.id;
   el.innerHTML = `
-    <select data-field="goalId" class="initiative-goal">
-      <option value="">Vincular a uma meta...</option>
-      ${goalOptions}
-    </select>
-    <input type="text" data-field="title" value="${escapeHtml(initiative.title)}" placeholder="Nome da iniciativa">
+    <div class="initiative-header">
+      <span class="drag-handle" title="Arrastar" aria-hidden="true">⋮⋮</span>
+      <span class="initiative-goal" title="${linkedGoal ? escapeHtml(linkedGoal.text) : 'Sem meta vinculada'}">${goalLabel}</span>
+      <button type="button" class="remove-initiative" title="Remover" aria-label="Remover">×</button>
+    </div>
+    <input type="text" data-field="title" class="initiative-title" value="${escapeHtml(initiative.title)}" placeholder="Descreva a ação">
     <div class="initiative-meta">
       <input type="text" data-field="owner" value="${escapeHtml(initiative.owner)}" placeholder="Responsável">
-      <input type="date" data-field="due" value="${initiative.due}">
+      <input type="date" data-field="due" value="${initiative.due}" placeholder="Prazo">
     </div>
-    <button class="btn btn-small btn-secondary remove-initiative">Remover</button>
   `;
 
   el.addEventListener('dragstart', (e) => {
@@ -42,16 +73,10 @@ function createInitiativeCard(initiative) {
   });
   el.addEventListener('dragend', () => el.classList.remove('dragging'));
 
-  el.querySelectorAll('input, select').forEach(input => {
+  el.querySelectorAll('input').forEach(input => {
     input.addEventListener('input', () => {
       initiative[input.dataset.field] = input.value;
       savePlan(plan);
-      if (input.dataset.field === 'goalId' && input.value) {
-        const goal = goals.find(g => g.id === input.value);
-        if (goal && !initiative.title.trim()) {
-          initiative.title = `Ação para: ${goal.text.substring(0, 40)}${goal.text.length > 40 ? '...' : ''}`;
-        }
-      }
     });
   });
 
@@ -86,11 +111,14 @@ function setupKanbanDrop(zone) {
 
 function addInitiative(status = 'unassigned') {
   if (!plan.initiatives) plan.initiatives = [];
-  const firstGoal = plan.goals && plan.goals[0];
+
+  const goals = plan.goals || [];
+  const nextGoal = goals.find(g => g.text.trim() && !plan.initiatives.some(i => i.goalId === g.id));
+
   plan.initiatives.push({
     id: 'init-' + Date.now(),
-    goalId: firstGoal ? firstGoal.id : '',
-    title: firstGoal && firstGoal.text ? `Ação para: ${firstGoal.text.substring(0, 40)}...` : 'Nova iniciativa',
+    goalId: nextGoal ? nextGoal.id : '',
+    title: nextGoal ? `Ação para: ${nextGoal.text.substring(0, 40)}${nextGoal.text.length > 40 ? '...' : ''}` : 'Nova iniciativa',
     owner: '',
     due: '',
     status

@@ -20,11 +20,14 @@ let draggedText = null;
 let isAddingSwot = false;
 
 function renderSwot() {
-  if (!plan.swot.pendingItems) plan.swot.pendingItems = [];
-  if (!plan.swot.forces) plan.swot.forces = '';
-  if (!plan.swot.weaknesses) plan.swot.weaknesses = '';
-  if (!plan.swot.opportunities) plan.swot.opportunities = '';
-  if (!plan.swot.threats) plan.swot.threats = '';
+  if (!plan.swot || typeof plan.swot !== 'object' || Array.isArray(plan.swot)) {
+    plan.swot = { forces: '', weaknesses: '', opportunities: '', threats: '', cards: [], pendingItems: [] };
+  }
+  if (!Array.isArray(plan.swot.pendingItems)) plan.swot.pendingItems = [];
+  if (typeof plan.swot.forces !== 'string') plan.swot.forces = '';
+  if (typeof plan.swot.weaknesses !== 'string') plan.swot.weaknesses = '';
+  if (typeof plan.swot.opportunities !== 'string') plan.swot.opportunities = '';
+  if (typeof plan.swot.threats !== 'string') plan.swot.threats = '';
 
   setupSwotInput();
   setupDropZones();
