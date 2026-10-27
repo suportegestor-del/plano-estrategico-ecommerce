@@ -31,7 +31,20 @@ function yesNo(value) {
 
 function getSwotItems(key) {
   const raw = (plan.swot && plan.swot[key]) || '';
-  return raw.split('\n').map(s => s.trim()).filter(Boolean);
+  const fromString = raw.split('\n').map(s => s.trim()).filter(Boolean);
+  if (fromString.length > 0) return fromString;
+
+  // Fallback para dados antigos no formato cards
+  const cards = (plan.swot && plan.swot.cards) || [];
+  const fieldToCategory = {
+    forces: 'Força',
+    weaknesses: 'Fraqueza',
+    opportunities: 'Oportunidade',
+    threats: 'Ameaça'
+  };
+  return cards
+    .filter(c => c.category === fieldToCategory[key] || c.userChoice === fieldToCategory[key])
+    .map(c => c.text);
 }
 
 function buildSwotAnalysisSheet() {
@@ -42,8 +55,8 @@ function buildSwotAnalysisSheet() {
   rows.push([]);
   rows.push(['💪 FORÇAS (STRENGTHS)', null, '⚠️ FRAQUEZAS (WEAKNESSES)', null]);
 
-  const forces = getSwotItems('forces');
-  const weaknesses = getSwotItems('weaknesses');
+  const forces = getSwotItems('forces').map(t => '• ' + t);
+  const weaknesses = getSwotItems('weaknesses').map(t => '• ' + t);
   const maxTop = Math.max(forces.length, weaknesses.length, 1);
 
   for (let i = 0; i < maxTop; i++) {
@@ -53,8 +66,8 @@ function buildSwotAnalysisSheet() {
   rows.push([]);
   rows.push(['🚀 OPORTUNIDADES (OPPORTUNITIES)', null, '🛑 AMEAÇAS (THREATS)', null]);
 
-  const opportunities = getSwotItems('opportunities');
-  const threats = getSwotItems('threats');
+  const opportunities = getSwotItems('opportunities').map(t => '• ' + t);
+  const threats = getSwotItems('threats').map(t => '• ' + t);
   const maxBottom = Math.max(opportunities.length, threats.length, 1);
 
   for (let i = 0; i < maxBottom; i++) {
