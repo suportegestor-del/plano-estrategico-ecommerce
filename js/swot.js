@@ -132,17 +132,25 @@ function renderPendingCards() {
   const container = document.getElementById('swot2-pending-cards');
   if (!container) return;
 
-  container.innerHTML = '';
-
   if (plan.swot.pendingItems.length === 0) {
     container.innerHTML = '<span class="swot2-empty">Nenhuma situação pendente. Adicione uma acima.</span>';
     return;
   }
 
-  plan.swot.pendingItems.forEach((text, idx) => {
-    const card = createSwotCard(text, idx, true);
-    container.appendChild(card);
-  });
+  container.innerHTML = plan.swot.pendingItems.map((text, idx) => `
+    <div class="swot2-card" draggable="true" data-text="${escapeHtml(text)}" data-pending-idx="${idx}">
+      <span class="swot2-card-text">${escapeHtml(text)}</span>
+      <div class="swot2-card-actions">
+        <button type="button" class="swot2-action forca" data-category="Força" title="Força" aria-label="Mover para Forças">💪</button>
+        <button type="button" class="swot2-action fraqueza" data-category="Fraqueza" title="Fraqueza" aria-label="Mover para Fraquezas">⚠️</button>
+        <button type="button" class="swot2-action oportunidade" data-category="Oportunidade" title="Oportunidade" aria-label="Mover para Oportunidades">🚀</button>
+        <button type="button" class="swot2-action ameaca" data-category="Ameaça" title="Ameaça" aria-label="Mover para Ameaças">⛔</button>
+      </div>
+      <button type="button" class="swot2-delete-card" aria-label="Remover">×</button>
+    </div>
+  `).join('');
+
+  attachCardListeners(container, true);
 }
 
 function renderQuadrants() {
@@ -151,72 +159,57 @@ function renderQuadrants() {
     const container = document.getElementById(elId);
     if (!container) return;
 
-    container.innerHTML = '';
     const items = getFieldItems(field);
 
-    items.forEach(text => {
-      const card = createSwotCard(text, null, false, category);
-      container.appendChild(card);
-    });
+    container.innerHTML = items.map(text => `
+      <div class="swot2-card" draggable="true" data-text="${escapeHtml(text)}">
+        <span class="swot2-card-text">${escapeHtml(text)}</span>
+        <button type="button" class="swot2-delete-card" aria-label="Remover">×</button>
+      </div>
+    `).join('');
+
+    attachCardListeners(container, false, category);
   });
 }
 
-function createSwotCard(text, idx, isPending, category) {
-  const card = document.createElement('div');
-  card.className = 'swot2-card';
-  card.draggable = true;
-  card.dataset.text = text;
-  if (isPending && idx !== null) card.dataset.pendingIdx = idx;
+function attachCardListeners(container, isPending, category) {
+  container.querySelectorAll('.swot2-card').forEach(card => {
+    const text = card.dataset.text;
+    const idx = isPending ? parseInt(card.dataset.pendingIdx) : null;
 
-  const actionsHtml = isPending ? `
-    <div class="swot2-card-actions">
-      <button type="button" class="swot2-action forca" data-category="Força" title="Força" aria-label="Mover para Forças">💪</button>
-      <button type="button" class="swot2-action fraqueza" data-category="Fraqueza" title="Fraqueza" aria-label="Mover para Fraquezas">⚠️</button>
-      <button type="button" class="swot2-action oportunidade" data-category="Oportunidade" title="Oportunidade" aria-label="Mover para Oportunidades">🚀</button>
-      <button type="button" class="swot2-action ameaca" data-category="Ameaça" title="Ameaça" aria-label="Mover para Ameaças">⛔</button>
-    </div>
-  ` : '';
+    if (isPending) {
+      card.querySelectorAll('.swot2-action').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          movePendingToCategory(idx, btn.dataset.category);
+        });
+      });
+    }
 
-  card.innerHTML = `
-    <span class="swot2-card-text">${escapeHtml(text)}</span>
-    ${actionsHtml}
-    <button type="button" class="swot2-delete-card" aria-label="Remover">×</button>
-  `;
+    card.querySelector('.swot2-delete-card').addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (isPending) {
+        removePendingItem(idx);
+      } else {
+        removeItemFromCategory(text, category);
+      }
+    });
 
-  if (isPending) {
-    card.querySelectorAll('.swot2-action').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        movePendingToCategory(idx, btn.dataset.category);
+    card.addEventListener('dragstart', (e) => {
+      draggedText = { text, idx, isPending, category };
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', text);
+      card.style.opacity = '0.5';
+    });
+
+    card.addEventListener('dragend', () => {
+      draggedText = null;
+      card.style.opacity = '1';
+      document.querySelectorAll('.swot2-quadrant, .swot2-pending').forEach(zone => {
+        zone.classList.remove('drag-over');
       });
     });
-  }
-
-  card.querySelector('.swot2-delete-card').addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (isPending) {
-      removePendingItem(idx);
-    } else {
-      removeItemFromCategory(text, category);
-    }
   });
-
-  card.addEventListener('dragstart', (e) => {
-    draggedText = { text, idx, isPending, category };
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', text);
-    card.style.opacity = '0.5';
-  });
-
-  card.addEventListener('dragend', () => {
-    draggedText = null;
-    card.style.opacity = '1';
-    document.querySelectorAll('.swot2-quadrant, .swot2-pending').forEach(zone => {
-      zone.classList.remove('drag-over');
-    });
-  });
-
-  return card;
 }
 
 function setupDropZones() {
