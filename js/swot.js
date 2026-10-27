@@ -20,19 +20,31 @@ function setupSwotInput() {
   const input = document.getElementById('swot2-input');
   const addBtn = document.getElementById('swot2-add');
 
-  if (!input || !addBtn) return;
+  if (!input || !addBtn) {
+    console.warn('[SWOT] input ou botão não encontrado');
+    return;
+  }
 
-  input.onkeydown = (e) => {
+  input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       addSwotItem(input.value.trim());
     }
-  };
+  });
 
-  addBtn.onclick = () => addSwotItem(input.value.trim());
+  addBtn.addEventListener('click', () => {
+    console.log('[SWOT] clicou Adicionar, valor:', input.value.trim());
+    addSwotItem(input.value.trim());
+  });
 }
 
 function addSwotItem(text) {
+  console.log('[SWOT] addSwotItem chamado com:', text);
+
+  if (!plan.swot.pendingItems) {
+    plan.swot.pendingItems = [];
+  }
+
   if (!text) {
     const input = document.getElementById('swot2-input');
     if (input) input.focus();
@@ -41,6 +53,7 @@ function addSwotItem(text) {
 
   plan.swot.pendingItems.push(text);
   savePlan(plan);
+  console.log('[SWOT] pendingItems agora:', plan.swot.pendingItems);
 
   const input = document.getElementById('swot2-input');
   if (input) {
