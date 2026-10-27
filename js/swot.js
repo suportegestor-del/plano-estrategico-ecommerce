@@ -33,6 +33,11 @@ function renderSwot() {
   updateSwotStats();
 }
 
+function handleAddSwotClick() {
+  const input = document.getElementById('swot2-input');
+  addSwotItem(input ? input.value.trim() : '');
+}
+
 function setupSwotInput() {
   const input = document.getElementById('swot2-input');
   const addBtn = document.getElementById('swot2-add');
