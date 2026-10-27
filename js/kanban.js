@@ -30,7 +30,7 @@ function ensureInitiativesFromGoals() {
     plan.initiatives.push({
       id: 'init-' + Date.now() + '-' + goal.id,
       goalId: goal.id,
-      title: `Ação para: ${goal.text.substring(0, 40)}${goal.text.length > 40 ? '...' : ''}`,
+      title: '',
       owner: '',
       due: '',
       status: 'unassigned'
@@ -46,9 +46,7 @@ function ensureInitiativesFromGoals() {
 function createInitiativeCard(initiative) {
   const goals = plan.goals || [];
   const linkedGoal = goals.find(g => g.id === initiative.goalId);
-  const goalLabel = linkedGoal
-    ? escapeHtml(linkedGoal.text.substring(0, 45) + (linkedGoal.text.length > 45 ? '...' : ''))
-    : 'Sem meta';
+  const goalLabel = linkedGoal ? escapeHtml(linkedGoal.text) : 'Sem meta';
 
   const el = document.createElement('div');
   el.className = 'initiative';
@@ -57,10 +55,10 @@ function createInitiativeCard(initiative) {
   el.innerHTML = `
     <div class="initiative-header">
       <span class="drag-handle" title="Arrastar" aria-hidden="true">⋮⋮</span>
-      <span class="initiative-goal" title="${linkedGoal ? escapeHtml(linkedGoal.text) : 'Sem meta vinculada'}">${goalLabel}</span>
+      <span class="initiative-goal">${goalLabel}</span>
       <button type="button" class="remove-initiative" title="Remover" aria-label="Remover">×</button>
     </div>
-    <input type="text" data-field="title" class="initiative-title" value="${escapeHtml(initiative.title)}" placeholder="Descreva a ação">
+    <input type="text" data-field="title" class="initiative-title" value="${escapeHtml(initiative.title)}" placeholder="Descreva a ação específica">
     <div class="initiative-meta">
       <input type="text" data-field="owner" value="${escapeHtml(initiative.owner)}" placeholder="Responsável">
       <input type="date" data-field="due" value="${initiative.due}" placeholder="Prazo">
@@ -118,7 +116,7 @@ function addInitiative(status = 'unassigned') {
   plan.initiatives.push({
     id: 'init-' + Date.now(),
     goalId: nextGoal ? nextGoal.id : '',
-    title: nextGoal ? `Ação para: ${nextGoal.text.substring(0, 40)}${nextGoal.text.length > 40 ? '...' : ''}` : 'Nova iniciativa',
+    title: '',
     owner: '',
     due: '',
     status

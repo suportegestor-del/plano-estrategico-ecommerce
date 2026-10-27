@@ -612,16 +612,15 @@ textarea:focus, input:focus {
   display: inline-block;
   flex: 1;
   min-width: 0;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--primary);
   background: #eff6ff;
   border: 1px solid #dbeafe;
-  border-radius: 999px;
-  padding: 0.15rem 0.55rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  border-radius: var(--radius);
+  padding: 0.25rem 0.6rem;
+  word-break: break-word;
+  line-height: 1.35;
 }
 
 .initiative-title {
