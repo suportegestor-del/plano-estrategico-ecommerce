@@ -204,6 +204,7 @@ function createSwotCard(text, idx, isPending, category) {
 
   card.innerHTML = `
     <div class="swot2-card-main">
+      <span class="swot2-drag-handle" title="Arrastar" aria-hidden="true">⋮⋮</span>
       <span class="swot2-card-text">${escapeHtml(text)}</span>
       <button type="button" class="swot2-delete-card" aria-label="Remover">×</button>
     </div>
@@ -243,6 +244,7 @@ function createSwotCard(text, idx, isPending, category) {
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', text);
     card.style.opacity = '0.5';
+    console.log('[SWOT] dragstart', draggedText);
   });
 
   card.addEventListener('dragend', () => {
@@ -273,6 +275,7 @@ function setupDropZones() {
     pendingZone.addEventListener('drop', (e) => {
       e.preventDefault();
       pendingZone.classList.remove('drag-over');
+      console.log('[SWOT] drop pending', draggedText);
       if (!draggedText || draggedText.isPending) return;
 
       removeItemFromCategory(draggedText.text, draggedText.category);
@@ -301,6 +304,7 @@ function setupDropZones() {
     zone.addEventListener('drop', (e) => {
       e.preventDefault();
       zone.classList.remove('drag-over');
+      console.log('[SWOT] drop quadrant', category, draggedText);
       if (!draggedText) return;
 
       if (draggedText.isPending) {

@@ -1126,6 +1126,19 @@ textarea:focus, input:focus {
   width: 100%;
 }
 
+.swot2-drag-handle {
+  flex-shrink: 0;
+  color: #98a3b7;
+  font-size: 14px;
+  line-height: 1;
+  letter-spacing: -2px;
+  cursor: grab;
+  user-select: none;
+  padding: 4px 2px;
+}
+
+.swot2-card:active .swot2-drag-handle { cursor: grabbing; }
+
 .swot2-card:active { cursor: grabbing; }
 
 .swot2-quadrant.strength .swot2-card { border-left-color: var(--swot2-strength-color); }
