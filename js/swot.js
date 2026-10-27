@@ -70,10 +70,14 @@ function addSwotItem(text) {
   isAddingSwot = true;
 
   const input = document.getElementById('swot2-input');
+  const addBtn = document.getElementById('swot2-add');
+
   if (input) {
     input.value = '';
     input.focus();
   }
+
+  if (addBtn) addBtn.disabled = true;
 
   plan.swot.pendingItems.push(text);
   savePlan(plan);
@@ -81,7 +85,10 @@ function addSwotItem(text) {
   renderPendingCards();
   updateSwotStats();
 
-  isAddingSwot = false;
+  setTimeout(() => {
+    isAddingSwot = false;
+    if (addBtn) addBtn.disabled = false;
+  }, 300);
 }
 
 function removePendingItem(index) {

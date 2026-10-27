@@ -31,6 +31,18 @@ function loadPlan() {
 }
 
 function migratePlan(plan) {
+  // Remove duplicatas dos campos SWOT e dos itens pendentes
+  if (plan.swot) {
+    ['forces', 'weaknesses', 'opportunities', 'threats'].forEach(field => {
+      const items = (plan.swot[field] || '').split('\n').map(s => s.trim()).filter(Boolean);
+      plan.swot[field] = [...new Set(items)].join('\n');
+    });
+
+    if (Array.isArray(plan.swot.pendingItems)) {
+      plan.swot.pendingItems = [...new Set(plan.swot.pendingItems)];
+    }
+  }
+
   // Padroniza estratégias cruzadas para o formato { id, type, a, b, strategy }
   plan.crossStrategies = (plan.crossStrategies || []).map((s, idx) => {
     if (s.type && s.a && s.b) return s;
