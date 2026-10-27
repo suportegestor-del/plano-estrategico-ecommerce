@@ -1178,31 +1178,6 @@ textarea:focus, input:focus {
   background: #e6505d;
 }
 
-.swot2-footer {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
-}
-
-#swot2-continue {
-  background: #087e39;
-  color: white;
-  min-height: 44px;
-  padding: 0 24px;
-  border: 0;
-  border-radius: 10px;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 800;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-
-#swot2-continue:hover {
-  background: #065c29;
-  transform: translateY(-1px);
-}
-
 @media (max-width: 760px) {
   .swot2-wrapper { padding: 8px 0; }
   .swot2-header {

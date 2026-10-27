@@ -25,11 +25,6 @@ function renderSwot() {
   renderPendingCards();
   renderQuadrants();
   updateSwotStats();
-
-  const continueBtn = document.getElementById('swot2-continue');
-  if (continueBtn) {
-    continueBtn.onclick = () => goToStep(2);
-  }
 }
 
 function setupSwotInput() {
