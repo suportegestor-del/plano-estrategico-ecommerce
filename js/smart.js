@@ -64,6 +64,11 @@ function renderSmart() {
     savePlan(plan);
     renderSmart();
   };
+
+  const aiBtn = document.getElementById('generate-smart-ai');
+  if (aiBtn) {
+    aiBtn.onclick = () => generateSmartWithAI();
+  }
 }
 
 function ensureGoals(pillars) {
@@ -109,4 +114,134 @@ function buildSmartFeedback(checks) {
   if (!checks.timeBound) tips.push('Defina um prazo, como "em 3 meses".');
   if (tips.length === 0) return 'Ótima! Sua meta atende todos os critérios SMART.';
   return 'Dica: ' + tips.join(' ');
+}
+
+function buildSmartPrompt() {
+  const pillars = Object.keys(plan.pillars || {});
+
+  let prompt = `Você é um consultor sênior de planejamento estratégico para e-commerce.\n\n`;
+  prompt += `Com base nas estratégias de cada pilar abaixo, crie UMA meta SMART para cada pilar.\n`;
+  prompt += `A meta deve ser específica, mensurável, atingível, relevante e temporal.\n`;
+  prompt += `Use valores realistas para um e-commerce de pequeno/médio porte.\n\n`;
+
+  pillars.forEach(pillar => {
+    const strategies = plan.pillars[pillar] || [];
+    prompt += `PILAR: ${pillar}\n`;
+    prompt += `Estratégias:\n`;
+    if (strategies.length === 0) {
+      prompt += `- Nenhuma estratégia definida\n`;
+    } else {
+      strategies.forEach(s => prompt += `- ${s}\n`);
+    }
+    prompt += `\n`;
+  });
+
+  prompt += `Responda APENAS com um objeto JSON válido no formato abaixo, sem explicações, sem markdown, sem texto fora do JSON:\n`;
+  prompt += `{\n`;
+  pillars.forEach((pillar, idx) => {
+    prompt += `  "${pillar}": "Meta SMART para ${pillar}",\n`;
+  });
+  prompt = prompt.replace(/,\n$/, '\n');
+  prompt += `}`;
+
+  return prompt;
+}
+
+function parseSmartResponse(text) {
+  let cleaned = text.trim();
+
+  const jsonBlockMatch = cleaned.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (jsonBlockMatch) {
+    cleaned = jsonBlockMatch[1].trim();
+  }
+
+  if (cleaned.startsWith('```')) {
+    cleaned = cleaned.replace(/^```[a-z]*\n?/, '').replace(/\n?```$/, '').trim();
+  }
+
+  try {
+    return JSON.parse(cleaned);
+  } catch (err) {
+    return null;
+  }
+}
+
+async function generateSmartWithAI() {
+  const pillars = Object.keys(plan.pillars || {});
+  const userKey = typeof loadApiKey === 'function' ? loadApiKey() : '';
+  const apiKey = userKey || (typeof OPENAI_API_KEY !== 'undefined' && OPENAI_API_KEY !== '__OPENAI_API_KEY__' ? OPENAI_API_KEY : '');
+
+  if (!apiKey) {
+    alert('Configure sua chave da OpenAI no topo da página antes de usar a IA.');
+    return;
+  }
+
+  if (pillars.length === 0) {
+    alert('Defina seus pilares no módulo anterior antes de gerar metas.');
+    return;
+  }
+
+  const aiBtn = document.getElementById('generate-smart-ai');
+  const originalText = aiBtn ? aiBtn.textContent : '';
+  if (aiBtn) {
+    aiBtn.disabled = true;
+    aiBtn.textContent = 'Gerando...';
+  }
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: 'Você é um assistente especializado em planejamento estratégico. Responda apenas em JSON válido.' },
+          { role: 'user', content: buildSmartPrompt() }
+        ],
+        temperature: 0.7,
+        max_tokens: 1200
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error?.message || `Erro ${response.status}`);
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+
+    if (!content) {
+      throw new Error('Resposta vazia da IA.');
+    }
+
+    const goals = parseSmartResponse(content);
+
+    if (!goals || typeof goals !== 'object') {
+      throw new Error('A IA não retornou o formato esperado.');
+    }
+
+    ensureGoals(pillars);
+
+    pillars.forEach(pillar => {
+      const goal = plan.goals.find(g => g.pillar === pillar);
+      if (goal && goals[pillar]) {
+        goal.text = goals[pillar].trim();
+      }
+    });
+
+    savePlan(plan);
+    renderSmart();
+  } catch (err) {
+    alert('Erro ao gerar metas: ' + err.message);
+    console.error(err);
+  } finally {
+    if (aiBtn) {
+      aiBtn.disabled = false;
+      aiBtn.textContent = originalText;
+    }
+  }
 }
