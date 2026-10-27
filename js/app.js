@@ -58,15 +58,17 @@ document.addEventListener('DOMContentLoaded', () => {
   prevBtn.addEventListener('click', () => goToStep(plan.currentStep - 1));
   nextBtn.addEventListener('click', () => goToStep(plan.currentStep + 1));
 
-  loadExampleBtn.addEventListener('click', () => {
-    if (confirm('Isso substituirá seus dados pelo exemplo da Casa Aurora. Deseja continuar?')) {
-      Object.assign(plan, JSON.parse(JSON.stringify(exampleStore)));
-      plan.currentStep = 1;
-      savePlan(plan);
-      renderModule(1);
-      goToStep(1);
-    }
-  });
+  if (loadExampleBtn) {
+    loadExampleBtn.addEventListener('click', () => {
+      if (confirm('Isso substituirá seus dados pelo exemplo da Casa Aurora. Deseja continuar?')) {
+        Object.assign(plan, JSON.parse(JSON.stringify(exampleStore)));
+        plan.currentStep = 1;
+        savePlan(plan);
+        renderModule(1);
+        goToStep(1);
+      }
+    });
+  }
 
   startOwnBtn.addEventListener('click', () => {
     plan.currentStep = 1;
