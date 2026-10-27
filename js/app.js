@@ -129,20 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
     goToStep(1);
   });
 
-  document.getElementById('export-backup').addEventListener('click', exportBackup);
-  document.getElementById('import-backup').addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    try {
-      await importBackup(file);
-      alert('Backup importado com sucesso!');
-      goToStep(plan.currentStep);
-    } catch (err) {
-      alert('Erro ao importar backup. Verifique se o arquivo está correto.');
-    }
-    e.target.value = '';
-  });
-
   window.addEventListener('keydown', (e) => {
     const active = document.activeElement;
     const isTyping = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT');
