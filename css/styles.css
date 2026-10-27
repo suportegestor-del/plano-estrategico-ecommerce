@@ -749,30 +749,6 @@ textarea:focus, input:focus {
   line-height: 1.35;
 }
 
-.initiative-title {
-  width: 100%;
-  border: none;
-  border-bottom: 1px dashed var(--border);
-  border-radius: 0;
-  padding: 0.2rem 0;
-  margin-bottom: 0.55rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text);
-  background: transparent;
-}
-
-.initiative-title::placeholder {
-  color: #94a3b8;
-  font-weight: 500;
-}
-
-.initiative-title:focus {
-  outline: none;
-  border-color: var(--primary);
-  border-style: solid;
-}
-
 .initiative-meta {
   display: flex;
   gap: 0.5rem;

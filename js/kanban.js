@@ -58,7 +58,6 @@ function createInitiativeCard(initiative) {
       <span class="initiative-goal">${goalLabel}</span>
       <button type="button" class="remove-initiative" title="Remover" aria-label="Remover">×</button>
     </div>
-    <input type="text" data-field="title" class="initiative-title" value="${escapeHtml(initiative.title)}" placeholder="Descreva a ação específica">
     <div class="initiative-meta">
       <input type="text" data-field="owner" value="${escapeHtml(initiative.owner)}" placeholder="Responsável">
       <input type="date" data-field="due" value="${initiative.due}" placeholder="Prazo">
