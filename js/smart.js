@@ -14,9 +14,46 @@ function pillarNumber(pillar, position) {
   return String(n).padStart(2, '0');
 }
 
+// Mantém goal.text sincronizado (usado por Kanban, PDF e Excel)
+function syncGoalText(goal) {
+  const title = (goal.title || '').trim().replace(/\.+$/, '');
+  const description = (goal.description || '').trim();
+  goal.text = [title, description].filter(Boolean).join('. ');
+}
+
+// Migra metas antigas que só tinham o campo text
+function normalizeGoal(goal) {
+  if (!goal.title && goal.text) {
+    const parts = goal.text.split(/(?<=[.!?])\s+/);
+    goal.title = parts[0].trim();
+    goal.description = parts.slice(1).join(' ').trim() || goal.text.trim();
+  }
+  syncGoalText(goal);
+}
+
+function formatDateBR(value) {
+  if (!value) return '';
+  const [y, m, d] = value.split('-');
+  if (!y || !m || !d) return value;
+  return `${d}/${m}/${y}`;
+}
+
 function renderSmart() {
   const container = document.getElementById('pillars-goals');
   const pillars = getSmartPillars();
+
+  if (!plan.goals) plan.goals = [];
+  plan.goals.forEach(normalizeGoal);
+  const before = plan.goals.length;
+  plan.goals = plan.goals.filter(g => g.text.trim());
+  if (plan.goals.length !== before) savePlan(plan);
+
+  const pillarSelect = document.getElementById('goal-pillar');
+  if (pillarSelect) {
+    pillarSelect.innerHTML = pillars.length
+      ? pillars.map(p => `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`).join('')
+      : '<option value="">Defina os pilares no módulo anterior</option>';
+  }
 
   if (pillars.length === 0) {
     container.className = '';
@@ -24,134 +61,189 @@ function renderSmart() {
     return;
   }
 
-  ensureGoals(pillars);
-
   container.className = 'smart-board';
   container.innerHTML = '';
   pillars.forEach((pillar, pIdx) => {
-    const card = document.createElement('div');
+    const pillarGoals = plan.goals
+      .map((g, idx) => ({ goal: g, idx }))
+      .filter(x => x.goal.pillar === pillar);
+
+    const card = document.createElement('article');
     card.className = 'smart-pillar';
+    card.dataset.pillar = pillar;
+
+    const strategies = (plan.pillars[pillar] || []);
+    const strategiesHtml = strategies.length
+      ? strategies.map(s => `<li>${escapeHtml(s)}</li>`).join('')
+      : '<li class="empty">Nenhuma estratégia vinculada a este pilar.</li>';
+
     card.innerHTML = `
-      <h4><span class="pillar-number">${pillarNumber(pillar, pIdx)}</span> ${escapeHtml(pillar)}</h4>
+      <div class="pilar-cabecalho">
+        <h4><span class="pillar-number">${pillarNumber(pillar, pIdx)}</span> ${escapeHtml(pillar)}</h4>
+        <span class="contador">${pillarGoals.length} ${pillarGoals.length === 1 ? 'meta' : 'metas'}</span>
+      </div>
       <div class="smart-pillar-goals"></div>
-      <button class="btn btn-small btn-secondary add-goal" type="button">+ Nova meta</button>
+      <button type="button" class="pillar-view-strategies">Ver estratégias</button>
+      <div class="pillar-strategies" style="display:none">
+        <strong>Estratégias deste pilar:</strong>
+        <ul>${strategiesHtml}</ul>
+      </div>
     `;
-    container.appendChild(card);
 
     const goalsWrap = card.querySelector('.smart-pillar-goals');
-    plan.goals.forEach((goal, idx) => {
-      if (goal.pillar !== pillar) return;
-      goalsWrap.appendChild(createGoalCard(goal, idx, pillar));
-      updateSmartIndicators(idx, goal.text);
+    if (pillarGoals.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'meta-empty';
+      empty.textContent = 'Nenhuma meta criada para este pilar.';
+      goalsWrap.appendChild(empty);
+    } else {
+      pillarGoals.forEach(({ goal, idx }) => {
+        goalsWrap.appendChild(createMetaCard(goal, idx));
+      });
+    }
+
+    const strategiesBtn = card.querySelector('.pillar-view-strategies');
+    const strategiesBox = card.querySelector('.pillar-strategies');
+    strategiesBtn.addEventListener('click', () => {
+      const isHidden = strategiesBox.style.display === 'none';
+      strategiesBox.style.display = isHidden ? 'block' : 'none';
+      strategiesBtn.textContent = isHidden ? 'Ocultar estratégias' : 'Ver estratégias';
     });
 
-    card.querySelector('.add-goal').addEventListener('click', () => {
-      plan.goals.push({ id: 'goal-' + Date.now(), text: '', pillar });
+    container.appendChild(card);
+  });
+
+  const form = document.getElementById('goal-form');
+  if (form) {
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      const title = document.getElementById('goal-title').value.trim();
+      const pillar = document.getElementById('goal-pillar').value;
+      if (!title || !pillar) return;
+      const goal = {
+        id: 'goal-' + Date.now(),
+        pillar,
+        title,
+        description: document.getElementById('goal-description').value.trim(),
+        deadline: document.getElementById('goal-deadline').value,
+        responsible: document.getElementById('goal-responsible').value.trim(),
+        indicator: document.getElementById('goal-indicator').value.trim()
+      };
+      syncGoalText(goal);
+      plan.goals.push(goal);
       savePlan(plan);
+      form.reset();
       renderSmart();
-    });
-  });
-
-  container.querySelectorAll('.toggle-pillar-strategies').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const idx = btn.dataset.idx;
-      const box = container.querySelector(`[data-strategies="${idx}"]`);
-      if (!box) return;
-      const isHidden = box.style.display === 'none';
-      box.style.display = isHidden ? 'block' : 'none';
-      btn.textContent = isHidden ? 'Ocultar estratégias' : 'Ver estratégias';
-    });
-  });
-
-  container.querySelectorAll('.goal-input').forEach(input => {
-    input.addEventListener('input', (e) => {
-      const idx = parseInt(e.target.dataset.idx);
-      plan.goals[idx].text = e.target.value;
-      savePlan(plan);
-      updateSmartIndicators(idx, e.target.value);
-    });
-  });
+    };
+  }
 
   const aiBtn = document.getElementById('generate-smart-ai');
   if (aiBtn) {
     aiBtn.onclick = () => generateSmartWithAI();
   }
+
+  setupGoalModal();
 }
 
-function createGoalCard(goal, idx, pillar) {
-  const pillarStrategies = (plan.pillars[pillar] || []).map(s => `<li>${escapeHtml(s)}</li>`).join('') || '<li class="empty">Nenhuma estratégia vinculada a este pilar.</li>';
-
+function createMetaCard(goal, idx) {
   const card = document.createElement('div');
-  card.className = 'goal-card';
-  card.dataset.goalIdx = idx;
+  card.className = 'meta';
+
+  const info = [];
+  if (goal.deadline) info.push(`<span>Prazo: ${formatDateBR(goal.deadline)}</span>`);
+  if (goal.responsible) info.push(`<span>Responsável: ${escapeHtml(goal.responsible)}</span>`);
+  if (goal.indicator) info.push(`<span>Indicador: ${escapeHtml(goal.indicator)}</span>`);
+
   card.innerHTML = `
-    <div class="goal-pillar-header">
-      <button class="btn btn-small btn-secondary toggle-pillar-strategies" data-idx="${idx}" type="button">Ver estratégias</button>
-    </div>
-    <div class="pillar-strategies" data-strategies="${idx}" style="display:none">
-      <strong>Estratégias deste pilar:</strong>
-      <ul>${pillarStrategies}</ul>
-    </div>
-    <input type="text" data-idx="${idx}" class="goal-input" value="${escapeHtml(goal.text)}" placeholder="Ex.: aumentar o faturamento de R$ 20 mil para R$ 30 mil/mês em 6 meses">
-    <div class="smart-feedback" data-feedback="${idx}"></div>
-    <div class="smart-checks" data-checks="${idx}">
-      <div class="smart-check" data-key="specific">Específico</div>
-      <div class="smart-check" data-key="measurable">Mensurável</div>
-      <div class="smart-check" data-key="achievable">Atingível</div>
-      <div class="smart-check" data-key="relevant">Relevante</div>
-      <div class="smart-check" data-key="timeBound">Temporal</div>
+    <h4 class="meta-title">${escapeHtml(goal.title || goal.text)}</h4>
+    ${goal.description ? `<p class="meta-desc">${escapeHtml(goal.description)}</p>` : ''}
+    ${info.length ? `<div class="meta-informacoes">${info.join('')}</div>` : ''}
+    <div class="meta-acoes">
+      <button type="button" class="meta-btn view-meta">Visualizar</button>
+      <button type="button" class="meta-btn edit-meta">Editar</button>
+      <button type="button" class="meta-btn delete-meta">Excluir</button>
     </div>
   `;
+
+  card.querySelector('.view-meta').addEventListener('click', () => openGoalModal(idx, 'view'));
+  card.querySelector('.edit-meta').addEventListener('click', () => openGoalModal(idx, 'edit'));
+  card.querySelector('.delete-meta').addEventListener('click', () => {
+    plan.goals.splice(idx, 1);
+    savePlan(plan);
+    renderSmart();
+  });
+
   return card;
 }
 
-function ensureGoals(pillars) {
-  if (!plan.goals) plan.goals = [];
-  pillars.forEach(pillar => {
-    if (!plan.goals.find(g => g.pillar === pillar)) {
-      plan.goals.push({ id: 'goal-' + Date.now() + '-' + pillar, text: '', pillar });
-    }
+function openGoalModal(idx, mode) {
+  const goal = plan.goals[idx];
+  const modal = document.getElementById('goal-modal');
+  if (!goal || !modal) return;
+  goalModalIdx = idx;
+
+  const pillars = getSmartPillars();
+  const pillarSelect = document.getElementById('gm-pillar');
+  pillarSelect.innerHTML = pillars
+    .map(p => `<option value="${escapeHtml(p)}"${p === goal.pillar ? ' selected' : ''}>${escapeHtml(p)}</option>`)
+    .join('');
+
+  document.getElementById('goal-modal-heading').textContent = mode === 'view' ? 'Visualizar meta' : 'Editar meta';
+  document.getElementById('gm-title').value = goal.title || '';
+  document.getElementById('gm-description').value = goal.description || '';
+  document.getElementById('gm-deadline').value = goal.deadline || '';
+  document.getElementById('gm-responsible').value = goal.responsible || '';
+  document.getElementById('gm-indicator').value = goal.indicator || '';
+
+  const readonly = mode === 'view';
+  ['gm-title', 'gm-description', 'gm-pillar', 'gm-deadline', 'gm-responsible', 'gm-indicator'].forEach(id => {
+    document.getElementById(id).disabled = readonly;
   });
+  document.getElementById('goal-modal-save').style.display = readonly ? 'none' : '';
+
+  modal.classList.add('active');
 }
 
-function updateSmartIndicators(idx, text) {
-  const checks = evaluateSmart(text);
-  const feedback = buildSmartFeedback(checks);
-  const card = document.querySelector(`.goal-card[data-goal-idx="${idx}"]`);
-  if (!card) return;
+let goalModalIdx = null;
 
-  card.querySelector(`[data-feedback="${idx}"]`).textContent = feedback;
+function closeGoalModal() {
+  const modal = document.getElementById('goal-modal');
+  if (modal) modal.classList.remove('active');
+  goalModalIdx = null;
+}
 
-  Object.keys(checks).forEach(key => {
-    const el = card.querySelector(`[data-key="${key}"]`);
-    if (el) el.classList.toggle('ok', checks[key]);
+function setupGoalModal() {
+  if (setupGoalModal.done) return;
+  const modal = document.getElementById('goal-modal');
+  if (!modal) return;
+  setupGoalModal.done = true;
+
+  document.getElementById('goal-modal-cancel').addEventListener('click', closeGoalModal);
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeGoalModal();
   });
-}
-
-function evaluateSmart(text) {
-  const lower = text.toLowerCase();
-  return {
-    specific: /aumentar|reduzir|melhorar|lançar|criar|implementar/.test(lower),
-    measurable: /\d|R\$|pct|por cento|%|mil|milhão/.test(lower),
-    achievable: text.length > 15,
-    relevant: /venda|faturamento|cliente|estoque|conversão|tráfego/.test(lower),
-    timeBound: /em \d|dentro de|\d meses|\d dias|prazo/.test(lower)
-  };
-}
-
-function buildSmartFeedback(checks) {
-  const tips = [];
-  if (!checks.specific) tips.push('Use um verbo de ação claro, como aumentar, reduzir ou lançar.');
-  if (!checks.measurable) tips.push('Inclua um número ou indicador para medir o resultado.');
-  if (!checks.achievable) tips.push('Escreva uma meta concreta e realista.');
-  if (!checks.relevant) tips.push('Relacione a meta a vendas, clientes, estoque ou outro pilar do negócio.');
-  if (!checks.timeBound) tips.push('Defina um prazo, como "em 3 meses".');
-  if (tips.length === 0) return 'Ótima! Sua meta atende todos os critérios SMART.';
-  return 'Dica: ' + tips.join(' ');
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeGoalModal();
+  });
+  document.getElementById('goal-modal-save').addEventListener('click', () => {
+    if (goalModalIdx === null) return;
+    const goal = plan.goals[goalModalIdx];
+    if (!goal) return;
+    goal.title = document.getElementById('gm-title').value.trim();
+    goal.description = document.getElementById('gm-description').value.trim();
+    goal.pillar = document.getElementById('gm-pillar').value;
+    goal.deadline = document.getElementById('gm-deadline').value;
+    goal.responsible = document.getElementById('gm-responsible').value.trim();
+    goal.indicator = document.getElementById('gm-indicator').value.trim();
+    syncGoalText(goal);
+    savePlan(plan);
+    closeGoalModal();
+    renderSmart();
+  });
 }
 
 function buildSmartPrompt() {
-  const pillars = Object.keys(plan.pillars || {});
+  const pillars = getSmartPillars();
 
   let prompt = `Você é um consultor sênior de planejamento estratégico para e-commerce.\n\n`;
   prompt += `Com base nas estratégias de cada pilar abaixo, crie UMA meta SMART para cada pilar.\n`;
@@ -170,10 +262,10 @@ function buildSmartPrompt() {
     prompt += `\n`;
   });
 
-  prompt += `Responda APENAS com um objeto JSON válido no formato abaixo, sem explicações, sem markdown, sem texto fora do JSON:\n`;
+  prompt += `Responda APENAS com um objeto JSON válido no formato abaixo, sem explicações, sem markdown, sem texto fora do JSON. No campo "prazo" use o formato AAAA-MM-DD:\n`;
   prompt += `{\n`;
   pillars.forEach((pillar, idx) => {
-    prompt += `  "${pillar}": "Meta SMART para ${pillar}",\n`;
+    prompt += `  "${pillar}": { "titulo": "Título curto da meta", "descricao": "Descrição do resultado esperado", "prazo": "AAAA-MM-DD", "responsavel": "Responsável sugerido", "indicador": "Indicador de acompanhamento" },\n`;
   });
   prompt = prompt.replace(/,\n$/, '\n');
   prompt += `}`;
@@ -201,7 +293,7 @@ function parseSmartResponse(text) {
 }
 
 async function generateSmartWithAI() {
-  const pillars = Object.keys(plan.pillars || {});
+  const pillars = getSmartPillars();
   const apiKey = typeof getApiKey === 'function' ? getApiKey() : '';
 
   if (!apiKey) {
@@ -257,13 +349,21 @@ async function generateSmartWithAI() {
       throw new Error('A IA não retornou o formato esperado.');
     }
 
-    ensureGoals(pillars);
-
     pillars.forEach(pillar => {
-      const goal = plan.goals.find(g => g.pillar === pillar);
-      if (goal && goals[pillar]) {
-        goal.text = goals[pillar].trim();
-      }
+      const data = goals[pillar];
+      if (!data || typeof data !== 'object') return;
+      const goal = {
+        id: 'goal-' + Date.now() + '-' + pillar,
+        pillar,
+        title: typeof data.titulo === 'string' ? data.titulo.trim() : '',
+        description: typeof data.descricao === 'string' ? data.descricao.trim() : '',
+        deadline: typeof data.prazo === 'string' ? data.prazo.trim() : '',
+        responsible: typeof data.responsavel === 'string' ? data.responsavel.trim() : '',
+        indicator: typeof data.indicador === 'string' ? data.indicador.trim() : ''
+      };
+      if (!goal.title && !goal.description) return;
+      syncGoalText(goal);
+      plan.goals.push(goal);
     });
 
     savePlan(plan);

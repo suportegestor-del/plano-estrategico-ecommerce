@@ -262,17 +262,112 @@
           <br><strong>Pergunta orientadora:</strong> qual indicador mostraria que esse pilar está melhor?
         </div>
       </template>
-      <div class="smart-layout">
-        <div class="smart-side">
-          <h3>Criar metas</h3>
-          <p class="smart-side-sub">Gere sugestões de metas para cada pilar com IA.</p>
-          <div class="ai-actions">
-            <button id="generate-smart-ai" class="btn btn-primary btn-large" type="button">✨ Gerar metas com IA</button>
+      <div class="smart-lesson">
+        <h3>Como criar uma meta SMART?</h3>
+        <p class="smart-lesson-sub">Use estas perguntas como guia ao escrever. Os critérios não precisam aparecer como etiquetas em cada meta.</p>
+        <div class="smart-criteria">
+          <div class="criterio">
+            <div class="criterio-letra">S</div>
+            <h4>Específica</h4>
+            <p>O que exatamente será alcançado?</p>
+          </div>
+          <div class="criterio">
+            <div class="criterio-letra">M</div>
+            <h4>Mensurável</h4>
+            <p>Como medir o progresso?</p>
+          </div>
+          <div class="criterio">
+            <div class="criterio-letra">A</div>
+            <h4>Atingível</h4>
+            <p>É possível realizar com os recursos disponíveis?</p>
+          </div>
+          <div class="criterio">
+            <div class="criterio-letra">R</div>
+            <h4>Relevante</h4>
+            <p>Por que essa meta é importante?</p>
+          </div>
+          <div class="criterio">
+            <div class="criterio-letra">T</div>
+            <h4>Temporal</h4>
+            <p>Até quando será realizada?</p>
           </div>
         </div>
+        <div class="smart-example">
+          <strong>Exemplo de meta completa</strong>
+          <p>Aumentar a taxa de entregas realizadas em até 48 horas para 90% até dezembro.</p>
+        </div>
+      </div>
+
+      <div class="smart-layout">
+        <aside class="smart-side">
+          <h3>Criar metas</h3>
+          <p class="smart-side-sub">Escreva uma meta para um dos quatro pilares estratégicos.</p>
+          <button id="generate-smart-ai" class="btn btn-primary btn-large btn-ia" type="button">✦ Gerar metas com IA</button>
+          <form id="goal-form">
+            <div class="campo">
+              <label for="goal-title">Título da meta *</label>
+              <input id="goal-title" type="text" placeholder="Ex.: Aumentar a taxa de entregas" autocomplete="off">
+            </div>
+            <div class="campo">
+              <label for="goal-description">Descrição</label>
+              <textarea id="goal-description" rows="3" placeholder="Descreva o resultado esperado"></textarea>
+            </div>
+            <div class="campo">
+              <label for="goal-pillar">Pilar *</label>
+              <select id="goal-pillar"></select>
+            </div>
+            <div class="campo">
+              <label for="goal-deadline">Prazo</label>
+              <input id="goal-deadline" type="date">
+            </div>
+            <div class="campo">
+              <label for="goal-responsible">Responsável</label>
+              <input id="goal-responsible" type="text" placeholder="Quem vai conduzir" autocomplete="off">
+            </div>
+            <div class="campo">
+              <label for="goal-indicator">Indicador</label>
+              <input id="goal-indicator" type="text" placeholder="Ex.: 90% das entregas" autocomplete="off">
+            </div>
+            <button type="submit" class="btn btn-submit-goal">Adicionar meta</button>
+          </form>
+        </aside>
         <div class="smart-results">
           <h3 class="smart-board-title">Metas por pilar</h3>
           <div id="pillars-goals"></div>
+        </div>
+      </div>
+
+      <div class="goal-modal" id="goal-modal">
+        <div class="goal-modal-box" role="dialog" aria-modal="true" aria-labelledby="goal-modal-heading">
+          <h3 id="goal-modal-heading">Meta</h3>
+          <div class="campo">
+            <label for="gm-title">Título da meta</label>
+            <input id="gm-title" type="text">
+          </div>
+          <div class="campo">
+            <label for="gm-description">Descrição</label>
+            <textarea id="gm-description" rows="3"></textarea>
+          </div>
+          <div class="campo">
+            <label for="gm-pillar">Pilar</label>
+            <select id="gm-pillar"></select>
+          </div>
+          <div class="campo">
+            <label for="gm-deadline">Prazo</label>
+            <input id="gm-deadline" type="date">
+          </div>
+          <div class="campo">
+            <label for="gm-responsible">Responsável</label>
+            <input id="gm-responsible" type="text">
+          </div>
+          <div class="campo">
+            <label for="gm-indicator">Indicador</label>
+            <input id="gm-indicator" type="text">
+          </div>
+          <div class="goal-modal-acoes">
+            <button id="goal-modal-cancel" class="btn btn-secondary" type="button">Cancelar</button>
+            <button id="goal-modal-save" class="btn btn-primary" type="button">Salvar meta</button>
+          </div>
         </div>
       </div>
     </section>
