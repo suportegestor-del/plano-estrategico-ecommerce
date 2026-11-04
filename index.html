@@ -18,19 +18,19 @@
     </div>
   </div>
 
+  <div id="help-modal" class="help-modal">
+    <div class="help-modal-content" role="dialog" aria-modal="true">
+      <button id="help-close" class="qr-close" type="button" aria-label="Fechar">×</button>
+      <div id="help-content"></div>
+    </div>
+  </div>
+
   <header class="app-header">
     <div class="header-brand">
       <img src="images/logo.png" alt="HAVE - Pessoas, Negócios e Processos" class="header-logo">
     </div>
     <h1>Plano da sua empresa em 6 passos</h1>
     <p>Monte seu planejamento estratégico de e-commerce de forma prática e guiada.</p>
-    <div class="header-store-name">
-      <label for="store-name">Nome da empresa:</label>
-      <input type="text" id="store-name" placeholder="Ex.: Alpha" autocomplete="off">
-    </div>
-    <div class="header-actions">
-      <button id="start-own" class="btn btn-primary">Começar com meu negócio</button>
-    </div>
   </header>
 
   <nav class="stepper" aria-label="Progresso do plano">
@@ -74,6 +74,8 @@
           </div>
         </header>
 
+        <div class="swot2-layout">
+          <div class="swot2-side">
         <section class="swot2-control-panel">
           <h3 class="swot2-control-title">Adicione uma nova situação</h3>
           <div class="swot2-controls">
@@ -92,6 +94,7 @@
             <span class="swot2-empty">Nenhuma situação pendente. Adicione uma acima.</span>
           </div>
         </section>
+          </div>
 
         <section class="swot2-board">
           <article class="swot2-quadrant strength" data-category="Força" aria-label="Área de Forças">
@@ -138,6 +141,7 @@
             <div class="swot2-cards" id="swot2-ameaca"></div>
           </article>
         </section>
+        </div>
 
       </div>
     </section>
@@ -145,11 +149,23 @@
     <section class="module" id="module-2">
       <h2>2. SWOT Cruzado</h2>
       <p class="module-intro"><strong>Objetivo:</strong> transformar o diagnóstico em estratégias práticas combinando elementos do SWOT.</p>
+      <button class="help-toggle" type="button" data-help="help-lesson-2">❓ Ajuda</button>
+      <template id="help-lesson-2">
+        <div class="lesson-box">
+          <strong>Mini-aula:</strong> O cruzamento mostra como usar o que você tem (forças/fraquezas) diante do cenário externo (oportunidades/ameaças).
+          <ul>
+            <li><strong>FO</strong> (Força + Oportunidade): como usar uma vantagem para aproveitar uma tendência?</li>
+            <li><strong>FA</strong> (Força + Ameaça): como se defender da concorrência usando seus pontos fortes?</li>
+            <li><strong>WO</strong> (Fraqueza + Oportunidade): como melhorar algo interno para não perder uma chance?</li>
+            <li><strong>WT</strong> (Fraqueza + Ameaça): como se proteger de um risco sem depender de pontos fracos?</li>
+          </ul>
+        </div>
+      </template>
       <p id="cross-feedback" class="swot-feedback" aria-live="polite">Preencha o SWOT no passo anterior para criar cruzamentos.</p>
 
-      <div class="strategy-card">
-        <h3>Gerar várias estratégias com IA</h3>
-        <p class="strategy-card-sub">As estratégias FO, FA, WO e WT são geradas automaticamente com base no SWOT preenchido.</p>
+      <div class="cross-layout">
+        <div class="cross-side">
+      <div class="cross-ai-actions">
         <button id="generate-cross-ai" class="btn btn-primary btn-large" type="button">✨ Gerar várias estratégias com IA</button>
       </div>
 
@@ -186,30 +202,25 @@
           </div>
         </div>
       </div>
+        </div>
 
+        <div class="cross-results">
       <h3>Suas estratégias</h3>
       <div id="strategies-list" class="items-list"></div>
-      <div class="module-summary" id="summary-2">
-        <strong>Resultado desta etapa:</strong> estratégias claras que serão agrupadas em pilares no próximo passo.
-      </div>
-      <div class="lesson-box">
-        <strong>Mini-aula:</strong> O cruzamento mostra como usar o que você tem (forças/fraquezas) diante do cenário externo (oportunidades/ameaças).
-        <ul>
-          <li><strong>FO</strong> (Força + Oportunidade): como usar uma vantagem para aproveitar uma tendência?</li>
-          <li><strong>FA</strong> (Força + Ameaça): como se defender da concorrência usando seus pontos fortes?</li>
-          <li><strong>WO</strong> (Fraqueza + Oportunidade): como melhorar algo interno para não perder uma chance?</li>
-          <li><strong>WT</strong> (Fraqueza + Ameaça): como se proteger de um risco sem depender de pontos fracos?</li>
-        </ul>
+        </div>
       </div>
     </section>
 
     <section class="module" id="module-3">
       <h2>3. Pilares Estratégicos</h2>
       <p class="module-intro"><strong>Objetivo:</strong> organizar as estratégias em grandes temas que guiarão suas metas.</p>
-      <div class="lesson-box">
-        <strong>Mini-aula:</strong> Pilar é um eixo estratégico. Pense nele como uma área de atuação. Exemplos comuns: <em>Operação</em> (processos internos), <em>Crescimento</em> (vendas e marketing), <em>Inovação</em> (novos canais/produtos) e <em>Experiência do Cliente</em> (satisfação e fidelidade).
-        <br><strong>Pergunta orientadora:</strong> qual pilar essa estratégia mais impulsiona?
-      </div>
+      <button class="help-toggle" type="button" data-help="help-lesson-3">❓ Ajuda</button>
+      <template id="help-lesson-3">
+        <div class="lesson-box">
+          <strong>Mini-aula:</strong> Pilar é um eixo estratégico. Pense nele como uma área de atuação. Exemplos comuns: <em>Operação</em> (processos internos), <em>Crescimento</em> (vendas e marketing), <em>Inovação</em> (novos canais/produtos) e <em>Experiência do Cliente</em> (satisfação e fidelidade).
+          <br><strong>Pergunta orientadora:</strong> qual pilar essa estratégia mais impulsiona?
+        </div>
+      </template>
       <div class="pillars-board">
         <div class="pillar" data-pillar="Operação">
           <h4>Operação</h4>
@@ -232,35 +243,35 @@
         <h4>Estratégias disponíveis</h4>
         <div id="strategies-pool" class="drop-zone"></div>
       </div>
-      <div class="module-summary" id="summary-3">
-        <strong>Resultado desta etapa:</strong> estratégias distribuídas por pilares, que darão origem às metas SMART.
-      </div>
     </section>
 
     <section class="module" id="module-4">
       <h2>4. Metas SMART</h2>
       <p class="module-intro"><strong>Objetivo:</strong> transformar cada pilar em metas claras, mensuráveis e com prazo.</p>
-      <div class="lesson-box">
-        <strong>Mini-aula:</strong> Uma meta SMART é específica, mensurável, atingível, relevante e temporal. Em vez de "vender mais", escreva "aumentar o faturamento de R$ 20 mil para R$ 30 mil/mês em 6 meses".
-        <br><strong>Pergunta orientadora:</strong> qual indicador mostraria que esse pilar está melhor?
-      </div>
+      <button class="help-toggle" type="button" data-help="help-lesson-4">❓ Ajuda</button>
+      <template id="help-lesson-4">
+        <div class="lesson-box">
+          <strong>Mini-aula:</strong> Uma meta SMART é específica, mensurável, atingível, relevante e temporal. Em vez de "vender mais", escreva "aumentar o faturamento de R$ 20 mil para R$ 30 mil/mês em 6 meses".
+          <br><strong>Pergunta orientadora:</strong> qual indicador mostraria que esse pilar está melhor?
+        </div>
+      </template>
       <div class="ai-actions">
         <button id="generate-smart-ai" class="btn btn-primary" type="button">Gerar metas com IA</button>
       </div>
       <div id="pillars-goals"></div>
       <button id="add-goal" class="btn">Adicionar outra meta</button>
-      <div class="module-summary" id="summary-4">
-        <strong>Resultado desta etapa:</strong> metas concretas que serão desdobradas em iniciativas no próximo passo.
-      </div>
     </section>
 
     <section class="module" id="module-5">
       <h2>5. Iniciativas e Entregas</h2>
       <p class="module-intro"><strong>Objetivo:</strong> quebrar cada meta em ações concretas com responsável e data.</p>
-      <div class="lesson-box">
-        <strong>Mini-aula:</strong> Iniciativa é um projeto que faz a meta acontecer. Cada iniciativa precisa de um responsável e de um prazo. Exemplo: "Reformular fotos dos 10 produtos mais vendidos até 15/03".
-        <br><strong>Pergunta orientadora:</strong> qual a primeira ação que, se feita, torna essa meta mais próxima?
-      </div>
+      <button class="help-toggle" type="button" data-help="help-lesson-5">❓ Ajuda</button>
+      <template id="help-lesson-5">
+        <div class="lesson-box">
+          <strong>Mini-aula:</strong> Iniciativa é um projeto que faz a meta acontecer. Cada iniciativa precisa de um responsável e de um prazo. Exemplo: "Reformular fotos dos 10 produtos mais vendidos até 15/03".
+          <br><strong>Pergunta orientadora:</strong> qual a primeira ação que, se feita, torna essa meta mais próxima?
+        </div>
+      </template>
       <div class="kanban-pool">
         <div class="kanban-pool-header">
           <div>
@@ -285,18 +296,18 @@
           <div class="kanban-zone" data-status="done"></div>
         </div>
       </div>
-      <div class="module-summary" id="summary-5">
-        <strong>Resultado desta etapa:</strong> um quadro de ações vinculadas às metas, pronto para ser organizado no tempo.
-      </div>
     </section>
 
     <section class="module" id="module-6">
       <h2>6. Roadmap Cronológico</h2>
       <p class="module-intro"><strong>Objetivo:</strong> distribuir as iniciativas no tempo de forma realista.</p>
-      <div class="lesson-box">
-        <strong>Mini-aula:</strong> Curto prazo é o que você fará nos próximos 3 meses; médio prazo, entre 3 e 6 meses; longo prazo, entre 6 e 12 meses. Evite acumular muitas ações no curto prazo.
-        <br><strong>Pergunta orientadora:</strong> essa ação depende de outra? Qual precisa sair primeiro?
-      </div>
+      <button class="help-toggle" type="button" data-help="help-lesson-6">❓ Ajuda</button>
+      <template id="help-lesson-6">
+        <div class="lesson-box">
+          <strong>Mini-aula:</strong> Curto prazo é o que você fará nos próximos 3 meses; médio prazo, entre 3 e 6 meses; longo prazo, entre 6 e 12 meses. Evite acumular muitas ações no curto prazo.
+          <br><strong>Pergunta orientadora:</strong> essa ação depende de outra? Qual precisa sair primeiro?
+        </div>
+      </template>
       <div class="timeline">
         <div class="timeline-lane" data-term="short">
           <h4>Curto prazo</h4>
@@ -320,9 +331,6 @@
       </div>
       <button id="export-pdf" class="btn btn-primary">Exportar plano em PDF</button>
       <button id="export-excel" class="btn btn-secondary">Exportar em Excel</button>
-      <div class="module-summary" id="summary-6">
-        <strong>Resultado desta etapa:</strong> seu plano estratégico completo, com ações organizadas no tempo e pronto para exportação.
-      </div>
     </section>
   </main>
 

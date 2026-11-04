@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const prevBtn = document.getElementById('prev-step');
   const nextBtn = document.getElementById('next-step');
   const loadExampleBtn = document.getElementById('load-example');
-  const startOwnBtn = document.getElementById('start-own');
 
   function goToStep(n) {
     if (n < 1 || n > modules.length) return;
@@ -70,12 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  startOwnBtn.addEventListener('click', () => {
-    plan.currentStep = 1;
-    savePlan(plan);
-    goToStep(1);
-  });
-
   window.addEventListener('keydown', (e) => {
     const active = document.activeElement;
     const isTyping = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT');
@@ -87,7 +80,33 @@ document.addEventListener('DOMContentLoaded', () => {
   goToStep(plan.currentStep);
 
   setupQrModal();
+  setupHelpModal();
 });
+
+function setupHelpModal() {
+  const modal = document.getElementById('help-modal');
+  const content = document.getElementById('help-content');
+  const close = document.getElementById('help-close');
+  if (!modal || !content) return;
+
+  document.querySelectorAll('.help-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const template = document.getElementById(btn.dataset.help);
+      if (!template) return;
+      content.replaceChildren(template.content.cloneNode(true));
+      modal.classList.add('active');
+    });
+  });
+
+  const hide = () => modal.classList.remove('active');
+  if (close) close.addEventListener('click', hide);
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) hide();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') hide();
+  });
+}
 
 function setupQrModal() {
   const toggle = document.getElementById('qr-toggle');
