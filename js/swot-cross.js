@@ -43,7 +43,6 @@ function renderSwotCross() {
   const aLabel = document.getElementById('cross-a-label');
   const bLabel = document.getElementById('cross-b-label');
   const strategyInput = document.getElementById('cross-strategy');
-  const addBtn = document.getElementById('add-cross-strategy');
   const aiBtn = document.getElementById('generate-cross-ai');
   const reviewBtn = document.getElementById('review-cross-ai');
   const feedback = document.getElementById('cross-feedback');
@@ -57,13 +56,12 @@ function renderSwotCross() {
       feedback.textContent = 'Preencha pelo menos uma força, uma fraqueza, uma oportunidade e uma ameaça no SWOT para criar os cruzamentos.';
       feedback.className = 'swot-feedback hint';
     } else {
-      feedback.textContent = 'Escolha o tipo de cruzamento, selecione os itens e crie a estratégia.';
+      feedback.textContent = 'Escolha o tipo de cruzamento e os dois itens, depois clique em Gerar com IA.';
       feedback.className = 'swot-feedback';
     }
   }
 
   if (aiBtn) aiBtn.onclick = () => generateCrossWithAI();
-  if (addBtn) addBtn.onclick = () => addCrossStrategy();
   if (reviewBtn) reviewBtn.onclick = () => reviewCrossStrategiesWithAI();
 
   if (typeSelect) {
@@ -84,7 +82,7 @@ function renderSwotCross() {
         chip.className = 'item-chip';
         chip.innerHTML = `
           <div>
-            <div>${escapeHtml(s.strategy)}</div>
+            <div class="chip-title">${escapeHtml(s.strategy)}</div>
             ${s.review ? `<small class="strategy-review-note">${escapeHtml(s.review)}</small>` : ''}
             <small>${escapeHtml(s.type)}: ${escapeHtml(s.a)} + ${escapeHtml(s.b)}</small>
           </div>
@@ -145,20 +143,7 @@ function getSelectedCross() {
   return { type, a, b };
 }
 
-function addCrossStrategy() {
-  const selected = getSelectedCross();
-  const strategyInput = document.getElementById('cross-strategy');
-  const value = strategyInput ? strategyInput.value.trim() : '';
-
-  if (!selected) {
-    setCrossFeedback('Selecione o tipo de cruzamento e os dois itens antes de adicionar.', 'hint');
-    return;
-  }
-  if (!value) {
-    setCrossFeedback('Digite uma estratégia antes de adicionar.', 'hint');
-    return;
-  }
-
+function saveCrossStrategy(selected, value) {
   const idx = plan.crossStrategies.findIndex(s => s.type === selected.type && s.a === selected.a && s.b === selected.b);
   if (idx >= 0) {
     plan.crossStrategies[idx].strategy = value;
@@ -166,8 +151,6 @@ function addCrossStrategy() {
     plan.crossStrategies.push({ id: 'cs-' + Date.now(), ...selected, strategy: value, review: '' });
   }
   savePlan(plan);
-  setCrossFeedback(`Estratégia ${selected.type} salva.`, 'success');
-  renderSwotCross();
 }
 
 function setCrossFeedback(message, state) {
@@ -401,8 +384,11 @@ async function generateCrossWithAI() {
       throw new Error('A IA não retornou o formato esperado.');
     }
 
-    if (strategyInput) strategyInput.value = parsed.estrategia.trim();
-    setCrossFeedback('Estratégia gerada. Revise e clique em Adicionar.', 'success');
+    const strategy = parsed.estrategia.trim();
+    if (strategyInput) strategyInput.value = strategy;
+    saveCrossStrategy(selected, strategy);
+    renderSwotCross();
+    setCrossFeedback(`Estratégia ${selected.type} gerada e salva.`, 'success');
   } catch (err) {
     setCrossFeedback('Erro ao gerar estratégia: ' + err.message, 'hint');
     console.error(err);
@@ -439,25 +425,6 @@ function renderCrossStrategyReviews() {
       card.appendChild(paragraph);
     });
 
-    const applyButton = document.createElement('button');
-    applyButton.type = 'button';
-    applyButton.className = 'btn btn-small btn-secondary';
-    applyButton.textContent = review.applied ? 'Sugestão aplicada' : 'Aplicar sugestão';
-    applyButton.disabled = review.applied;
-    applyButton.addEventListener('click', () => {
-      const strategy = plan.crossStrategies.find(item => item.id === review.id);
-      if (!strategy) {
-        setCrossFeedback('Essa estratégia não está mais disponível. Atualize a revisão e tente novamente.', 'hint');
-        return;
-      }
-
-      strategy.strategy = review.sugestao;
-      savePlan(plan);
-      review.applied = true;
-      renderSwotCross();
-      setCrossFeedback('Sugestão aplicada à estratégia. Você ainda pode editá-la manualmente.', 'success');
-    });
-    card.appendChild(applyButton);
     container.appendChild(card);
   });
 }

@@ -8,7 +8,7 @@ function renderPillars() {
     const pillar = zone.dataset.pillar;
     const list = (plan.pillars && plan.pillars[pillar]) || [];
     list.forEach(text => {
-      zone.appendChild(createDraggable(text));
+      zone.appendChild(createDraggable(text, true));
     });
     setupDropZone(zone);
   });
@@ -23,12 +23,30 @@ function renderPillars() {
   setupDropZone(pool);
 }
 
-function createDraggable(text) {
+function createDraggable(text, removable = false) {
   const el = document.createElement('div');
   el.className = 'card';
   el.draggable = true;
-  el.textContent = text;
   el.dataset.text = text;
+
+  const span = document.createElement('span');
+  span.textContent = text;
+  el.appendChild(span);
+
+  if (removable) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'card-remove';
+    btn.title = 'Devolver para estratégias disponíveis';
+    btn.setAttribute('aria-label', 'Devolver para estratégias disponíveis');
+    btn.textContent = '×';
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      moveStrategy(text, document.getElementById('strategies-pool'));
+    });
+    el.appendChild(btn);
+  }
+
   el.addEventListener('dragstart', (e) => {
     el.classList.add('dragging');
     e.dataTransfer.setData('text/plain', text);

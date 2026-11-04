@@ -190,6 +190,11 @@ body {
 .btn-primary { background: var(--success); }
 .btn-primary:hover { background: #15803d; }
 .btn-small { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+.btn-large { padding: 0.9rem 1.6rem; font-size: 1.1rem; width: 100%; }
+
+.cross-ai-top {
+  margin-bottom: 1rem;
+}
 
 .stepper {
   display: flex;
@@ -285,6 +290,36 @@ body {
 
 .card.dragging { opacity: 0.5; }
 .card:hover { box-shadow: var(--shadow); }
+
+.drop-zone .card {
+  position: relative;
+  padding-right: 2rem;
+}
+
+.card-remove {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  width: 1.4rem;
+  height: 1.4rem;
+  border: none;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: var(--warning, #d97706);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.2s, color 0.2s;
+}
+
+.card-remove:hover {
+  background: var(--warning, #d97706);
+  color: white;
+}
 
 .card-correct { border-color: var(--success); background: #f0fdf4; }
 .card-wrong { border-color: var(--warning); background: #fffbeb; }
@@ -547,13 +582,20 @@ textarea:focus, input:focus {
 }
 
 .item-chip {
-  background: #f1f5f9;
-  border: 1px solid var(--border);
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-left: 4px solid var(--primary);
   border-radius: var(--radius);
-  padding: 0.7rem 1rem;
+  padding: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
+}
+
+.item-chip .chip-title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
 }
 
 .item-chip small { color: var(--text-light); }
@@ -983,10 +1025,6 @@ textarea:focus, input:focus {
 
 .cross-review-card p {
   margin: 0.45rem 0;
-}
-
-.cross-review-card .btn {
-  margin-top: 0.5rem;
 }
 
 .strategy-review-note {
