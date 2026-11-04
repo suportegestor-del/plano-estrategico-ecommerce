@@ -192,10 +192,6 @@ body {
 .btn-small { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
 .btn-large { padding: 0.9rem 1.6rem; font-size: 1.1rem; width: 100%; }
 
-.cross-ai-top {
-  margin-bottom: 1rem;
-}
-
 .stepper {
   display: flex;
   justify-content: center;
@@ -873,13 +869,39 @@ textarea:focus, input:focus {
   padding: 0 1rem;
 }
 
-.cross-builder {
+.strategy-card {
   background: white;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 1rem;
+  padding: 1.25rem;
   box-shadow: var(--shadow);
   margin: 1rem 0;
+}
+
+.strategy-card h3 {
+  margin: 0 0 0.25rem;
+}
+
+.strategy-card-sub {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  margin: 0 0 1rem;
+}
+
+.strategy-nested {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.strategy-nested h4 {
+  margin: 0 0 0.25rem;
+}
+
+.strategy-card-actions {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .cross-builder-row {
@@ -889,6 +911,10 @@ textarea:focus, input:focus {
   margin-bottom: 0.85rem;
 }
 
+.cross-builder-row:last-child {
+  margin-bottom: 0;
+}
+
 .cross-builder-row label {
   font-size: 0.85rem;
   font-weight: 600;
@@ -896,17 +922,21 @@ textarea:focus, input:focus {
 }
 
 .cross-builder-row select,
-.cross-builder-row input {
+.cross-builder-row input,
+.cross-builder-row textarea {
   padding: 0.55rem 0.75rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   font-size: 0.95rem;
+  font-family: inherit;
   background: white;
   color: var(--text);
+  resize: vertical;
 }
 
 .cross-builder-row select:focus,
-.cross-builder-row input:focus {
+.cross-builder-row input:focus,
+.cross-builder-row textarea:focus {
   outline: none;
   border-color: var(--primary);
 }
@@ -933,15 +963,6 @@ textarea:focus, input:focus {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-}
-
-.cross-type {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #7c3aed;
-  background: #f3e8ff;
-  padding: 0.25rem 0.6rem;
-  border-radius: 6px;
 }
 
 .cross-question {
@@ -981,17 +1002,6 @@ textarea:focus, input:focus {
   font-weight: 700;
 }
 
-.cross-input-row {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: auto;
-}
-
-.cross-input-row input {
-  flex: 1;
-  min-width: 120px;
-}
-
 .ai-actions {
   display: flex;
   justify-content: flex-start;
@@ -1003,28 +1013,6 @@ textarea:focus, input:focus {
 .ai-actions .btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
-}
-
-.cross-review {
-  display: grid;
-  gap: 0.75rem;
-  margin: 1rem 0;
-}
-
-.cross-review-card {
-  padding: 1rem;
-  border: 1px solid #bfdbfe;
-  border-left: 4px solid var(--primary);
-  border-radius: var(--radius);
-  background: #eff6ff;
-}
-
-.cross-review-card h4 {
-  margin: 0 0 0.5rem;
-}
-
-.cross-review-card p {
-  margin: 0.45rem 0;
 }
 
 .strategy-review-note {

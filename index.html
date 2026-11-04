@@ -145,21 +145,17 @@
     <section class="module" id="module-2">
       <h2>2. SWOT Cruzado</h2>
       <p class="module-intro"><strong>Objetivo:</strong> transformar o diagnóstico em estratégias práticas combinando elementos do SWOT.</p>
-      <div class="lesson-box">
-        <strong>Mini-aula:</strong> O cruzamento mostra como usar o que você tem (forças/fraquezas) diante do cenário externo (oportunidades/ameaças).
-        <ul>
-          <li><strong>FO</strong> (Força + Oportunidade): como usar uma vantagem para aproveitar uma tendência?</li>
-          <li><strong>FA</strong> (Força + Ameaça): como se defender da concorrência usando seus pontos fortes?</li>
-          <li><strong>WO</strong> (Fraqueza + Oportunidade): como melhorar algo interno para não perder uma chance?</li>
-          <li><strong>WT</strong> (Fraqueza + Ameaça): como se proteger de um risco sem depender de pontos fracos?</li>
-        </ul>
-      </div>
       <p id="cross-feedback" class="swot-feedback" aria-live="polite">Preencha o SWOT no passo anterior para criar cruzamentos.</p>
 
-      <div class="cross-builder">
-        <div class="cross-ai-top">
-          <button id="generate-cross-ai" class="btn btn-primary btn-large" type="button">✨ Gerar com IA</button>
-        </div>
+      <div class="strategy-card">
+        <h3>Gerar várias estratégias com IA</h3>
+        <p class="strategy-card-sub">As estratégias FO, FA, WO e WT são geradas automaticamente com base no SWOT preenchido.</p>
+        <button id="generate-cross-ai" class="btn btn-primary btn-large" type="button">✨ Gerar várias estratégias com IA</button>
+      </div>
+
+      <div class="strategy-card">
+        <h3>Criar uma estratégia</h3>
+        <p class="strategy-card-sub">Primeiro, selecione os itens que deseja cruzar.</p>
         <div class="cross-builder-row">
           <label for="cross-type">Tipo de cruzamento</label>
           <select id="cross-type">
@@ -172,26 +168,38 @@
         </div>
         <div class="cross-builder-row">
           <label for="cross-a" id="cross-a-label">Item interno</label>
-          <select id="cross-a"><option value="">Selecione...</option></select>
+          <select id="cross-a"><option value="">Selecione primeiro o tipo de cruzamento</option></select>
         </div>
         <div class="cross-builder-row">
           <label for="cross-b" id="cross-b-label">Item externo</label>
-          <select id="cross-b"><option value="">Selecione...</option></select>
+          <select id="cross-b"><option value="">Selecione primeiro o tipo de cruzamento</option></select>
         </div>
-        <div class="cross-builder-row">
-          <label for="cross-strategy">Estratégia</label>
-          <input type="text" id="cross-strategy" placeholder="Descreva a estratégia para essa combinação">
+        <div class="strategy-nested">
+          <h4>Escreva sua estratégia</h4>
+          <p class="strategy-card-sub">Crie apenas uma estratégia por conta própria, sem usar a geração em lote.</p>
+          <div class="cross-builder-row">
+            <label for="cross-strategy">Estratégia</label>
+            <textarea id="cross-strategy" rows="4" placeholder="Descreva a estratégia para essa combinação"></textarea>
+          </div>
+          <div class="strategy-card-actions">
+            <button id="add-cross-strategy" class="btn btn-primary" type="button">Adicionar estratégia</button>
+          </div>
         </div>
       </div>
 
       <h3>Suas estratégias</h3>
       <div id="strategies-list" class="items-list"></div>
-      <div id="cross-review" class="cross-review" aria-live="polite"></div>
-      <div class="ai-actions">
-        <button id="review-cross-ai" class="btn btn-secondary" type="button">Revisar e melhorar estratégias</button>
-      </div>
       <div class="module-summary" id="summary-2">
         <strong>Resultado desta etapa:</strong> estratégias claras que serão agrupadas em pilares no próximo passo.
+      </div>
+      <div class="lesson-box">
+        <strong>Mini-aula:</strong> O cruzamento mostra como usar o que você tem (forças/fraquezas) diante do cenário externo (oportunidades/ameaças).
+        <ul>
+          <li><strong>FO</strong> (Força + Oportunidade): como usar uma vantagem para aproveitar uma tendência?</li>
+          <li><strong>FA</strong> (Força + Ameaça): como se defender da concorrência usando seus pontos fortes?</li>
+          <li><strong>WO</strong> (Fraqueza + Oportunidade): como melhorar algo interno para não perder uma chance?</li>
+          <li><strong>WT</strong> (Fraqueza + Ameaça): como se proteger de um risco sem depender de pontos fracos?</li>
+        </ul>
       </div>
     </section>
 
