@@ -1,42 +1,55 @@
+const SMART_PILLAR_ORDER = ['Operação', 'Crescimento', 'Inovação', 'Experiência do Cliente'];
+
+function getSmartPillars() {
+  const pillars = SMART_PILLAR_ORDER.filter(p => (plan.pillars || {})[p]);
+  Object.keys(plan.pillars || {}).forEach(p => {
+    if (!pillars.includes(p)) pillars.push(p);
+  });
+  return pillars;
+}
+
+function pillarNumber(pillar, position) {
+  const idx = SMART_PILLAR_ORDER.indexOf(pillar);
+  const n = idx >= 0 ? idx + 1 : position + 1;
+  return String(n).padStart(2, '0');
+}
+
 function renderSmart() {
   const container = document.getElementById('pillars-goals');
-  const pillars = Object.keys(plan.pillars || {});
+  const pillars = getSmartPillars();
 
   if (pillars.length === 0) {
+    container.className = '';
     container.innerHTML = '<p>Defina seus pilares no módulo anterior para criar metas.</p>';
     return;
   }
 
   ensureGoals(pillars);
 
+  container.className = 'smart-board';
   container.innerHTML = '';
-  plan.goals.forEach((goal, idx) => {
-    const pillarStrategies = (plan.pillars[goal.pillar] || []).map(s => `<li>${escapeHtml(s)}</li>`).join('') || '<li class="empty">Nenhuma estratégia vinculada a este pilar.</li>';
-
+  pillars.forEach((pillar, pIdx) => {
     const card = document.createElement('div');
-    card.className = 'goal-card';
-    card.dataset.goalIdx = idx;
+    card.className = 'smart-pillar';
     card.innerHTML = `
-      <div class="goal-pillar-header">
-        <label>Pilar: ${escapeHtml(goal.pillar)}</label>
-        <button class="btn btn-small btn-secondary toggle-pillar-strategies" data-idx="${idx}" type="button">Ver estratégias</button>
-      </div>
-      <div class="pillar-strategies" data-strategies="${idx}" style="display:none">
-        <strong>Estratégias deste pilar:</strong>
-        <ul>${pillarStrategies}</ul>
-      </div>
-      <input type="text" data-idx="${idx}" class="goal-input" value="${escapeHtml(goal.text)}" placeholder="Ex.: aumentar o faturamento de R$ 20 mil para R$ 30 mil/mês em 6 meses">
-      <div class="smart-feedback" data-feedback="${idx}"></div>
-      <div class="smart-checks" data-checks="${idx}">
-        <div class="smart-check" data-key="specific">Específico</div>
-        <div class="smart-check" data-key="measurable">Mensurável</div>
-        <div class="smart-check" data-key="achievable">Atingível</div>
-        <div class="smart-check" data-key="relevant">Relevante</div>
-        <div class="smart-check" data-key="timeBound">Temporal</div>
-      </div>
+      <h4><span class="pillar-number">${pillarNumber(pillar, pIdx)}</span> ${escapeHtml(pillar)}</h4>
+      <div class="smart-pillar-goals"></div>
+      <button class="btn btn-small btn-secondary add-goal" type="button">+ Nova meta</button>
     `;
     container.appendChild(card);
-    updateSmartIndicators(idx, goal.text);
+
+    const goalsWrap = card.querySelector('.smart-pillar-goals');
+    plan.goals.forEach((goal, idx) => {
+      if (goal.pillar !== pillar) return;
+      goalsWrap.appendChild(createGoalCard(goal, idx, pillar));
+      updateSmartIndicators(idx, goal.text);
+    });
+
+    card.querySelector('.add-goal').addEventListener('click', () => {
+      plan.goals.push({ id: 'goal-' + Date.now(), text: '', pillar });
+      savePlan(plan);
+      renderSmart();
+    });
   });
 
   container.querySelectorAll('.toggle-pillar-strategies').forEach(btn => {
@@ -59,16 +72,37 @@ function renderSmart() {
     });
   });
 
-  document.getElementById('add-goal').onclick = () => {
-    plan.goals.push({ id: 'goal-' + Date.now(), text: '', pillar: pillars[0] });
-    savePlan(plan);
-    renderSmart();
-  };
-
   const aiBtn = document.getElementById('generate-smart-ai');
   if (aiBtn) {
     aiBtn.onclick = () => generateSmartWithAI();
   }
+}
+
+function createGoalCard(goal, idx, pillar) {
+  const pillarStrategies = (plan.pillars[pillar] || []).map(s => `<li>${escapeHtml(s)}</li>`).join('') || '<li class="empty">Nenhuma estratégia vinculada a este pilar.</li>';
+
+  const card = document.createElement('div');
+  card.className = 'goal-card';
+  card.dataset.goalIdx = idx;
+  card.innerHTML = `
+    <div class="goal-pillar-header">
+      <button class="btn btn-small btn-secondary toggle-pillar-strategies" data-idx="${idx}" type="button">Ver estratégias</button>
+    </div>
+    <div class="pillar-strategies" data-strategies="${idx}" style="display:none">
+      <strong>Estratégias deste pilar:</strong>
+      <ul>${pillarStrategies}</ul>
+    </div>
+    <input type="text" data-idx="${idx}" class="goal-input" value="${escapeHtml(goal.text)}" placeholder="Ex.: aumentar o faturamento de R$ 20 mil para R$ 30 mil/mês em 6 meses">
+    <div class="smart-feedback" data-feedback="${idx}"></div>
+    <div class="smart-checks" data-checks="${idx}">
+      <div class="smart-check" data-key="specific">Específico</div>
+      <div class="smart-check" data-key="measurable">Mensurável</div>
+      <div class="smart-check" data-key="achievable">Atingível</div>
+      <div class="smart-check" data-key="relevant">Relevante</div>
+      <div class="smart-check" data-key="timeBound">Temporal</div>
+    </div>
+  `;
+  return card;
 }
 
 function ensureGoals(pillars) {

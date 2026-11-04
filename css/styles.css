@@ -158,23 +158,23 @@ body {
 .help-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
   margin: 0 0 1rem;
-  padding: 0.35rem 0.9rem;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: white;
-  color: var(--text-light);
-  font-size: 0.85rem;
-  font-weight: 600;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
   cursor: pointer;
-  transition: color 0.2s, border-color 0.2s;
+  transition: background 0.2s;
 }
 
-.help-toggle:hover {
-  color: var(--primary);
-  border-color: var(--primary);
-}
+.help-toggle:hover { background: var(--primary-dark); }
 
 .floating-help {
   position: fixed;
@@ -626,6 +626,45 @@ textarea:focus, input:focus {
 
 .item-chip small { color: var(--text-light); }
 
+.chip-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.chip-actions .remove-strategy {
+  background: var(--danger);
+}
+
+.chip-actions .remove-strategy:hover {
+  background: #b91c1c;
+}
+
+.chip-edit {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.chip-edit small {
+  color: var(--text-light);
+}
+
+.chip-edit-input {
+  width: 100%;
+  font: inherit;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  resize: vertical;
+}
+
+.chip-edit .chip-actions {
+  justify-content: flex-end;
+}
+
 .pillars-layout {
   display: flex;
   gap: 1rem;
@@ -794,6 +833,48 @@ textarea:focus, input:focus {
 
 .smart-results {
   min-width: 0;
+}
+
+.smart-board-title {
+  margin: 0 0 1rem;
+}
+
+.smart-board {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.smart-pillar {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.smart-pillar h4 {
+  margin: 0;
+}
+
+.smart-pillar .goal-card {
+  margin-bottom: 0;
+  background: white;
+}
+
+.smart-pillar .add-goal {
+  align-self: flex-end;
+}
+
+.smart-board .smart-pillar:nth-child(1) .pillar-number { color: #2563eb; }
+.smart-board .smart-pillar:nth-child(2) .pillar-number { color: #16a34a; }
+.smart-board .smart-pillar:nth-child(3) .pillar-number { color: #d97706; }
+.smart-board .smart-pillar:nth-child(4) .pillar-number { color: #db2777; }
+
+@media (max-width: 700px) {
+  .smart-board { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 900px) {

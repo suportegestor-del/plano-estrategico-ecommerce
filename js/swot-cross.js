@@ -69,27 +69,103 @@ function renderSwotCross() {
       plan.crossStrategies.forEach((s, idx) => {
         const chip = document.createElement('div');
         chip.className = 'item-chip';
-        chip.innerHTML = `
-          <div>
-            <div class="chip-title">${escapeHtml(s.strategy)}</div>
-            ${s.review && s.review !== 'Nenhuma aparente' ? `<small class="strategy-review-note">${escapeHtml(s.review)}</small>` : ''}
-            <small>${escapeHtml(s.type)}: ${escapeHtml(s.a)} + ${escapeHtml(s.b)}</small>
-          </div>
-          <button class="btn btn-small btn-secondary remove-strategy" data-idx="${idx}" aria-label="Remover estratégia" title="Remover">🗑️</button>
-        `;
+        renderChipView(chip, s, idx);
         list.appendChild(chip);
-      });
-
-      list.querySelectorAll('.remove-strategy').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const idx = parseInt(e.target.dataset.idx);
-          plan.crossStrategies.splice(idx, 1);
-          savePlan(plan);
-          renderSwotCross();
-        });
       });
     }
   }
+}
+
+function renderChipView(chip, s, idx) {
+  chip.innerHTML = '';
+
+  const info = document.createElement('div');
+  const title = document.createElement('div');
+  title.className = 'chip-title';
+  title.textContent = s.strategy;
+  info.appendChild(title);
+  if (s.review && s.review !== 'Nenhuma aparente') {
+    const note = document.createElement('small');
+    note.className = 'strategy-review-note';
+    note.textContent = s.review;
+    info.appendChild(note);
+  }
+  const combo = document.createElement('small');
+  combo.textContent = `${s.type}: ${s.a} + ${s.b}`;
+  info.appendChild(combo);
+
+  const actions = document.createElement('div');
+  actions.className = 'chip-actions';
+
+  const editBtn = document.createElement('button');
+  editBtn.type = 'button';
+  editBtn.className = 'btn btn-small btn-secondary edit-strategy';
+  editBtn.title = 'Editar estratégia';
+  editBtn.setAttribute('aria-label', 'Editar estratégia');
+  editBtn.textContent = '✏️';
+  editBtn.addEventListener('click', () => renderChipEdit(chip, s, idx));
+
+  const removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.className = 'btn btn-small btn-secondary remove-strategy';
+  removeBtn.title = 'Remover estratégia';
+  removeBtn.setAttribute('aria-label', 'Remover estratégia');
+  removeBtn.textContent = '🗑️';
+  removeBtn.addEventListener('click', () => {
+    plan.crossStrategies.splice(idx, 1);
+    savePlan(plan);
+    renderSwotCross();
+  });
+
+  actions.appendChild(editBtn);
+  actions.appendChild(removeBtn);
+  chip.appendChild(info);
+  chip.appendChild(actions);
+}
+
+function renderChipEdit(chip, s, idx) {
+  chip.innerHTML = '';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'chip-edit';
+
+  const textarea = document.createElement('textarea');
+  textarea.rows = 3;
+  textarea.className = 'chip-edit-input';
+  textarea.value = s.strategy;
+  wrap.appendChild(textarea);
+
+  const combo = document.createElement('small');
+  combo.textContent = `${s.type}: ${s.a} + ${s.b}`;
+  wrap.appendChild(combo);
+
+  const actions = document.createElement('div');
+  actions.className = 'chip-actions';
+
+  const saveBtn = document.createElement('button');
+  saveBtn.type = 'button';
+  saveBtn.className = 'btn btn-small btn-primary';
+  saveBtn.textContent = 'Salvar';
+  saveBtn.addEventListener('click', () => {
+    const value = textarea.value.trim();
+    if (!value) return;
+    plan.crossStrategies[idx].strategy = value;
+    savePlan(plan);
+    renderSwotCross();
+  });
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.type = 'button';
+  cancelBtn.className = 'btn btn-small btn-secondary';
+  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.addEventListener('click', () => renderChipView(chip, s, idx));
+
+  actions.appendChild(saveBtn);
+  actions.appendChild(cancelBtn);
+  wrap.appendChild(actions);
+
+  chip.appendChild(wrap);
+  textarea.focus();
 }
 
 function setCrossFeedback(message, state) {
