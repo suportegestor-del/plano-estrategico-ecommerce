@@ -225,26 +225,29 @@
       </template>
       <div class="pillars-layout">
       <div class="pool">
-        <h4>Estratégias disponíveis</h4>
+        <h3>Estratégias disponíveis</h3>
         <div id="strategies-pool" class="drop-zone"></div>
       </div>
+      <div class="pillars-board-wrap">
+      <h3 class="pillars-board-title">Pilares estratégicos</h3>
       <div class="pillars-board">
         <div class="pillar" data-pillar="Operação">
-          <h4>Operação</h4>
+          <h4><span class="pillar-number">01</span> Operação</h4>
           <div class="drop-zone" data-pillar="Operação"></div>
         </div>
         <div class="pillar" data-pillar="Crescimento">
-          <h4>Crescimento</h4>
+          <h4><span class="pillar-number">02</span> Crescimento</h4>
           <div class="drop-zone" data-pillar="Crescimento"></div>
         </div>
         <div class="pillar" data-pillar="Inovação">
-          <h4>Inovação</h4>
+          <h4><span class="pillar-number">03</span> Inovação</h4>
           <div class="drop-zone" data-pillar="Inovação"></div>
         </div>
         <div class="pillar" data-pillar="Experiência do Cliente">
-          <h4>Experiência do Cliente</h4>
+          <h4><span class="pillar-number">04</span> Experiência do Cliente</h4>
           <div class="drop-zone" data-pillar="Experiência do Cliente"></div>
         </div>
+      </div>
       </div>
       </div>
     </section>
@@ -259,11 +262,19 @@
           <br><strong>Pergunta orientadora:</strong> qual indicador mostraria que esse pilar está melhor?
         </div>
       </template>
-      <div class="ai-actions">
-        <button id="generate-smart-ai" class="btn btn-primary" type="button">Gerar metas com IA</button>
+      <div class="smart-layout">
+        <div class="smart-side">
+          <h3>Criar metas</h3>
+          <p class="smart-side-sub">Gere sugestões de metas para cada pilar com IA.</p>
+          <div class="ai-actions">
+            <button id="generate-smart-ai" class="btn btn-primary btn-large" type="button">✨ Gerar metas com IA</button>
+          </div>
+        </div>
+        <div class="smart-results">
+          <div id="pillars-goals"></div>
+          <button id="add-goal" class="btn">Adicionar outra meta</button>
+        </div>
       </div>
-      <div id="pillars-goals"></div>
-      <button id="add-goal" class="btn">Adicionar outra meta</button>
     </section>
 
     <section class="module" id="module-5">

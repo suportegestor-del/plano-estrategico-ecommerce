@@ -634,12 +634,56 @@ textarea:focus, input:focus {
 }
 
 .pillars-layout .pool {
-  flex: 0 0 300px;
+  flex: 0 0 280px;
   margin-top: 0;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.pillars-layout .pool h3 {
+  margin: 0 0 1rem;
 }
 
 .pillars-layout .pool .drop-zone {
-  min-height: 260px;
+  min-height: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.card-mover {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.card-mover label {
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+.card-mover select {
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  font-family: inherit;
+  background: white;
+  color: var(--text);
+  width: 100%;
+}
+
+.pillars-board-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.pillars-board-title {
+  margin: 0 0 1rem;
 }
 
 .pillars-board {
@@ -650,10 +694,35 @@ textarea:focus, input:focus {
   gap: 1rem;
 }
 
+.pillar .drop-zone {
+  min-height: 180px;
+}
+
+.pillar .drop-zone:empty {
+  align-items: center;
+  justify-content: center;
+}
+
+.pillar .drop-zone:empty::after {
+  content: 'Arraste estratégias para cá';
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+.pillar-number {
+  font-weight: 700;
+  margin-right: 0.4rem;
+}
+
+.pillars-board .pillar:nth-child(1) .pillar-number { color: #2563eb; }
+.pillars-board .pillar:nth-child(2) .pillar-number { color: #16a34a; }
+.pillars-board .pillar:nth-child(3) .pillar-number { color: #d97706; }
+.pillars-board .pillar:nth-child(4) .pillar-number { color: #db2777; }
+
 @media (max-width: 900px) {
   .pillars-layout { flex-direction: column; }
   .pillars-layout .pool { flex: 0 0 auto; width: 100%; }
-  .pillars-layout .pool .drop-zone { min-height: 120px; }
+  .pillars-layout .pool .drop-zone { min-height: 0; }
 }
 
 .pillar, .kanban-column, .timeline-lane {
@@ -692,6 +761,43 @@ textarea:focus, input:focus {
   border-radius: var(--radius);
   padding: 1rem;
   margin-bottom: 1rem;
+}
+
+.smart-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.smart-side {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.smart-side h3 {
+  margin: 0 0 0.25rem;
+}
+
+.smart-side-sub {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  margin: 0 0 1rem;
+}
+
+.smart-side .ai-actions {
+  margin: 0;
+}
+
+.smart-results {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .smart-layout { grid-template-columns: 1fr; }
 }
 
 .goal-pillar-header {

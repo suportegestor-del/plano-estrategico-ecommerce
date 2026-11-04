@@ -75,7 +75,7 @@ function renderSwotCross() {
             ${s.review && s.review !== 'Nenhuma aparente' ? `<small class="strategy-review-note">${escapeHtml(s.review)}</small>` : ''}
             <small>${escapeHtml(s.type)}: ${escapeHtml(s.a)} + ${escapeHtml(s.b)}</small>
           </div>
-          <button class="btn btn-small btn-secondary remove-strategy" data-idx="${idx}">Remover</button>
+          <button class="btn btn-small btn-secondary remove-strategy" data-idx="${idx}" aria-label="Remover estratégia" title="Remover">🗑️</button>
         `;
         list.appendChild(chip);
       });

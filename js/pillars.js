@@ -17,10 +17,42 @@ function renderPillars() {
   pool.innerHTML = '';
   strategies.forEach(s => {
     if (!assigned.has(s.text)) {
-      pool.appendChild(createDraggable(s.text));
+      pool.appendChild(createPoolCard(s.text));
     }
   });
   setupDropZone(pool);
+}
+
+function createPoolCard(text) {
+  const el = createDraggable(text);
+
+  const mover = document.createElement('div');
+  mover.className = 'card-mover';
+
+  const label = document.createElement('label');
+  label.textContent = 'Mover para';
+
+  const select = document.createElement('select');
+  const poolOption = document.createElement('option');
+  poolOption.value = '';
+  poolOption.textContent = 'Estratégias disponíveis';
+  select.appendChild(poolOption);
+  document.querySelectorAll('.pillar .drop-zone').forEach(zone => {
+    const opt = document.createElement('option');
+    opt.value = zone.dataset.pillar;
+    opt.textContent = zone.dataset.pillar;
+    select.appendChild(opt);
+  });
+  select.addEventListener('change', () => {
+    if (!select.value) return;
+    const zone = document.querySelector(`.pillar .drop-zone[data-pillar="${CSS.escape(select.value)}"]`);
+    if (zone) moveStrategy(text, zone);
+  });
+
+  mover.appendChild(label);
+  mover.appendChild(select);
+  el.appendChild(mover);
+  return el;
 }
 
 function createDraggable(text, removable = false) {
