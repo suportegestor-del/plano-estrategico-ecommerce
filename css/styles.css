@@ -1163,6 +1163,50 @@ textarea:focus, input:focus {
   background: #f8fafc;
 }
 
+.kanban-top {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 1rem;
+  align-items: stretch;
+  margin-bottom: 1rem;
+}
+
+.kanban-progress-card {
+  padding: 1rem;
+  border: 1px solid #dbeafe;
+  border-radius: var(--radius);
+  background: #eff6ff;
+}
+
+.kanban-progress-card h4 {
+  margin: 0 0 0.6rem;
+}
+
+.kanban-progress-texto {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.kb-bar {
+  height: 10px;
+  background: #dbeafe;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 0.7rem;
+}
+
+.kb-bar-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+@media (max-width: 900px) {
+  .kanban-top { grid-template-columns: 1fr; }
+}
+
 .kanban-pool-header {
   display: flex;
   align-items: center;
@@ -1274,14 +1318,6 @@ textarea:focus, input:focus {
 .remove-initiative:hover {
   background: #fee2e2;
   color: #b91c1c;
-}
-
-.progress-summary {
-  margin-bottom: 1rem;
-  padding: 0.8rem 1rem;
-  background: #eff6ff;
-  border-radius: var(--radius);
-  border: 1px solid #dbeafe;
 }
 
 @media (max-width: 520px) {

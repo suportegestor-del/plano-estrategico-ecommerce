@@ -135,19 +135,15 @@ function addInitiative(status = 'unassigned') {
 }
 
 function renderKanbanProgress() {
-  const existing = document.getElementById('kanban-progress');
-  if (existing) existing.remove();
-
-  const board = document.querySelector('.kanban-board');
-  if (!board) return;
+  const slot = document.getElementById('kanban-progress');
+  if (!slot) return;
 
   const total = plan.initiatives.length;
   const done = plan.initiatives.filter(i => i.status === 'done').length;
   const progress = total ? Math.round((done / total) * 100) : 0;
 
-  const el = document.createElement('div');
-  el.id = 'kanban-progress';
-  el.className = 'progress-summary';
-  el.innerHTML = `<strong>Progresso geral:</strong> ${done} de ${total} iniciativas concluídas (${progress}%).`;
-  board.parentElement.insertBefore(el, board);
+  slot.innerHTML = `
+    <p class="kanban-progress-texto"><strong>${done} de ${total}</strong> iniciativas concluídas (${progress}%).</p>
+    <div class="kb-bar"><div class="kb-bar-fill" style="width: ${progress}%"></div></div>
+  `;
 }
