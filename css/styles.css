@@ -155,27 +155,6 @@ body {
 .btn-small { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
 .btn-large { padding: 0.9rem 1.6rem; font-size: 1.1rem; width: 100%; }
 
-.help-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  margin: 0 0 1rem;
-  padding: 0;
-  border: none;
-  border-radius: 50%;
-  background: var(--primary);
-  color: #fff;
-  font-size: 1rem;
-  font-weight: 700;
-  line-height: 1;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.help-toggle:hover { background: var(--primary-dark); }
-
 .floating-help {
   position: fixed;
   right: 1rem;
