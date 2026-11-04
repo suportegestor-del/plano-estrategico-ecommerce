@@ -21,24 +21,34 @@ function ensureInitiativesFromGoals() {
   if (!plan.initiatives) plan.initiatives = [];
   if (!plan.goals || plan.goals.length === 0) return;
 
-  let created = false;
+  let changed = false;
   plan.goals.forEach(goal => {
     if (!goal.text.trim()) return;
-    const exists = plan.initiatives.some(i => i.goalId === goal.id);
-    if (exists) return;
+    const existing = plan.initiatives.find(i => i.goalId === goal.id);
+    if (existing) {
+      if (!existing.owner && goal.responsible) {
+        existing.owner = goal.responsible;
+        changed = true;
+      }
+      if (!existing.due && goal.deadline) {
+        existing.due = goal.deadline;
+        changed = true;
+      }
+      return;
+    }
 
     plan.initiatives.push({
       id: 'init-' + Date.now() + '-' + goal.id,
       goalId: goal.id,
       title: '',
-      owner: '',
-      due: '',
+      owner: goal.responsible || '',
+      due: goal.deadline || '',
       status: 'unassigned'
     });
-    created = true;
+    changed = true;
   });
 
-  if (created) savePlan(plan);
+  if (changed) savePlan(plan);
 }
 
 
@@ -116,8 +126,8 @@ function addInitiative(status = 'unassigned') {
     id: 'init-' + Date.now(),
     goalId: nextGoal ? nextGoal.id : '',
     title: '',
-    owner: '',
-    due: '',
+    owner: nextGoal ? (nextGoal.responsible || '') : '',
+    due: nextGoal ? (nextGoal.deadline || '') : '',
     status
   });
   savePlan(plan);
