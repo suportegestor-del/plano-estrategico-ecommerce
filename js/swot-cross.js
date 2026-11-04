@@ -45,7 +45,7 @@ function renderSwotCross() {
       feedback.textContent = 'Preencha pelo menos uma força, uma fraqueza, uma oportunidade e uma ameaça no SWOT para criar os cruzamentos.';
       feedback.className = 'swot-feedback hint';
     } else {
-      feedback.textContent = 'Selecione os itens acima para criar uma estratégia manualmente ou gere as quatro de uma vez com IA.';
+      feedback.textContent = '';
       feedback.className = 'swot-feedback';
     }
   }
@@ -64,7 +64,7 @@ function renderSwotCross() {
   if (list) {
     list.innerHTML = '';
     if (plan.crossStrategies.length === 0) {
-      list.innerHTML = '<p class="empty-list">Nenhuma estratégia criada ainda.</p>';
+      list.innerHTML = '<p class="empty-list">Nenhuma estratégia criada ainda. Escolha dois itens ao lado para começar.</p>';
     } else {
       plan.crossStrategies.forEach((s, idx) => {
         const chip = document.createElement('div');

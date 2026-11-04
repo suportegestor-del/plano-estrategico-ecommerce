@@ -161,14 +161,10 @@
           </ul>
         </div>
       </template>
-      <p id="cross-feedback" class="swot-feedback" aria-live="polite">Preencha o SWOT no passo anterior para criar cruzamentos.</p>
+      <p id="cross-feedback" class="swot-feedback" aria-live="polite"></p>
 
       <div class="cross-layout">
         <div class="cross-side">
-      <div class="cross-ai-actions">
-        <button id="generate-cross-ai" class="btn btn-primary btn-large" type="button">✨ Gerar várias estratégias com IA</button>
-      </div>
-
       <div class="strategy-card">
         <h3>Criar uma estratégia</h3>
         <p class="strategy-card-sub">Primeiro, selecione os itens que deseja cruzar.</p>
@@ -209,6 +205,12 @@
       <div id="strategies-list" class="items-list"></div>
         </div>
       </div>
+
+      <div class="cross-ai-actions">
+        <p class="cross-ai-title">Quer gerar várias sugestões de uma vez?</p>
+        <button id="generate-cross-ai" class="btn btn-primary btn-large" type="button">✨ Gerar várias estratégias com IA</button>
+        <p class="cross-ai-note">As sugestões são geradas com IA a partir do diagnóstico SWOT.</p>
+      </div>
     </section>
 
     <section class="module" id="module-3">
@@ -221,6 +223,11 @@
           <br><strong>Pergunta orientadora:</strong> qual pilar essa estratégia mais impulsiona?
         </div>
       </template>
+      <div class="pillars-layout">
+      <div class="pool">
+        <h4>Estratégias disponíveis</h4>
+        <div id="strategies-pool" class="drop-zone"></div>
+      </div>
       <div class="pillars-board">
         <div class="pillar" data-pillar="Operação">
           <h4>Operação</h4>
@@ -239,9 +246,6 @@
           <div class="drop-zone" data-pillar="Experiência do Cliente"></div>
         </div>
       </div>
-      <div class="pool">
-        <h4>Estratégias disponíveis</h4>
-        <div id="strategies-pool" class="drop-zone"></div>
       </div>
     </section>
 
@@ -338,6 +342,8 @@
     <button id="prev-step" class="btn btn-secondary">Anterior</button>
     <button id="next-step" class="btn btn-primary">Próximo</button>
   </footer>
+
+  <button id="floating-help" class="floating-help" type="button" aria-label="Ajuda" title="Ajuda">❓</button>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>

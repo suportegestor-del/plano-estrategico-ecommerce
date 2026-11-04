@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     savePlan(plan);
     renderModule(n);
+    if (window.updateFloatingHelp) window.updateFloatingHelp();
   }
 
   function isStepReady(step) {
@@ -97,6 +98,20 @@ function setupHelpModal() {
       modal.classList.add('active');
     });
   });
+
+  const floatingHelp = document.getElementById('floating-help');
+  if (floatingHelp) {
+    floatingHelp.addEventListener('click', () => {
+      const template = document.getElementById(`help-lesson-${plan.currentStep}`);
+      if (!template) return;
+      content.replaceChildren(template.content.cloneNode(true));
+      modal.classList.add('active');
+    });
+    window.updateFloatingHelp = () => {
+      floatingHelp.hidden = !document.getElementById(`help-lesson-${plan.currentStep}`);
+    };
+    window.updateFloatingHelp();
+  }
 
   const hide = () => modal.classList.remove('active');
   if (close) close.addEventListener('click', hide);
