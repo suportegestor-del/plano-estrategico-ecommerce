@@ -109,6 +109,7 @@ function renderFinalCross(wrap, strategies) {
       <span class="final-cross-type">${escapeHtml(s.type)}</span>
       <p class="final-cross-items"><strong>${escapeHtml(crossComboLabel(s))}</strong></p>
       <p class="final-cross-items-detail">${escapeHtml(crossItemsDetail(s))}</p>
+      ${s.pillar ? `<p class="final-cross-pillar">💡 Pilar sugerido: ${escapeHtml(s.pillar)}</p>` : ''}
       <p class="final-cross-text">${escapeHtml(s.strategy)}</p>
     `;
     wrap.appendChild(card);

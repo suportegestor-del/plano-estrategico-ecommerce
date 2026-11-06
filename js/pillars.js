@@ -65,6 +65,14 @@ function createDraggable(text, removable = false) {
   span.textContent = text;
   el.appendChild(span);
 
+  const meta = (plan.crossStrategies || []).find(s => s.strategy === text);
+  if (meta && meta.pillar) {
+    const hint = document.createElement('small');
+    hint.className = 'card-pillar-hint';
+    hint.textContent = '💡 ' + meta.pillar;
+    el.appendChild(hint);
+  }
+
   if (removable) {
     const btn = document.createElement('button');
     btn.type = 'button';

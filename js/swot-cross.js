@@ -129,6 +129,12 @@ function renderChipView(chip, s, idx) {
   detail.className = 'chip-items';
   detail.textContent = crossItemsDetail(s);
   info.appendChild(detail);
+  if (s.pillar) {
+    const hint = document.createElement('small');
+    hint.className = 'chip-pillar-hint';
+    hint.textContent = '💡 Pilar sugerido: ' + s.pillar;
+    info.appendChild(hint);
+  }
 
   const actions = document.createElement('div');
   actions.className = 'chip-actions';
@@ -237,6 +243,14 @@ Diretrizes importantes:
 - Varie as combinações: cada estratégia deve usar itens diferentes do SWOT sempre que possível. Se houver poucos itens em alguma categoria, varie o ângulo da estratégia em vez de repetir a mesma combinação com o mesmo enfoque.
 - Quando duas forças (ou duas fraquezas, etc.) se complementarem para uma mesma estratégia, inclua ambas no campo "a" — isso é encorajado.
 - Priorize as combinações de maior impacto para um e-commerce de pequeno/médio porte.
+- Para cada estratégia, indique no campo "pilar" o pilar estratégico onde ela melhor se encaixa. Os pilares possíveis são (use EXATAMENTE um destes nomes):
+  - Crescimento
+  - Portfólio e Canal
+  - Excelência Operacional
+  - Novos Negócios / Inovação
+  - Finanças
+  - Pessoas e Processos
+  - Tecnologia
 - Primeiro, verifique se cada item parece estar na categoria correta: forças e fraquezas são internas; oportunidades e ameaças são externas. Se encontrar uma classificação provável incorreta, não a trate como fato correto nem invente uma substituição. Escreva a estratégia usando o melhor cruzamento disponível e sinalize brevemente a classificação a revisar no campo "revisao".
 - Para cada estratégia, explique a lógica da combinação e proponha uma ação inicial concreta. Inclua um indicador e um horizonte de tempo somente se houver base nos dados; não invente metas, orçamento, capacidades ou prazos. Quando faltarem dados, indique o que precisa ser definido.
 - Use somente os dados fornecidos, diferencie fatos de hipóteses e evite conselhos genéricos como "investir em marketing" sem dizer o primeiro passo.
@@ -253,21 +267,21 @@ ${coded(items.opportunities, 'O').join('\n') || '-'}
 AMEAÇAS:
 ${coded(items.threats, 'T').join('\n') || '-'}
 
-Responda APENAS com um objeto JSON válido no formato abaixo, sem explicações, sem markdown, sem texto fora do JSON. O array "estrategias" deve ter EXATAMENTE 12 posições, nesta ordem: 3 FO, depois 3 FA, depois 3 WO, depois 3 WT. Os campos "a" e "b" devem conter os textos EXATOS dos itens do SWOT utilizados (sem o prefixo do código):
+Responda APENAS com um objeto JSON válido no formato abaixo, sem explicações, sem markdown, sem texto fora do JSON. O array "estrategias" deve ter EXATAMENTE 12 posições, nesta ordem: 3 FO, depois 3 FA, depois 3 WO, depois 3 WT. Os campos "a" e "b" devem conter os textos EXATOS dos itens do SWOT utilizados (sem o prefixo do código). O campo "pilar" deve conter EXATAMENTE um dos 7 nomes de pilares listados acima:
 {
   "estrategias": [
-    { "tipo": "FO", "a": ["força utilizada"], "b": ["oportunidade utilizada"], "estrategia": "Ação concreta, indicador ou dado a definir", "revisao": "Classificação a revisar ou Nenhuma aparente" },
-    { "tipo": "FO", "a": ["força utilizada"], "b": ["oportunidade utilizada"], "estrategia": "...", "revisao": "..." },
-    { "tipo": "FO", "a": ["força utilizada"], "b": ["oportunidade utilizada"], "estrategia": "...", "revisao": "..." },
-    { "tipo": "FA", "a": ["força utilizada"], "b": ["ameaça utilizada"], "estrategia": "...", "revisao": "..." },
-    { "tipo": "FA", "a": ["força utilizada"], "b": ["ameaça utilizada"], "estrategia": "...", "revisao": "..." },
-    { "tipo": "FA", "a": ["força utilizada"], "b": ["ameaça utilizada"], "estrategia": "...", "revisao": "..." },
-    { "tipo": "WO", "a": ["fraqueza utilizada"], "b": ["oportunidade utilizada"], "estrategia": "...", "revisao": "..." },
-    { "tipo": "WO", "a": ["fraqueza utilizada"], "b": ["oportunidade utilizada"], "estrategia": "...", "revisao": "..." },
-    { "tipo": "WO", "a": ["fraqueza utilizada"], "b": ["oportunidade utilizada"], "estrategia": "...", "revisao": "..." },
-    { "tipo": "WT", "a": ["fraqueza utilizada"], "b": ["ameaça utilizada"], "estrategia": "...", "revisao": "..." },
-    { "tipo": "WT", "a": ["fraqueza utilizada"], "b": ["ameaça utilizada"], "estrategia": "...", "revisao": "..." },
-    { "tipo": "WT", "a": ["fraqueza utilizada"], "b": ["ameaça utilizada"], "estrategia": "...", "revisao": "..." }
+    { "tipo": "FO", "a": ["força utilizada"], "b": ["oportunidade utilizada"], "estrategia": "Ação concreta, indicador ou dado a definir", "pilar": "Crescimento", "revisao": "Classificação a revisar ou Nenhuma aparente" },
+    { "tipo": "FO", "a": ["força utilizada"], "b": ["oportunidade utilizada"], "estrategia": "...", "pilar": "Crescimento", "revisao": "..." },
+    { "tipo": "FO", "a": ["força utilizada"], "b": ["oportunidade utilizada"], "estrategia": "...", "pilar": "Portfólio e Canal", "revisao": "..." },
+    { "tipo": "FA", "a": ["força utilizada"], "b": ["ameaça utilizada"], "estrategia": "...", "pilar": "Crescimento", "revisao": "..." },
+    { "tipo": "FA", "a": ["força utilizada"], "b": ["ameaça utilizada"], "estrategia": "...", "pilar": "Excelência Operacional", "revisao": "..." },
+    { "tipo": "FA", "a": ["força utilizada"], "b": ["ameaça utilizada"], "estrategia": "...", "pilar": "Finanças", "revisao": "..." },
+    { "tipo": "WO", "a": ["fraqueza utilizada"], "b": ["oportunidade utilizada"], "estrategia": "...", "pilar": "Excelência Operacional", "revisao": "..." },
+    { "tipo": "WO", "a": ["fraqueza utilizada"], "b": ["oportunidade utilizada"], "estrategia": "...", "pilar": "Pessoas e Processos", "revisao": "..." },
+    { "tipo": "WO", "a": ["fraqueza utilizada"], "b": ["oportunidade utilizada"], "estrategia": "...", "pilar": "Tecnologia", "revisao": "..." },
+    { "tipo": "WT", "a": ["fraqueza utilizada"], "b": ["ameaça utilizada"], "estrategia": "...", "pilar": "Finanças", "revisao": "..." },
+    { "tipo": "WT", "a": ["fraqueza utilizada"], "b": ["ameaça utilizada"], "estrategia": "...", "pilar": "Novos Negócios / Inovação", "revisao": "..." },
+    { "tipo": "WT", "a": ["fraqueza utilizada"], "b": ["ameaça utilizada"], "estrategia": "...", "pilar": "Excelência Operacional", "revisao": "..." }
   ]
 }`;
 }
@@ -367,6 +381,14 @@ function parseAIResponse(text) {
   }
 }
 
+function normalizePillarName(value) {
+  if (typeof value !== 'string') return '';
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+  const match = PILLAR_ORDER.find(p => p.toLowerCase() === trimmed.toLowerCase());
+  return match || trimmed;
+}
+
 function extractStrategies(parsed) {
   if (!parsed || typeof parsed !== 'object') return null;
 
@@ -381,6 +403,7 @@ function extractStrategies(parsed) {
       a: toTextArray(item.a),
       b: toTextArray(item.b),
       estrategia,
+      pilar: normalizePillarName(item.pilar),
       revisao: typeof item.revisao === 'string' && item.revisao.trim() ? item.revisao.trim() : 'Nenhuma aparente'
     };
   };
@@ -396,13 +419,14 @@ function extractStrategies(parsed) {
   const keys = ['FO', 'FA', 'WO', 'WT'];
   const toStrategy = (value) => {
     if (typeof value === 'string') {
-      return { estrategia: value, a: [], b: [], revisao: 'Nenhuma aparente' };
+      return { estrategia: value, a: [], b: [], pilar: '', revisao: 'Nenhuma aparente' };
     }
     if (value && typeof value === 'object' && typeof value.estrategia === 'string') {
       return {
         estrategia: value.estrategia,
         a: toTextArray(value.a),
         b: toTextArray(value.b),
+        pilar: normalizePillarName(value.pilar),
         revisao: typeof value.revisao === 'string' ? value.revisao : 'Nenhuma aparente'
       };
     }
@@ -485,6 +509,7 @@ async function generateCrossWithAI() {
       const idx = plan.crossStrategies.findIndex(s => crossStrategyKey(s.type, s.a, s.b, s.strategy) === key);
       if (idx >= 0) {
         plan.crossStrategies[idx].strategy = value.estrategia;
+        plan.crossStrategies[idx].pillar = value.pilar;
         plan.crossStrategies[idx].review = value.revisao;
         updated++;
       } else {
@@ -494,6 +519,7 @@ async function generateCrossWithAI() {
           a: value.a,
           b: value.b,
           strategy: value.estrategia,
+          pillar: value.pilar,
           review: value.revisao
         });
         added++;

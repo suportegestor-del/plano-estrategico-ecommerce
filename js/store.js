@@ -90,6 +90,7 @@ function migratePlan(plan) {
       a: toTextArr(a),
       b: toTextArr(b),
       strategy: s.strategy || '',
+      pillar: typeof s.pillar === 'string' ? s.pillar : '',
       review: typeof s.review === 'string' ? s.review : ''
     };
   });

@@ -280,6 +280,18 @@ body {
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+.card-pillar-hint {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.1rem 0.55rem;
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  border-radius: 999px;
+  color: #6d28d9;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
 .card.dragging { opacity: 0.5; }
 .card:hover { box-shadow: var(--shadow); }
 
@@ -610,6 +622,18 @@ textarea:focus, input:focus {
   font-size: 0.78rem;
   margin-top: 0.15rem;
   word-break: break-word;
+}
+
+.item-chip .chip-pillar-hint {
+  display: inline-block;
+  margin-top: 0.35rem;
+  padding: 0.15rem 0.6rem;
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  border-radius: 999px;
+  color: #6d28d9;
+  font-size: 0.78rem;
+  font-weight: 600;
 }
 
 .chip-actions {
@@ -2436,6 +2460,12 @@ textarea:focus, input:focus {
 
 .final-cross-items { margin: 0 0 0.15rem; font-size: 0.85rem; color: var(--text-light); }
 .final-cross-items-detail { margin: 0 0 0.4rem; font-size: 0.78rem; color: var(--text-light); }
+.final-cross-pillar {
+  margin: 0 0 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6d28d9;
+}
 .final-cross-text { margin: 0; }
 
 /* Pilares */

@@ -207,6 +207,14 @@ function strategyItem(doc, s, y) {
   doc.text(detailLines, MARGIN + 3, y);
   y += detailLines.length * 3.4 + 1.5;
 
+  if (s.pillar) {
+    doc.setTextColor(...COLORS.purple);
+    doc.setFont('helvetica', 'bold');
+    const hintLines = doc.splitTextToSize(`Pilar sugerido: ${s.pillar}`, CONTENT_W - 6);
+    doc.text(hintLines, MARGIN + 3, y);
+    y += hintLines.length * 3.4 + 1.5;
+  }
+
   doc.setTextColor(...COLORS.text);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
