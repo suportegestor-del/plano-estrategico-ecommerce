@@ -220,14 +220,13 @@ function buildSwotCrossPrompt(items) {
   const coded = (list, code) => list.map((f, i) => `${code}${i + 1}. ${f}`);
   return `Você é um consultor sênior de planejamento estratégico para e-commerce.
 
-Revise o diagnóstico SWOT abaixo (já numerado) e crie estratégias executáveis, cobrindo as combinações mais relevantes entre:
+Revise o diagnóstico SWOT abaixo (já numerado) e crie estratégias executáveis. Sua resposta deve conter EXATAMENTE 12 estratégias: EXATAMENTE 3 do tipo FO, EXATAMENTE 3 do tipo FA, EXATAMENTE 3 do tipo WO e EXATAMENTE 3 do tipo WT. Não devolva menos de 12 e não devolva mais de 12.
 - FO (Força + Oportunidade): como usar forças para aproveitar oportunidades.
 - FA (Força + Ameaça): como usar forças para se proteger de ameaças.
 - WO (Fraqueza + Oportunidade): como superar fraquezas para não perder oportunidades.
 - WT (Fraqueza + Ameaça): como se defender de ameaças sem depender dos pontos fracos.
 
 Diretrizes importantes:
-- Gere aproximadamente 3 estratégias para cada tipo de cruzamento (FO, FA, WO e WT) — cerca de 12 no total.
 - Varie as combinações: cada estratégia deve usar itens diferentes do SWOT sempre que possível. Se houver poucos itens em alguma categoria, varie o ângulo da estratégia em vez de repetir a mesma combinação com o mesmo enfoque.
 - Quando duas forças (ou duas fraquezas, etc.) se complementarem para uma mesma estratégia, inclua ambas no campo "a" — isso é encorajado.
 - Priorize as combinações de maior impacto para um e-commerce de pequeno/médio porte.
@@ -247,10 +246,21 @@ ${coded(items.opportunities, 'O').join('\n') || '-'}
 AMEAÇAS:
 ${coded(items.threats, 'T').join('\n') || '-'}
 
-Responda APENAS com um objeto JSON válido no formato abaixo, sem explicações, sem markdown, sem texto fora do JSON. Os campos "a" e "b" devem conter os textos EXATOS dos itens do SWOT utilizados (sem o prefixo do código):
+Responda APENAS com um objeto JSON válido no formato abaixo, sem explicações, sem markdown, sem texto fora do JSON. O array "estrategias" deve ter EXATAMENTE 12 posições, nesta ordem: 3 FO, depois 3 FA, depois 3 WO, depois 3 WT. Os campos "a" e "b" devem conter os textos EXATOS dos itens do SWOT utilizados (sem o prefixo do código):
 {
   "estrategias": [
-    { "tipo": "FO", "a": ["força utilizada"], "b": ["oportunidade utilizada"], "estrategia": "Ação concreta, indicador ou dado a definir", "revisao": "Classificação a revisar ou Nenhuma aparente" }
+    { "tipo": "FO", "a": ["força utilizada"], "b": ["oportunidade utilizada"], "estrategia": "Ação concreta, indicador ou dado a definir", "revisao": "Classificação a revisar ou Nenhuma aparente" },
+    { "tipo": "FO", "a": ["força utilizada"], "b": ["oportunidade utilizada"], "estrategia": "...", "revisao": "..." },
+    { "tipo": "FO", "a": ["força utilizada"], "b": ["oportunidade utilizada"], "estrategia": "...", "revisao": "..." },
+    { "tipo": "FA", "a": ["força utilizada"], "b": ["ameaça utilizada"], "estrategia": "...", "revisao": "..." },
+    { "tipo": "FA", "a": ["força utilizada"], "b": ["ameaça utilizada"], "estrategia": "...", "revisao": "..." },
+    { "tipo": "FA", "a": ["força utilizada"], "b": ["ameaça utilizada"], "estrategia": "...", "revisao": "..." },
+    { "tipo": "WO", "a": ["fraqueza utilizada"], "b": ["oportunidade utilizada"], "estrategia": "...", "revisao": "..." },
+    { "tipo": "WO", "a": ["fraqueza utilizada"], "b": ["oportunidade utilizada"], "estrategia": "...", "revisao": "..." },
+    { "tipo": "WO", "a": ["fraqueza utilizada"], "b": ["oportunidade utilizada"], "estrategia": "...", "revisao": "..." },
+    { "tipo": "WT", "a": ["fraqueza utilizada"], "b": ["ameaça utilizada"], "estrategia": "...", "revisao": "..." },
+    { "tipo": "WT", "a": ["fraqueza utilizada"], "b": ["ameaça utilizada"], "estrategia": "...", "revisao": "..." },
+    { "tipo": "WT", "a": ["fraqueza utilizada"], "b": ["ameaça utilizada"], "estrategia": "...", "revisao": "..." }
   ]
 }`;
 }
@@ -440,7 +450,7 @@ async function generateCrossWithAI() {
           { role: 'user', content: buildSwotCrossPrompt(items) }
         ],
         temperature: 0.7,
-        max_tokens: 4000
+        max_tokens: 5000
       })
     });
 
