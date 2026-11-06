@@ -1,8 +1,8 @@
 const categoryMap = {
-  Força: { field: 'forces', elId: 'swot2-forca' },
-  Fraqueza: { field: 'weaknesses', elId: 'swot2-fraqueza' },
-  Oportunidade: { field: 'opportunities', elId: 'swot2-oportunidade' },
-  Ameaça: { field: 'threats', elId: 'swot2-ameaca' }
+  Força: { field: 'forces', elId: 'swot2-forca', code: 'S' },
+  Fraqueza: { field: 'weaknesses', elId: 'swot2-fraqueza', code: 'W' },
+  Oportunidade: { field: 'opportunities', elId: 'swot2-oportunidade', code: 'O' },
+  Ameaça: { field: 'threats', elId: 'swot2-ameaca', code: 'T' }
 };
 
 const exampleItems = [
@@ -150,6 +150,16 @@ function getFieldItems(field) {
   return (plan.swot[field] || '').split('\n').map(s => s.trim()).filter(Boolean);
 }
 
+function getSwotCode(text) {
+  if (!plan.swot || typeof text !== 'string') return '';
+  for (const category of Object.keys(categoryMap)) {
+    const { field, code } = categoryMap[category];
+    const idx = getFieldItems(field).indexOf(text);
+    if (idx >= 0) return `${code}${idx + 1}`;
+  }
+  return '';
+}
+
 function renderPendingCards() {
   const container = document.getElementById('swot2-pending-cards');
   if (!container) {
@@ -207,9 +217,14 @@ function createSwotCard(text, idx, isPending, category) {
     </div>
   ` : '';
 
+  const codeBadge = (!isPending && category)
+    ? `<span class="swot2-card-code" title="Código deste item nos cruzamentos">${getSwotCode(text)}</span>`
+    : '';
+
   card.innerHTML = `
     <div class="swot2-card-main">
       <span class="swot2-drag-handle" title="Arrastar" aria-hidden="true">⋮⋮</span>
+      ${codeBadge}
       <span class="swot2-card-text">${escapeHtml(text)}</span>
       <button type="button" class="swot2-delete-card" aria-label="Remover">×</button>
     </div>

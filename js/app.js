@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (n === 4) renderSmart();
     if (n === 5) renderKanban();
     if (n === 6) renderRoadmap();
+    if (n === 7) renderFinal();
   }
 
   steps.forEach(btn => {

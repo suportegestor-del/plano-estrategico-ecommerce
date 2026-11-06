@@ -64,7 +64,7 @@ function renderSwotCross() {
   if (list) {
     list.innerHTML = '';
     if (plan.crossStrategies.length === 0) {
-      list.innerHTML = '<p class="empty-list">Nenhuma estratégia criada ainda. Escolha dois itens ao lado para começar.</p>';
+      list.innerHTML = '<p class="empty-list">Nenhuma estratégia criada ainda. Selecione os itens ao lado (um ou vários) para começar.</p>';
     } else {
       plan.crossStrategies.forEach((s, idx) => {
         const chip = document.createElement('div');
@@ -74,6 +74,30 @@ function renderSwotCross() {
       });
     }
   }
+}
+
+function toTextArray(value) {
+  if (Array.isArray(value)) return value.filter(v => typeof v === 'string' && v.trim()).map(v => v.trim());
+  if (typeof value === 'string' && value.trim()) return [value.trim()];
+  return [];
+}
+
+function crossComboKey(type, a, b) {
+  const norm = (arr) => toTextArray(arr).map(s => s.toLowerCase()).sort().join('||');
+  return `${type}::${norm(a)}::${norm(b)}`;
+}
+
+function crossComboLabel(s) {
+  const codes = (items) => toTextArray(items).map(t => getSwotCode(t) || '?').join(' + ');
+  return `${s.type}: ${codes(s.a)} + ${codes(s.b)}`;
+}
+
+function crossItemsDetail(s) {
+  const parts = [...toTextArray(s.a), ...toTextArray(s.b)];
+  return parts.map(t => {
+    const code = getSwotCode(t);
+    return code ? `${code} ${t}` : t;
+  }).join(' · ');
 }
 
 function renderChipView(chip, s, idx) {
@@ -91,8 +115,13 @@ function renderChipView(chip, s, idx) {
     info.appendChild(note);
   }
   const combo = document.createElement('small');
-  combo.textContent = `${s.type}: ${s.a} + ${s.b}`;
+  combo.className = 'chip-combo';
+  combo.textContent = crossComboLabel(s);
   info.appendChild(combo);
+  const detail = document.createElement('small');
+  detail.className = 'chip-items';
+  detail.textContent = crossItemsDetail(s);
+  info.appendChild(detail);
 
   const actions = document.createElement('div');
   actions.className = 'chip-actions';
@@ -136,8 +165,14 @@ function renderChipEdit(chip, s, idx) {
   wrap.appendChild(textarea);
 
   const combo = document.createElement('small');
-  combo.textContent = `${s.type}: ${s.a} + ${s.b}`;
+  combo.className = 'chip-combo';
+  combo.textContent = crossComboLabel(s);
   wrap.appendChild(combo);
+
+  const detail = document.createElement('small');
+  detail.className = 'chip-items';
+  detail.textContent = crossItemsDetail(s);
+  wrap.appendChild(detail);
 
   const actions = document.createElement('div');
   actions.className = 'chip-actions';
@@ -182,36 +217,40 @@ function escapeHtml(text) {
 }
 
 function buildSwotCrossPrompt(items) {
+  const coded = (list, code) => list.map((f, i) => `${code}${i + 1}. ${f}`);
   return `Você é um consultor sênior de planejamento estratégico para e-commerce.
 
-Revise o diagnóstico SWOT abaixo antes de criar UMA estratégia executável para cada cruzamento disponível:
-- FO (Força + Oportunidade): como usar uma força para aproveitar uma oportunidade.
-- FA (Força + Ameaça): como usar uma força para se proteger de uma ameaça.
-- WO (Fraqueza + Oportunidade): como superar uma fraqueza para não perder uma oportunidade.
-- WT (Fraqueza + Ameaça): como se defender de uma ameaça sem depender do ponto fraco.
+Revise o diagnóstico SWOT abaixo (já numerado) e crie o MAIOR NÚMERO POSSÍVEL de estratégias executáveis, cobrindo as combinações mais relevantes entre:
+- FO (Força + Oportunidade): como usar forças para aproveitar oportunidades.
+- FA (Força + Ameaça): como usar forças para se proteger de ameaças.
+- WO (Fraqueza + Oportunidade): como superar fraquezas para não perder oportunidades.
+- WT (Fraqueza + Ameaça): como se defender de ameaças sem depender dos pontos fracos.
 
-Primeiro, verifique se cada item parece estar na categoria correta: forças e fraquezas são internas; oportunidades e ameaças são externas. Se encontrar uma classificação provável incorreta, não a trate como fato correto nem invente uma substituição. Escreva a estratégia usando o melhor cruzamento disponível e sinalize brevemente a classificação a revisar no campo "revisao".
-Para cada estratégia, explique a lógica da combinação e proponha uma ação inicial concreta. Inclua um indicador e um horizonte de tempo somente se houver base nos dados; não invente metas, orçamento, capacidades ou prazos. Quando faltarem dados, indique o que precisa ser definido.
-Use somente os dados fornecidos, diferencie fatos de hipóteses e evite conselhos genéricos como "investir em marketing" sem dizer o primeiro passo.
+Diretrizes importantes:
+- Varra as combinações força×oportunidade, força×ameaça, fraqueza×oportunidade e fraqueza×ameaça e gere uma estratégia para cada par que tiver sentido estratégico. Não se limite a uma estratégia por tipo.
+- Quando duas forças (ou duas fraquezas, etc.) se complementarem para uma mesma estratégia, inclua ambas no campo "a" — isso é encorajado.
+- Priorize as combinações de maior impacto para um e-commerce de pequeno/médio porte.
+- Primeiro, verifique se cada item parece estar na categoria correta: forças e fraquezas são internas; oportunidades e ameaças são externas. Se encontrar uma classificação provável incorreta, não a trate como fato correto nem invente uma substituição. Escreva a estratégia usando o melhor cruzamento disponível e sinalize brevemente a classificação a revisar no campo "revisao".
+- Para cada estratégia, explique a lógica da combinação e proponha uma ação inicial concreta. Inclua um indicador e um horizonte de tempo somente se houver base nos dados; não invente metas, orçamento, capacidades ou prazos. Quando faltarem dados, indique o que precisa ser definido.
+- Use somente os dados fornecidos, diferencie fatos de hipóteses e evite conselhos genéricos como "investir em marketing" sem dizer o primeiro passo.
 
 FORÇAS:
-${items.forces.map((f, i) => `${i + 1}. ${f}`).join('\n') || '-'}
+${coded(items.forces, 'S').join('\n') || '-'}
 
 FRAQUEZAS:
-${items.weaknesses.map((w, i) => `${i + 1}. ${w}`).join('\n') || '-'}
+${coded(items.weaknesses, 'W').join('\n') || '-'}
 
 OPORTUNIDADES:
-${items.opportunities.map((o, i) => `${i + 1}. ${o}`).join('\n') || '-'}
+${coded(items.opportunities, 'O').join('\n') || '-'}
 
 AMEAÇAS:
-${items.threats.map((t, i) => `${i + 1}. ${t}`).join('\n') || '-'}
+${coded(items.threats, 'T').join('\n') || '-'}
 
-Responda APENAS com um objeto JSON válido no formato abaixo, sem explicações, sem markdown, sem texto fora do JSON. Nos campos "a" e "b", copie EXATAMENTE os itens do SWOT utilizados em cada cruzamento:
+Responda APENAS com um objeto JSON válido no formato abaixo, sem explicações, sem markdown, sem texto fora do JSON. Os campos "a" e "b" devem conter os textos EXATOS dos itens do SWOT utilizados (sem o prefixo do código):
 {
-  "FO": { "estrategia": "Ação concreta, indicador ou dado a definir", "a": "força utilizada", "b": "oportunidade utilizada", "revisao": "Classificação a revisar ou Nenhuma aparente" },
-  "FA": { "estrategia": "Ação concreta, indicador ou dado a definir", "a": "força utilizada", "b": "ameaça utilizada", "revisao": "Classificação a revisar ou Nenhuma aparente" },
-  "WO": { "estrategia": "Ação concreta, indicador ou dado a definir", "a": "fraqueza utilizada", "b": "oportunidade utilizada", "revisao": "Classificação a revisar ou Nenhuma aparente" },
-  "WT": { "estrategia": "Ação concreta, indicador ou dado a definir", "a": "fraqueza utilizada", "b": "ameaça utilizada", "revisao": "Classificação a revisar ou Nenhuma aparente" }
+  "estrategias": [
+    { "tipo": "FO", "a": ["força utilizada"], "b": ["oportunidade utilizada"], "estrategia": "Ação concreta, indicador ou dado a definir", "revisao": "Classificação a revisar ou Nenhuma aparente" }
+  ]
 }`;
 }
 
@@ -235,27 +274,34 @@ function updateCrossSelectors(type, items, aSelect, bSelect, aLabel, bLabel) {
 
 function fillSelect(select, options) {
   if (!select) return;
-  const previous = select.value;
-  select.innerHTML = '<option value="">Selecione...</option>';
+  const previous = Array.from(select.selectedOptions).map(o => o.value);
+  select.innerHTML = '';
   options.forEach(text => {
     const opt = document.createElement('option');
     opt.value = text;
-    opt.textContent = text;
+    const code = getSwotCode(text);
+    opt.textContent = code ? `${code} — ${text}` : text;
     select.appendChild(opt);
   });
-  if (options.includes(previous)) select.value = previous;
+  previous.forEach(value => {
+    const opt = Array.from(select.options).find(o => o.value === value);
+    if (opt) opt.selected = true;
+  });
 }
 
 function getSelectedCross() {
   const type = document.getElementById('cross-type').value;
-  const a = document.getElementById('cross-a').value;
-  const b = document.getElementById('cross-b').value;
-  if (!type || !a || !b) return null;
+  const aSelect = document.getElementById('cross-a');
+  const bSelect = document.getElementById('cross-b');
+  const a = aSelect ? Array.from(aSelect.selectedOptions).map(o => o.value).filter(Boolean) : [];
+  const b = bSelect ? Array.from(bSelect.selectedOptions).map(o => o.value).filter(Boolean) : [];
+  if (!type || a.length === 0 || b.length === 0) return null;
   return { type, a, b };
 }
 
 function saveCrossStrategy(selected, value) {
-  const idx = plan.crossStrategies.findIndex(s => s.type === selected.type && s.a === selected.a && s.b === selected.b);
+  const key = crossComboKey(selected.type, selected.a, selected.b);
+  const idx = plan.crossStrategies.findIndex(s => crossComboKey(s.type, s.a, s.b) === key);
   if (idx >= 0) {
     plan.crossStrategies[idx].strategy = value;
   } else {
@@ -306,41 +352,51 @@ function parseAIResponse(text) {
 function extractStrategies(parsed) {
   if (!parsed || typeof parsed !== 'object') return null;
 
+  const fromListItem = (item) => {
+    if (!item || typeof item !== 'object') return null;
+    const type = typeof item.tipo === 'string' ? item.tipo.trim().toUpperCase() : '';
+    if (!crossConfig[type]) return null;
+    const estrategia = typeof item.estrategia === 'string' ? item.estrategia.trim() : '';
+    if (!estrategia) return null;
+    return {
+      type,
+      a: toTextArray(item.a),
+      b: toTextArray(item.b),
+      estrategia,
+      revisao: typeof item.revisao === 'string' && item.revisao.trim() ? item.revisao.trim() : 'Nenhuma aparente'
+    };
+  };
+
+  // Novo formato: { "estrategias": [ ... ] } (ou um array direto)
+  const list = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.estrategias) ? parsed.estrategias : null);
+  if (list) {
+    const strategies = list.map(fromListItem).filter(Boolean);
+    return strategies.length ? strategies : null;
+  }
+
+  // Formato antigo (fallback): { "FO": {...}, "FA": {...}, "WO": {...}, "WT": {...} }
   const keys = ['FO', 'FA', 'WO', 'WT'];
   const toStrategy = (value) => {
     if (typeof value === 'string') {
-      return { estrategia: value, a: '', b: '', revisao: 'Nenhuma aparente' };
+      return { estrategia: value, a: [], b: [], revisao: 'Nenhuma aparente' };
     }
     if (value && typeof value === 'object' && typeof value.estrategia === 'string') {
       return {
         estrategia: value.estrategia,
-        a: typeof value.a === 'string' ? value.a : '',
-        b: typeof value.b === 'string' ? value.b : '',
+        a: toTextArray(value.a),
+        b: toTextArray(value.b),
         revisao: typeof value.revisao === 'string' ? value.revisao : 'Nenhuma aparente'
       };
     }
     return null;
   };
 
-  const result = {};
+  const legacy = [];
   for (const key of keys) {
-    const strategy = toStrategy(parsed[key]);
-    if (strategy) result[key] = strategy;
+    const value = toStrategy(parsed[key]);
+    if (value) legacy.push({ type: key, ...value });
   }
-
-  if (Object.keys(result).length === keys.length) return result;
-
-  for (const value of Object.values(parsed)) {
-    if (!value || typeof value !== 'object') continue;
-    const nested = {};
-    for (const key of keys) {
-      const strategy = toStrategy(value[key]);
-      if (strategy) nested[key] = strategy;
-    }
-    if (Object.keys(nested).length === keys.length) return nested;
-  }
-
-  return Object.keys(result).length > 0 ? result : null;
+  return legacy.length ? legacy : null;
 }
 
 async function generateCrossWithAI() {
@@ -383,7 +439,7 @@ async function generateCrossWithAI() {
           { role: 'user', content: buildSwotCrossPrompt(items) }
         ],
         temperature: 0.7,
-        max_tokens: 1600
+        max_tokens: 4000
       })
     });
 
@@ -404,27 +460,33 @@ async function generateCrossWithAI() {
       throw new Error('A IA não retornou o formato esperado.');
     }
 
-    Object.entries(strategies).forEach(([type, value]) => {
-      const idx = plan.crossStrategies.findIndex(s => s.type === type);
+    let added = 0;
+    let updated = 0;
+    strategies.forEach((value, i) => {
+      const key = crossComboKey(value.type, value.a, value.b);
+      const idx = plan.crossStrategies.findIndex(s => crossComboKey(s.type, s.a, s.b) === key);
       if (idx >= 0) {
-        plan.crossStrategies[idx].strategy = value.estrategia.trim();
-        plan.crossStrategies[idx].a = value.a;
-        plan.crossStrategies[idx].b = value.b;
+        plan.crossStrategies[idx].strategy = value.estrategia;
         plan.crossStrategies[idx].review = value.revisao;
+        updated++;
       } else {
         plan.crossStrategies.push({
-          id: 'cs-' + Date.now(),
-          type,
+          id: 'cs-' + Date.now() + '-' + i,
+          type: value.type,
           a: value.a,
           b: value.b,
-          strategy: value.estrategia.trim(),
+          strategy: value.estrategia,
           review: value.revisao
         });
+        added++;
       }
     });
     savePlan(plan);
     renderSwotCross();
-    setCrossFeedback('Estratégias FO, FA, WO e WT geradas e salvas.', 'success');
+    setCrossFeedback(
+      `${added} estratégia(s) gerada(s) pela IA${updated ? `, ${updated} existente(s) atualizada(s)` : ''}. Total no plano: ${plan.crossStrategies.length}.`,
+      'success'
+    );
   } catch (err) {
     setCrossFeedback('Erro ao gerar estratégias: ' + err.message, 'hint');
     console.error(err);

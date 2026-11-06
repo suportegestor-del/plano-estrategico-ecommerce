@@ -1,4 +1,26 @@
+function autoClassifyByDue() {
+  if (!plan.initiatives) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const in3Months = new Date(today);
+  in3Months.setMonth(in3Months.getMonth() + 3);
+  const in12Months = new Date(today);
+  in12Months.setMonth(in12Months.getMonth() + 12);
+
+  let changed = false;
+  plan.initiatives.forEach(i => {
+    if (plan.roadmap[i.id] || !i.due) return;
+    const due = new Date(i.due);
+    if (isNaN(due)) return;
+    plan.roadmap[i.id] = due <= in3Months ? 'short' : due <= in12Months ? 'medium' : 'long';
+    changed = true;
+  });
+  return changed;
+}
+
 function renderRoadmap() {
+  if (autoClassifyByDue()) savePlan(plan);
+
   const zones = document.querySelectorAll('.timeline-zone');
   const assignedIds = new Set();
 
@@ -26,14 +48,38 @@ function renderRoadmap() {
 }
 
 function createRoadmapCard(initiative) {
+  const linkedGoal = (plan.goals || []).find(g => g.id === initiative.goalId);
+  const title = (linkedGoal && linkedGoal.title) || initiative.title || 'Sem título';
+  const description = (linkedGoal && linkedGoal.description) || '';
+  const currentTerm = plan.roadmap[initiative.id] || '';
   const el = document.createElement('div');
   el.className = 'initiative';
   el.draggable = true;
   el.dataset.id = initiative.id;
   el.innerHTML = `
-    <strong>${escapeHtml(initiative.title)}</strong>
-    <div><small>${escapeHtml(initiative.owner || 'Sem responsável')} · ${initiative.due || 'Sem prazo'}</small></div>
+    <strong>${escapeHtml(title)}</strong>
+    ${description ? `<div class="initiative-desc">${escapeHtml(description)}</div>` : ''}
+    <small>${escapeHtml(initiative.owner || 'Sem responsável')} · ${initiative.due || 'Sem prazo'}</small>
+    <div class="roadmap-move">
+      <label>Mover para</label>
+      <select>
+        <option value="" ${currentTerm === '' ? 'selected' : ''}>Iniciativas sem prazo</option>
+        <option value="short" ${currentTerm === 'short' ? 'selected' : ''}>Curto prazo</option>
+        <option value="medium" ${currentTerm === 'medium' ? 'selected' : ''}>Médio prazo</option>
+        <option value="long" ${currentTerm === 'long' ? 'selected' : ''}>Longo prazo</option>
+      </select>
+    </div>
   `;
+  el.querySelector('select').addEventListener('change', (e) => {
+    const term = e.target.value;
+    if (term) {
+      plan.roadmap[initiative.id] = term;
+    } else {
+      delete plan.roadmap[initiative.id];
+    }
+    savePlan(plan);
+    renderRoadmap();
+  });
   el.addEventListener('dragstart', (e) => {
     el.classList.add('dragging');
     e.dataTransfer.setData('text/plain', initiative.id);

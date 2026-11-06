@@ -1,54 +1,109 @@
 function renderKanban() {
   ensureInitiativesFromGoals();
+  renderGoalPanel();
 
-  document.querySelectorAll('.kanban-zone').forEach(zone => {
+  document.querySelectorAll('.kanban-board .kanban-zone').forEach(zone => {
     zone.innerHTML = '';
     const status = zone.dataset.status;
     (plan.initiatives || [])
-      .filter(i => i.status === status)
+      .filter(i => boardStatus(i.status) === status)
       .forEach(i => zone.appendChild(createInitiativeCard(i)));
     setupKanbanDrop(zone);
-  });
-
-  document.querySelectorAll('.add-initiative').forEach(btn => {
-    btn.onclick = () => addInitiative(btn.dataset.status);
   });
 
   renderKanbanProgress();
 }
 
+function boardStatus(status) {
+  return ['todo', 'doing', 'done'].includes(status) ? status : 'todo';
+}
+
 function ensureInitiativesFromGoals() {
   if (!plan.initiatives) plan.initiatives = [];
-  if (!plan.goals || plan.goals.length === 0) return;
+  if (!plan.goals) plan.goals = [];
+  if (!plan.roadmap) plan.roadmap = {};
 
-  let changed = false;
-  plan.goals.forEach(goal => {
-    if (!goal.text.trim()) return;
-    const existing = plan.initiatives.find(i => i.goalId === goal.id);
-    if (existing) {
-      if (!existing.owner && goal.responsible) {
-        existing.owner = goal.responsible;
-        changed = true;
-      }
-      if (!existing.due && goal.deadline) {
-        existing.due = goal.deadline;
-        changed = true;
-      }
-      return;
-    }
+  // Remove iniciativas órfãs: vinculadas a meta que não existe mais
+  const validGoalIds = new Set(plan.goals.map(g => g.id));
+  const before = plan.initiatives.length;
+  plan.initiatives = plan.initiatives.filter(i => {
+    if (!i.goalId) return true; // iniciativa manual sem meta, mantém
+    if (validGoalIds.has(i.goalId)) return true;
+    delete plan.roadmap[i.id];
+    return false;
+  });
+  if (plan.initiatives.length !== before) savePlan(plan);
+}
 
-    plan.initiatives.push({
-      id: 'init-' + Date.now() + '-' + goal.id,
-      goalId: goal.id,
-      title: '',
-      owner: goal.responsible || '',
-      due: goal.deadline || '',
-      status: 'unassigned'
-    });
-    changed = true;
+function renderGoalPanel() {
+  const container = document.getElementById('goals-initiatives-panel');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const goals = (plan.goals || []).filter(g => (g.text || '').trim());
+  const pending = (goalId) => (plan.initiatives || [])
+    .filter(i => i.goalId === goalId && !['todo', 'doing', 'done'].includes(i.status));
+
+  if (goals.length === 0) {
+    container.innerHTML = '<p class="kanban-goals-empty">Defina suas metas SMART no passo 4 para criar iniciativas vinculadas a elas aqui.</p>';
+    return;
+  }
+
+  goals.forEach(goal => {
+    const card = document.createElement('div');
+    card.className = 'goal-initiative-card';
+
+    const header = document.createElement('div');
+    header.className = 'goal-initiative-header';
+    const meta = [];
+    if (goal.deadline) meta.push(`Prazo: ${formatDateBR(goal.deadline)}`);
+    if (goal.responsible) meta.push(`Resp.: ${escapeHtml(goal.responsible)}`);
+    header.innerHTML = `
+      <div class="goal-initiative-info">
+        <strong>${escapeHtml(goal.title || goal.text)}</strong>
+        ${meta.length ? `<small>${meta.join(' · ')}</small>` : ''}
+      </div>
+      <button type="button" class="btn btn-small add-initiative" data-goal="${goal.id}">+ iniciativa</button>
+    `;
+    card.appendChild(header);
+
+    const zone = document.createElement('div');
+    zone.className = 'kanban-zone goal-initiative-zone';
+    zone.dataset.status = 'unassigned';
+    zone.dataset.goal = goal.id;
+    pending(goal.id).forEach(i => zone.appendChild(createInitiativeCard(i)));
+    card.appendChild(zone);
+    setupKanbanDrop(zone);
+
+    container.appendChild(card);
   });
 
-  if (changed) savePlan(plan);
+  // Iniciativas antigas sem meta: mostra para permitir vincular
+  const orphans = (plan.initiatives || []).filter(i => !i.goalId || !goals.some(g => g.id === i.goalId));
+  const visibleOrphans = orphans.filter(i => !['todo', 'doing', 'done'].includes(i.status));
+  if (visibleOrphans.length > 0) {
+    const card = document.createElement('div');
+    card.className = 'goal-initiative-card goal-orphans';
+    card.innerHTML = `
+      <div class="goal-initiative-header">
+        <div class="goal-initiative-info">
+          <strong>Iniciativas sem meta</strong>
+          <small>Vincule cada uma a uma meta SMART usando o menu do cartão.</small>
+        </div>
+      </div>
+    `;
+    const zone = document.createElement('div');
+    zone.className = 'kanban-zone goal-initiative-zone';
+    zone.dataset.status = 'unassigned';
+    visibleOrphans.forEach(i => zone.appendChild(createInitiativeCard(i)));
+    card.appendChild(zone);
+    setupKanbanDrop(zone);
+    container.appendChild(card);
+  }
+
+  container.querySelectorAll('.add-initiative').forEach(btn => {
+    btn.onclick = () => addInitiative(btn.dataset.goal);
+  });
 }
 
 
@@ -56,7 +111,24 @@ function ensureInitiativesFromGoals() {
 function createInitiativeCard(initiative) {
   const goals = plan.goals || [];
   const linkedGoal = goals.find(g => g.id === initiative.goalId);
-  const goalLabel = linkedGoal ? escapeHtml(linkedGoal.text) : 'Sem meta';
+  const goalLabel = linkedGoal ? escapeHtml(linkedGoal.title || linkedGoal.text) : 'Sem meta';
+
+  let goalMover = '';
+  if (!linkedGoal && goals.length > 0) {
+    const options = goals
+      .filter(g => (g.text || '').trim())
+      .map(g => `<option value="${g.id}">${escapeHtml(g.title || g.text)}</option>`)
+      .join('');
+    goalMover = `
+      <div class="initiative-goal-mover">
+        <label>Vincular à meta</label>
+        <select data-field="goalId">
+          <option value="">Selecione...</option>
+          ${options}
+        </select>
+      </div>
+    `;
+  }
 
   const el = document.createElement('div');
   el.className = 'initiative';
@@ -68,10 +140,14 @@ function createInitiativeCard(initiative) {
       <span class="initiative-goal">${goalLabel}</span>
       <button type="button" class="remove-initiative" title="Remover" aria-label="Remover">×</button>
     </div>
-    <div class="initiative-meta">
-      <input type="text" data-field="owner" value="${escapeHtml(initiative.owner)}" placeholder="Responsável">
-      <input type="date" data-field="due" value="${initiative.due}" placeholder="Prazo">
+    <div class="initiative-title-row">
+      <input type="text" data-field="title" value="${escapeHtml(initiative.title || '')}" placeholder="Título da iniciativa">
     </div>
+    <div class="initiative-meta">
+      <input type="text" data-field="owner" value="${escapeHtml(initiative.owner || '')}" placeholder="Responsável">
+      <input type="date" data-field="due" value="${initiative.due || ''}" placeholder="Prazo">
+    </div>
+    ${goalMover}
   `;
 
   el.addEventListener('dragstart', (e) => {
@@ -86,6 +162,15 @@ function createInitiativeCard(initiative) {
       savePlan(plan);
     });
   });
+
+  const goalSelect = el.querySelector('select[data-field="goalId"]');
+  if (goalSelect) {
+    goalSelect.addEventListener('change', () => {
+      initiative.goalId = goalSelect.value;
+      savePlan(plan);
+      renderKanban();
+    });
+  }
 
   el.querySelector('.remove-initiative').addEventListener('click', () => {
     plan.initiatives = plan.initiatives.filter(i => i.id !== initiative.id);
@@ -109,26 +194,24 @@ function setupKanbanDrop(zone) {
     const id = e.dataTransfer.getData('text/plain');
     const item = plan.initiatives.find(i => i.id === id);
     if (item) {
-      item.status = zone.dataset.status;
+      if (zone.dataset.goal) item.goalId = zone.dataset.goal;
+      item.status = zone.dataset.status || 'unassigned';
       savePlan(plan);
       renderKanban();
     }
   };
 }
 
-function addInitiative(status = 'unassigned') {
+function addInitiative(goalId) {
   if (!plan.initiatives) plan.initiatives = [];
-
-  const goals = plan.goals || [];
-  const nextGoal = goals.find(g => g.text.trim() && !plan.initiatives.some(i => i.goalId === g.id));
 
   plan.initiatives.push({
     id: 'init-' + Date.now(),
-    goalId: nextGoal ? nextGoal.id : '',
+    goalId: goalId || '',
     title: '',
-    owner: nextGoal ? (nextGoal.responsible || '') : '',
-    due: nextGoal ? (nextGoal.deadline || '') : '',
-    status
+    owner: '',
+    due: '',
+    status: 'unassigned'
   });
   savePlan(plan);
   renderKanban();

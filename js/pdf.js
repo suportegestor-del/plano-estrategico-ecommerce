@@ -55,11 +55,25 @@ function exportPdf() {
 
   y = section(doc, '3. Pilares Estratégicos', y);
   const pillars = plan.pillars || {};
-  const pillarNames = Object.keys(pillars);
+  const pillarNames = Object.keys(pillars).sort((a, b) => {
+    const ia = PILLAR_ORDER.indexOf(a);
+    const ib = PILLAR_ORDER.indexOf(b);
+    return (ia < 0 ? PILLAR_ORDER.length : ia) - (ib < 0 ? PILLAR_ORDER.length : ib);
+  });
   if (pillarNames.length === 0) {
     y = body(doc, 'Nenhum pilar definido.', y);
   } else {
+    let foundationHeaderShown = false;
     pillarNames.forEach((pillar, idx) => {
+      if (PILLAR_ORDER.indexOf(pillar) >= 4 && !foundationHeaderShown) {
+        foundationHeaderShown = true;
+        y = ensureSpace(doc, y, 10);
+        doc.setFontSize(10);
+        doc.setTextColor(...COLORS.textLight);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Fundação', MARGIN, y);
+        y += 6;
+      }
       y = ensureSpace(doc, y, 18);
       y = pillarBlock(doc, pillar, pillars[pillar], idx, y);
     });
@@ -160,7 +174,9 @@ function swotBlock(doc, label, text, color, y) {
 
   const raw = text || '(vazio)';
   const items = raw.split('\n').map(s => s.trim()).filter(Boolean);
-  const display = items.length ? items.map(i => '• ' + i) : ['(vazio)'];
+  const display = items.length
+    ? items.map(i => '• ' + (getSwotCode(i) ? `[${getSwotCode(i)}] ` : '') + i)
+    : ['(vazio)'];
   const joined = display.join('\n');
   const lines = doc.splitTextToSize(joined, CONTENT_W - 4);
   doc.text(lines, MARGIN + 2, y);
@@ -181,13 +197,19 @@ function strategyItem(doc, s, y) {
   doc.setTextColor(...COLORS.textLight);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
-  const pair = `${s.a || ''} + ${s.b || ''}`;
+  const pair = crossComboLabel(s);
   const pairLines = doc.splitTextToSize(pair, CONTENT_W - badgeW - 6);
   doc.text(pairLines, MARGIN + badgeW + 3, y);
   y += Math.max(5, pairLines.length * 3.8);
 
+  doc.setFontSize(8);
+  const detailLines = doc.splitTextToSize(crossItemsDetail(s), CONTENT_W - 6);
+  doc.text(detailLines, MARGIN + 3, y);
+  y += detailLines.length * 3.4 + 1.5;
+
   doc.setTextColor(...COLORS.text);
   doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
   const stratLines = doc.splitTextToSize(s.strategy || '', CONTENT_W - 6);
   doc.text(stratLines, MARGIN + 3, y);
   y += stratLines.length * 4 + 3;

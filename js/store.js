@@ -1,5 +1,23 @@
 const STORAGE_KEY = 'ecommerce-plan-v1';
 
+// Pilares da "casa": 4 pilares estratégicos + 3 de fundação
+const PILLAR_ORDER = [
+  'Crescimento',
+  'Portfólio e Canal',
+  'Excelência Operacional',
+  'Novos Negócios / Inovação',
+  'Finanças',
+  'Pessoas e Processos',
+  'Tecnologia'
+];
+
+// Mapeia nomes de pilares de versões antigas para a estrutura atual
+const PILLAR_RENAME = {
+  'Operação': 'Excelência Operacional',
+  'Inovação': 'Novos Negócios / Inovação',
+  'Experiência do Cliente': 'Portfólio e Canal'
+};
+
 const defaultPlan = {
   currentStep: 1,
   storeName: '',
@@ -53,15 +71,40 @@ function migratePlan(plan) {
   pending = pending.map(s => (typeof s === 'string' ? s.trim() : '')).filter(Boolean);
   plan.swot.pendingItems = [...new Set(pending)];
 
-  // Padroniza estratégias cruzadas para o formato { id, type, a, b, strategy }
+  // Padroniza estratégias cruzadas para o formato { id, type, a: [], b: [], strategy, review }
+  const toTextArr = (v) => Array.isArray(v)
+    ? v.filter(x => typeof x === 'string' && x.trim()).map(x => x.trim())
+    : (typeof v === 'string' && v.trim() ? [v.trim()] : []);
   plan.crossStrategies = (plan.crossStrategies || []).map((s, idx) => {
-    if (s.type && s.a && s.b) return s;
-    let type = 'FO', a = '', b = '';
-    if (s.force && s.opportunity) { type = 'FO'; a = s.force; b = s.opportunity; }
-    else if (s.force && s.threat) { type = 'FA'; a = s.force; b = s.threat; }
-    else if (s.weakness && s.opportunity) { type = 'WO'; a = s.weakness; b = s.opportunity; }
-    else if (s.weakness && s.threat) { type = 'WT'; a = s.weakness; b = s.threat; }
-    return { id: s.id || 'cs-' + idx, type, a, b, strategy: s.strategy || '' };
+    let type = s.type, a = s.a, b = s.b;
+    if (!type) {
+      type = 'FO'; a = ''; b = '';
+      if (s.force && s.opportunity) { type = 'FO'; a = s.force; b = s.opportunity; }
+      else if (s.force && s.threat) { type = 'FA'; a = s.force; b = s.threat; }
+      else if (s.weakness && s.opportunity) { type = 'WO'; a = s.weakness; b = s.opportunity; }
+      else if (s.weakness && s.threat) { type = 'WT'; a = s.weakness; b = s.threat; }
+    }
+    return {
+      id: s.id || 'cs-' + idx,
+      type,
+      a: toTextArr(a),
+      b: toTextArr(b),
+      strategy: s.strategy || '',
+      review: typeof s.review === 'string' ? s.review : ''
+    };
+  });
+
+  // Renomeia pilares de versões antigas para a estrutura atual da "casa"
+  if (plan.pillars && typeof plan.pillars === 'object' && !Array.isArray(plan.pillars)) {
+    const renamed = {};
+    Object.keys(plan.pillars).forEach(name => {
+      const newName = PILLAR_RENAME[name] || name;
+      renamed[newName] = plan.pillars[name];
+    });
+    plan.pillars = renamed;
+  }
+  (plan.goals || []).forEach(g => {
+    if (g.pillar && PILLAR_RENAME[g.pillar]) g.pillar = PILLAR_RENAME[g.pillar];
   });
 
   // Garante id em metas e iniciativas

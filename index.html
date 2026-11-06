@@ -29,7 +29,7 @@
     <div class="header-brand">
       <img src="images/logo.png" alt="HAVE - Pessoas, Negócios e Processos" class="header-logo">
     </div>
-    <h1>Plano da sua empresa em 6 passos</h1>
+    <h1>Plano da sua empresa em 7 passos</h1>
     <p>Monte seu planejamento estratégico de e-commerce de forma prática e guiada.</p>
   </header>
 
@@ -40,6 +40,7 @@
     <button class="step" data-step="4">4. SMART</button>
     <button class="step" data-step="5">5. Kanban</button>
     <button class="step" data-step="6">6. Roadmap</button>
+    <button class="step" data-step="7">7. Resultado</button>
   </nav>
 
   <main class="container">
@@ -179,11 +180,13 @@
         </div>
         <div class="cross-builder-row">
           <label for="cross-a" id="cross-a-label">Item interno</label>
-          <select id="cross-a"><option value="">Selecione primeiro o tipo de cruzamento</option></select>
+          <select id="cross-a" multiple size="5"><option value="">Selecione primeiro o tipo de cruzamento</option></select>
+          <p class="cross-multi-hint">Segure Ctrl (ou Cmd no Mac) para selecionar vários itens, ex.: S1 + S3.</p>
         </div>
         <div class="cross-builder-row">
           <label for="cross-b" id="cross-b-label">Item externo</label>
-          <select id="cross-b"><option value="">Selecione primeiro o tipo de cruzamento</option></select>
+          <select id="cross-b" multiple size="5"><option value="">Selecione primeiro o tipo de cruzamento</option></select>
+          <p class="cross-multi-hint">Você pode combinar mais de um item externo na mesma estratégia.</p>
         </div>
         <div class="strategy-nested">
           <h4>Escreva sua estratégia</h4>
@@ -217,8 +220,8 @@
       <p class="module-intro"><strong>Objetivo:</strong> organizar as estratégias em grandes temas que guiarão suas metas.</p>
       <template id="help-lesson-3">
         <div class="lesson-box">
-          <strong>Mini-aula:</strong> Pilar é um eixo estratégico. Pense nele como uma área de atuação. Exemplos comuns: <em>Operação</em> (processos internos), <em>Crescimento</em> (vendas e marketing), <em>Inovação</em> (novos canais/produtos) e <em>Experiência do Cliente</em> (satisfação e fidelidade).
-          <br><strong>Pergunta orientadora:</strong> qual pilar essa estratégia mais impulsiona?
+          <strong>Mini-aula:</strong> Pense na estratégia como uma casa: os 4 pilares de cima (Crescimento, Portfólio e Canal, Excelência Operacional, Novos Negócios / Inovação) são onde a empresa quer chegar; a fundação (Finanças, Pessoas e Processos, Tecnologia) é o que sustenta tudo isso.
+          <br><strong>Pergunta orientadora:</strong> qual pilar (ou qual bloco da fundação) essa estratégia mais impulsiona?
         </div>
       </template>
       <div class="pillars-layout">
@@ -229,21 +232,38 @@
       <div class="pillars-board-wrap">
       <h3 class="pillars-board-title">Pilares estratégicos</h3>
       <div class="pillars-board">
-        <div class="pillar" data-pillar="Operação">
-          <h4><span class="pillar-number">01</span> Operação</h4>
-          <div class="drop-zone" data-pillar="Operação"></div>
-        </div>
         <div class="pillar" data-pillar="Crescimento">
-          <h4><span class="pillar-number">02</span> Crescimento</h4>
+          <h4><span class="pillar-number">01</span> Crescimento</h4>
           <div class="drop-zone" data-pillar="Crescimento"></div>
         </div>
-        <div class="pillar" data-pillar="Inovação">
-          <h4><span class="pillar-number">03</span> Inovação</h4>
-          <div class="drop-zone" data-pillar="Inovação"></div>
+        <div class="pillar" data-pillar="Portfólio e Canal">
+          <h4><span class="pillar-number">02</span> Portfólio e Canal</h4>
+          <div class="drop-zone" data-pillar="Portfólio e Canal"></div>
         </div>
-        <div class="pillar" data-pillar="Experiência do Cliente">
-          <h4><span class="pillar-number">04</span> Experiência do Cliente</h4>
-          <div class="drop-zone" data-pillar="Experiência do Cliente"></div>
+        <div class="pillar" data-pillar="Excelência Operacional">
+          <h4><span class="pillar-number">03</span> Excelência Operacional</h4>
+          <div class="drop-zone" data-pillar="Excelência Operacional"></div>
+        </div>
+        <div class="pillar" data-pillar="Novos Negócios / Inovação">
+          <h4><span class="pillar-number">04</span> Novos Negócios / Inovação</h4>
+          <div class="drop-zone" data-pillar="Novos Negócios / Inovação"></div>
+        </div>
+      </div>
+
+      <div class="pillars-foundation">
+        <h3 class="pillars-foundation-title">Fundação</h3>
+        <p class="pillars-foundation-sub">A base que sustenta os quatro pilares da casa: sem fundação, a casa não se sustenta.</p>
+        <div class="pillar foundation-box" data-pillar="Finanças">
+          <h4><span class="pillar-number">05</span> Finanças</h4>
+          <div class="drop-zone" data-pillar="Finanças"></div>
+        </div>
+        <div class="pillar foundation-box" data-pillar="Pessoas e Processos">
+          <h4><span class="pillar-number">06</span> Pessoas e Processos</h4>
+          <div class="drop-zone" data-pillar="Pessoas e Processos"></div>
+        </div>
+        <div class="pillar foundation-box" data-pillar="Tecnologia">
+          <h4><span class="pillar-number">07</span> Tecnologia</h4>
+          <div class="drop-zone" data-pillar="Tecnologia"></div>
         </div>
       </div>
       </div>
@@ -298,7 +318,7 @@
       <div class="smart-layout">
         <aside class="smart-side">
           <h3>Criar metas</h3>
-          <p class="smart-side-sub">Escreva uma meta para um dos quatro pilares estratégicos.</p>
+          <p class="smart-side-sub">Escreva uma meta para um dos pilares estratégicos ou blocos da fundação.</p>
           <button id="generate-smart-ai" class="btn btn-primary btn-large btn-ia" type="button">✦ Gerar metas com IA</button>
           <form id="goal-form">
             <div class="campo">
@@ -374,20 +394,19 @@
       <p class="module-intro"><strong>Objetivo:</strong> quebrar cada meta em ações concretas com responsável e data.</p>
       <template id="help-lesson-5">
         <div class="lesson-box">
-          <strong>Mini-aula:</strong> Iniciativa é um projeto que faz a meta acontecer. Cada iniciativa precisa de um responsável e de um prazo. Exemplo: "Reformular fotos dos 10 produtos mais vendidos até 15/03".
-          <br><strong>Pergunta orientadora:</strong> qual a primeira ação que, se feita, torna essa meta mais próxima?
+          <strong>Mini-aula:</strong> Iniciativa é um projeto que faz a meta acontecer. Para cada meta SMART, defina as iniciativas que a vão entregar. Cada iniciativa precisa de um responsável e de um prazo. Exemplo: "Reformular fotos dos 10 produtos mais vendidos até 15/03".
+          <br><strong>Pergunta orientadora:</strong> quais ações entregam essa meta? Qual precisa sair primeiro?
         </div>
       </template>
       <div class="kanban-layout">
       <div class="kanban-pool">
         <div class="kanban-pool-header">
           <div>
-            <h4>Iniciativas disponíveis</h4>
-            <p>Crie suas iniciativas aqui e arraste cada uma para a etapa correspondente.</p>
+            <h4>Suas metas SMART</h4>
+            <p>Crie iniciativas embaixo de cada meta e arraste-as para o quadro de status ao lado.</p>
           </div>
-          <button class="btn btn-small add-initiative" data-status="unassigned">+ iniciativa</button>
         </div>
-        <div class="kanban-zone" data-status="unassigned"></div>
+        <div id="goals-initiatives-panel"></div>
       </div>
       <div class="kanban-main">
       <aside class="kanban-progress-card">
@@ -420,29 +439,40 @@
           <br><strong>Pergunta orientadora:</strong> essa ação depende de outra? Qual precisa sair primeiro?
         </div>
       </template>
-      <div class="timeline">
-        <div class="timeline-lane" data-term="short">
-          <h4>Curto prazo</h4>
+      <div class="timeline roadmap-grid">
+        <div class="timeline-lane lane-none">
+          <h4><span class="lane-dot"></span>Iniciativas sem prazo</h4>
+          <p class="lane-sub">Aguardando definição</p>
+          <div id="initiatives-pool" class="timeline-zone"></div>
+        </div>
+        <div class="timeline-lane lane-short" data-term="short">
+          <h4><span class="lane-dot"></span>Curto prazo</h4>
+          <p class="lane-sub">Próximos 3 meses</p>
           <div class="timeline-zone" data-term="short"></div>
           <div class="lane-alert" id="short-alert"></div>
         </div>
-        <div class="timeline-lane" data-term="medium">
-          <h4>Médio prazo</h4>
+        <div class="timeline-lane lane-medium" data-term="medium">
+          <h4><span class="lane-dot"></span>Médio prazo</h4>
+          <p class="lane-sub">De 3 a 12 meses</p>
           <div class="timeline-zone" data-term="medium"></div>
           <div class="lane-alert" id="medium-alert"></div>
         </div>
-        <div class="timeline-lane" data-term="long">
-          <h4>Longo prazo</h4>
+        <div class="timeline-lane lane-long" data-term="long">
+          <h4><span class="lane-dot"></span>Longo prazo</h4>
+          <p class="lane-sub">Mais de 12 meses</p>
           <div class="timeline-zone" data-term="long"></div>
           <div class="lane-alert" id="long-alert"></div>
         </div>
       </div>
-      <div class="pool">
-        <h4>Iniciativas sem prazo</h4>
-        <div id="initiatives-pool" class="timeline-zone"></div>
+    </section>
+
+    <section class="module" id="module-7">
+      <div id="final-result"></div>
+      <div class="final-actions no-print">
+        <button id="export-pdf" class="btn btn-primary">Exportar plano em PDF</button>
+        <button id="export-excel" class="btn btn-secondary">Exportar em Excel</button>
+        <button id="print-final" class="btn btn-secondary" type="button">Imprimir / Salvar como PDF</button>
       </div>
-      <button id="export-pdf" class="btn btn-primary">Exportar plano em PDF</button>
-      <button id="export-excel" class="btn btn-secondary">Exportar em Excel</button>
     </section>
   </main>
 
@@ -466,6 +496,7 @@
   <script src="js/smart.js"></script>
   <script src="js/kanban.js"></script>
   <script src="js/roadmap.js"></script>
+  <script src="js/final.js"></script>
   <script src="js/pdf.js"></script>
   <script src="js/app.js"></script>
 </body>

@@ -29,7 +29,7 @@ function yesNo(value) {
   return value ? 'Sim' : 'Não';
 }
 
-function getSwotItems(key) {
+function getExcelSwotItems(key) {
   const raw = (plan.swot && plan.swot[key]) || '';
   const fromString = raw.split('\n').map(s => s.trim()).filter(Boolean);
   if (fromString.length > 0) return fromString;
@@ -55,8 +55,10 @@ function buildSwotAnalysisSheet() {
   rows.push([]);
   rows.push(['💪 FORÇAS (STRENGTHS)', null, '⚠️ FRAQUEZAS (WEAKNESSES)', null]);
 
-  const forces = getSwotItems('forces').map(t => '• ' + t);
-  const weaknesses = getSwotItems('weaknesses').map(t => '• ' + t);
+  const coded = (key) => getExcelSwotItems(key).map(t => '• ' + (getSwotCode(t) ? `[${getSwotCode(t)}] ` : '') + t);
+
+  const forces = coded('forces');
+  const weaknesses = coded('weaknesses');
   const maxTop = Math.max(forces.length, weaknesses.length, 1);
 
   for (let i = 0; i < maxTop; i++) {
@@ -66,8 +68,8 @@ function buildSwotAnalysisSheet() {
   rows.push([]);
   rows.push(['🚀 OPORTUNIDADES (OPPORTUNITIES)', null, '🛑 AMEAÇAS (THREATS)', null]);
 
-  const opportunities = getSwotItems('opportunities').map(t => '• ' + t);
-  const threats = getSwotItems('threats').map(t => '• ' + t);
+  const opportunities = coded('opportunities');
+  const threats = coded('threats');
   const maxBottom = Math.max(opportunities.length, threats.length, 1);
 
   for (let i = 0; i < maxBottom; i++) {
@@ -79,12 +81,18 @@ function buildSwotAnalysisSheet() {
 
 function buildPillarsSheet() {
   const rows = [];
-  const pillars = Object.keys(plan.pillars || {});
+  const all = Object.keys(plan.pillars || {});
+  const pillars = [
+    ...PILLAR_ORDER.filter(p => all.includes(p)),
+    ...all.filter(p => !PILLAR_ORDER.includes(p))
+  ];
 
   rows.push(['Nossa Visão', null, null, null, null]);
   rows.push([]);
   rows.push(['Pilares Estratégicos', null, null, null, null]);
-  rows.push(pillars.length ? pillars : ['(nenhum pilar definido)', null, null, null, null]);
+  rows.push(pillars.length
+    ? pillars.map(p => (PILLAR_ORDER.indexOf(p) >= 4 ? `${p} (Fundação)` : p))
+    : ['(nenhum pilar definido)', null, null, null, null]);
   rows.push([]);
 
   const maxRows = Math.max(...pillars.map(p => (plan.pillars[p] || []).length), 1);

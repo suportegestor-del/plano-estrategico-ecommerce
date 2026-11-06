@@ -1,7 +1,8 @@
-const SMART_PILLAR_ORDER = ['Operação', 'Crescimento', 'Inovação', 'Experiência do Cliente'];
+const SMART_PILLAR_ORDER = PILLAR_ORDER;
 
 function getSmartPillars() {
-  const pillars = SMART_PILLAR_ORDER.filter(p => (plan.pillars || {})[p]);
+  // A casa tem estrutura fixa: os 7 blocos (4 pilares + 3 fundação) sempre aparecem
+  const pillars = [...PILLAR_ORDER];
   Object.keys(plan.pillars || {}).forEach(p => {
     if (!pillars.includes(p)) pillars.push(p);
   });
@@ -23,12 +24,20 @@ function syncGoalText(goal) {
 
 // Migra metas antigas que só tinham o campo text
 function normalizeGoal(goal) {
+  let changed = false;
   if (!goal.title && goal.text) {
     const parts = goal.text.split(/(?<=[.!?])\s+/);
     goal.title = parts[0].trim();
     goal.description = parts.slice(1).join(' ').trim() || goal.text.trim();
+    changed = true;
+  }
+  const fixedDeadline = normalizeDeadline(goal.deadline);
+  if (fixedDeadline !== (goal.deadline || '')) {
+    goal.deadline = fixedDeadline;
+    changed = true;
   }
   syncGoalText(goal);
+  return changed;
 }
 
 function formatDateBR(value) {
@@ -43,10 +52,10 @@ function renderSmart() {
   const pillars = getSmartPillars();
 
   if (!plan.goals) plan.goals = [];
-  plan.goals.forEach(normalizeGoal);
+  const normalized = plan.goals.map(normalizeGoal).some(Boolean);
   const before = plan.goals.length;
   plan.goals = plan.goals.filter(g => g.text.trim());
-  if (plan.goals.length !== before) savePlan(plan);
+  if (plan.goals.length !== before || normalized) savePlan(plan);
 
   const pillarSelect = document.getElementById('goal-pillar');
   if (pillarSelect) {
@@ -246,9 +255,11 @@ function buildSmartPrompt() {
   const pillars = getSmartPillars();
 
   let prompt = `Você é um consultor sênior de planejamento estratégico para e-commerce.\n\n`;
+  prompt += todayContext();
   prompt += `Com base nas estratégias de cada pilar abaixo, crie UMA meta SMART para cada pilar.\n`;
   prompt += `A meta deve ser específica, mensurável, atingível, relevante e temporal.\n`;
-  prompt += `Use valores realistas para um e-commerce de pequeno/médio porte.\n\n`;
+  prompt += `Use valores realistas para um e-commerce de pequeno/médio porte.\n`;
+  prompt += `Os prazos ("prazo") devem ser SEMPRE datas futuras a partir de hoje, distribuídas entre os horizontes: curto prazo (até 3 meses), médio prazo (entre 3 e 12 meses) e, se fizer sentido, longo prazo (além de 12 meses). Nunca use datas vencidas ou de anos passados.\n\n`;
 
   pillars.forEach(pillar => {
     const strategies = plan.pillars[pillar] || [];
@@ -271,6 +282,48 @@ function buildSmartPrompt() {
   prompt += `}`;
 
   return prompt;
+}
+
+function toISODate(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function addMonths(date, months) {
+  const copy = new Date(date);
+  copy.setMonth(copy.getMonth() + months);
+  return copy;
+}
+
+function formatDateBRFromDate(date) {
+  return date.toLocaleDateString('pt-BR');
+}
+
+function todayContext() {
+  const today = new Date();
+  const short = addMonths(today, 3);
+  const medium = addMonths(today, 6);
+  const long = addMonths(today, 12);
+  let text = `Data de hoje: ${formatDateBRFromDate(today)}.\n`;
+  text += `Horizontes de planejamento a partir de hoje:\n`;
+  text += `- Curto prazo: até ${formatDateBRFromDate(short)} (${toISODate(short)})\n`;
+  text += `- Médio prazo: até ${formatDateBRFromDate(medium)} (${toISODate(medium)})\n`;
+  text += `- Longo prazo: até ${formatDateBRFromDate(long)} (${toISODate(long)})\n\n`;
+  return text;
+}
+
+function normalizeDeadline(value) {
+  if (typeof value !== 'string') return '';
+  const trimmed = value.trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return '';
+  const parsed = new Date(trimmed + 'T00:00:00');
+  if (isNaN(parsed)) return '';
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (parsed < today) return toISODate(addMonths(today, 3));
+  return trimmed;
 }
 
 function parseSmartResponse(text) {
@@ -357,7 +410,7 @@ async function generateSmartWithAI() {
         pillar,
         title: typeof data.titulo === 'string' ? data.titulo.trim() : '',
         description: typeof data.descricao === 'string' ? data.descricao.trim() : '',
-        deadline: typeof data.prazo === 'string' ? data.prazo.trim() : '',
+        deadline: normalizeDeadline(data.prazo),
         responsible: typeof data.responsavel === 'string' ? data.responsavel.trim() : '',
         indicator: typeof data.indicador === 'string' ? data.indicador.trim() : ''
       };

@@ -12,19 +12,19 @@ const exampleStore = {
     ]
   },
   crossStrategies: [
-    { id: 'cs-1', type: 'FO', a: 'Avaliação 4.8 no Mercado Livre', b: 'Crescimento do TikTok Shop', strategy: 'Criar vídeos de clientes reais usando os produtos para impulsionar o TikTok Shop.' },
-    { id: 'cs-2', type: 'FO', a: 'Fotos próprias de produtos', b: 'Alta do pagamento via Pix', strategy: 'Usar fotos originais em campanhas com desconto para pagamento à vista no Pix.' },
-    { id: 'cs-3', type: 'FA', a: 'Avaliação 4.8 no Mercado Livre', b: 'Guerra de preços com grandes sellers', strategy: 'Destacar avaliações e atendimento como diferencial em vez de competir só no preço.' }
+    { id: 'cs-1', type: 'FO', a: ['Avaliação 4.8 no Mercado Livre'], b: ['Crescimento do TikTok Shop'], strategy: 'Criar vídeos de clientes reais usando os produtos para impulsionar o TikTok Shop.', review: '' },
+    { id: 'cs-2', type: 'FO', a: ['Fotos próprias de produtos'], b: ['Alta do pagamento via Pix'], strategy: 'Usar fotos originais em campanhas com desconto para pagamento à vista no Pix.', review: '' },
+    { id: 'cs-3', type: 'FA', a: ['Avaliação 4.8 no Mercado Livre'], b: ['Guerra de preços com grandes sellers'], strategy: 'Destacar avaliações e atendimento como diferencial em vez de competir só no preço.', review: '' }
   ],
   pillars: {
-    'Operação': ['Organizar estoque e diversificar fornecedores'],
+    'Excelência Operacional': ['Organizar estoque e diversificar fornecedores'],
     'Crescimento': ['Criar vídeos de clientes reais usando os produtos para impulsionar o TikTok Shop.', 'Usar fotos originais em campanhas com desconto para pagamento à vista no Pix.'],
-    'Inovação': ['Testar anúncios em novos canais de social commerce'],
-    'Experiência do Cliente': ['Destacar avaliações e atendimento como diferencial em vez de competir só no preço.']
+    'Novos Negócios / Inovação': ['Testar anúncios em novos canais de social commerce'],
+    'Portfólio e Canal': ['Destacar avaliações e atendimento como diferencial em vez de competir só no preço.']
   },
   goals: [
     { id: 'g-crescimento', text: 'Aumentar o faturamento de R$ 20 mil para R$ 30 mil/mês em 6 meses', pillar: 'Crescimento' },
-    { id: 'g-operacao', text: 'Reduzir ruptura de estoque de 15% para 5% em 3 meses', pillar: 'Operação' }
+    { id: 'g-operacao', text: 'Reduzir ruptura de estoque de 15% para 5% em 3 meses', pillar: 'Excelência Operacional' }
   ],
   initiatives: [
     { id: 'ex1', goalId: 'g-crescimento', title: 'Reformular fotos dos 10 produtos mais vendidos', owner: 'Ana', due: '2027-01-15', status: 'unassigned' },
