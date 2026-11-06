@@ -88,6 +88,9 @@ function createDraggable(text, removable = false) {
 }
 
 function setupDropZone(zone) {
+  if (zone.dataset.dropSetup) return;
+  zone.dataset.dropSetup = 'true';
+
   zone.addEventListener('dragover', (e) => {
     e.preventDefault();
     zone.classList.add('drag-over');
