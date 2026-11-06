@@ -87,6 +87,13 @@ function crossComboKey(type, a, b) {
   return `${type}::${norm(a)}::${norm(b)}`;
 }
 
+// Identidade de uma estratégia: combinação + texto. Permite várias estratégias
+// para a mesma combinação (ângulos diferentes) sem duplicar ao gerar de novo.
+function crossStrategyKey(type, a, b, strategy) {
+  const text = (strategy || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  return `${crossComboKey(type, a, b)}::${text}`;
+}
+
 function crossComboLabel(s) {
   const codes = (items) => toTextArray(items).map(t => getSwotCode(t) || '?').join(' + ');
   return `${s.type}: ${codes(s.a)} + ${codes(s.b)}`;
@@ -311,8 +318,8 @@ function getSelectedCross() {
 }
 
 function saveCrossStrategy(selected, value) {
-  const key = crossComboKey(selected.type, selected.a, selected.b);
-  const idx = plan.crossStrategies.findIndex(s => crossComboKey(s.type, s.a, s.b) === key);
+  const key = crossStrategyKey(selected.type, selected.a, selected.b, value);
+  const idx = plan.crossStrategies.findIndex(s => crossStrategyKey(s.type, s.a, s.b, s.strategy) === key);
   if (idx >= 0) {
     plan.crossStrategies[idx].strategy = value;
   } else {
@@ -474,8 +481,8 @@ async function generateCrossWithAI() {
     let added = 0;
     let updated = 0;
     strategies.forEach((value, i) => {
-      const key = crossComboKey(value.type, value.a, value.b);
-      const idx = plan.crossStrategies.findIndex(s => crossComboKey(s.type, s.a, s.b) === key);
+      const key = crossStrategyKey(value.type, value.a, value.b, value.estrategia);
+      const idx = plan.crossStrategies.findIndex(s => crossStrategyKey(s.type, s.a, s.b, s.strategy) === key);
       if (idx >= 0) {
         plan.crossStrategies[idx].strategy = value.estrategia;
         plan.crossStrategies[idx].review = value.revisao;
