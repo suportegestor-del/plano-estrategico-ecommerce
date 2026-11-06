@@ -220,14 +220,15 @@ function buildSwotCrossPrompt(items) {
   const coded = (list, code) => list.map((f, i) => `${code}${i + 1}. ${f}`);
   return `Você é um consultor sênior de planejamento estratégico para e-commerce.
 
-Revise o diagnóstico SWOT abaixo (já numerado) e crie o MAIOR NÚMERO POSSÍVEL de estratégias executáveis, cobrindo as combinações mais relevantes entre:
+Revise o diagnóstico SWOT abaixo (já numerado) e crie estratégias executáveis, cobrindo as combinações mais relevantes entre:
 - FO (Força + Oportunidade): como usar forças para aproveitar oportunidades.
 - FA (Força + Ameaça): como usar forças para se proteger de ameaças.
 - WO (Fraqueza + Oportunidade): como superar fraquezas para não perder oportunidades.
 - WT (Fraqueza + Ameaça): como se defender de ameaças sem depender dos pontos fracos.
 
 Diretrizes importantes:
-- Varra as combinações força×oportunidade, força×ameaça, fraqueza×oportunidade e fraqueza×ameaça e gere uma estratégia para cada par que tiver sentido estratégico. Não se limite a uma estratégia por tipo.
+- Gere aproximadamente 3 estratégias para cada tipo de cruzamento (FO, FA, WO e WT) — cerca de 12 no total.
+- Varie as combinações: cada estratégia deve usar itens diferentes do SWOT sempre que possível. Se houver poucos itens em alguma categoria, varie o ângulo da estratégia em vez de repetir a mesma combinação com o mesmo enfoque.
 - Quando duas forças (ou duas fraquezas, etc.) se complementarem para uma mesma estratégia, inclua ambas no campo "a" — isso é encorajado.
 - Priorize as combinações de maior impacto para um e-commerce de pequeno/médio porte.
 - Primeiro, verifique se cada item parece estar na categoria correta: forças e fraquezas são internas; oportunidades e ameaças são externas. Se encontrar uma classificação provável incorreta, não a trate como fato correto nem invente uma substituição. Escreva a estratégia usando o melhor cruzamento disponível e sinalize brevemente a classificação a revisar no campo "revisao".
